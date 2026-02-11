@@ -12,7 +12,7 @@ use Hakam\MultiTenancyBundle\Port\TenantConfigProviderInterface;
  * Implementación personalizada de TenantConfigProvider
  * 
  * El bundle requiere esta interface para obtener configuración de conexiones.
- * Nuestra implementación usa TenantResolver para leer desde melisa_central.
+ * Nuestra implementación usa TenantResolver para leer desde tenant_central.
  */
 class CustomTenantConfigProvider implements TenantConfigProviderInterface
 {
@@ -43,7 +43,7 @@ class CustomTenantConfigProvider implements TenantConfigProviderInterface
         
         if (!$tenant) {
             throw new \RuntimeException(
-                "Tenant no encontrado en melisa_central: {$identifier}"
+                "Tenant no encontrado en tenant_central: {$identifier}"
             );
         }
 
@@ -56,8 +56,8 @@ class CustomTenantConfigProvider implements TenantConfigProviderInterface
             host: 'localhost',
             port: 5432,
             dbname: $tenant['database_name'],
-            user: 'melisa',
-            password: 'melisamelisa'
+            user: $_ENV['TENANT_DB_USER'] ?? 'tenant',
+            password: $_ENV['TENANT_DB_PASSWORD'] ?? ''
         );
     }
 

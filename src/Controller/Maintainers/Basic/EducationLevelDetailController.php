@@ -4,12 +4,15 @@ namespace App\Controller\Maintainers\Basic;
 
 use App\Controller\AbstractMantenedorController;
 use App\Entity\Tenant\EducationLevelDetail;
-use App\Form\Maintainers\EducationLevelDetailType;
+use App\Form\Maintainers\Education\EducationLevelDetailType;
 use App\Repository\Tenant\EducationLevelDetailRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Export\ExportService;
+use Doctrine\ORM\QueryBuilder;
+use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Education Level Detail Controller
@@ -21,9 +24,12 @@ class EducationLevelDetailController extends AbstractMantenedorController
 {
     public function __construct(
         private EducationLevelDetailRepository $repository,
-        EntityManagerInterface $entityManager
+        TenantEntityManager $tenantEntityManager,
+        ExportService $exportService,
+        TranslatorInterface $translator
     ) {
-        parent::__construct($entityManager);
+        parent::__construct($tenantEntityManager, $translator);
+        $this->setExportService($exportService);
     }
 
     #[Route('', name: 'app_maintainers_education_level_detail_index', methods: ['GET'])]
@@ -50,14 +56,31 @@ class EducationLevelDetailController extends AbstractMantenedorController
         return $this->handleDelete($request, $id);
     }
 
-    protected function getData(Request $request): array
+    #[Route('/export', name: 'app_maintainers_education_level_detail_export', methods: ['GET'])]
+    public function export(Request $request): Response
     {
-        return $this->repository->findAll();
+        return $this->handleExport(
+            request: $request,
+            columns: ['name', 'educationLevel', 'isActive'],
+            headers: $this->translateColumns(['name', 'education_level', 'is_active']),
+            filename: 'detalles_nivel_instruccion_' . date('Y-m-d') . '.csv'
+        );
+    }
+
+    protected function getData(Request $request): array|QueryBuilder
+    {
+        return $this->repository->createQueryBuilder('eld')
+            ->orderBy('eld.id', 'DESC');
     }
 
     protected function getColumns(): array
     {
-        return ['name', 'educationLevel', 'isActive'];
+        return [
+        'name' => $this->translator->trans('maintainers.columns.name', [], 'maintainers'),
+        'educationLevel' => 'Nivel Instrucción',
+        'isActive' => $this->translator->trans('maintainers.columns.is_active', [], 'maintainers')
+    ];
+    
     }
 
     protected function getTemplatePath(): string
@@ -78,15 +101,6 @@ class EducationLevelDetailController extends AbstractMantenedorController
     protected function getIndexRoute(): string
     {
         return 'app_maintainers_education_level_detail_index';
-    }
-
-    protected function getPageTitle(string $action = 'index'): string
-    {
-        return match($action) {
-            'create' => 'Crear Detalle de Nivel de Instrucción',
-            'edit' => 'Editar Detalle de Nivel de Instrucción',
-            default => 'Detalles de Nivel de Instrucción'
-        };
     }
 
     protected function findEntity(int $id): ?object

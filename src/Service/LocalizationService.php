@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Servicio de localización para Melisa Tenant
+ * Servicio de localización del tenant
  * Maneja el idioma por tenant y usuario
  */
 class LocalizationService
@@ -110,7 +110,7 @@ class LocalizationService
      * Traduce un mensaje en el idioma actual usando el dominio del tenant
      * 
      * Este método busca traducciones en este orden:
-     * 1. Dominio específico del tenant (melisahospital, melisalacolina, etc.)
+     * 1. Dominio específico del tenant (hospital, lacolina, etc.)
      * 2. Dominio messages global (fallback)
      * 
      * Usa el método trans() del TranslatorInterface que retorna:
@@ -154,8 +154,8 @@ class LocalizationService
      * 2. TenantResolver desde el request actual
      * 
      * Por ejemplo:
-     * - melisahospital → dominio: "melisahospital"
-     * - melisalacolina → dominio: "melisalacolina"
+     * - hospital → dominio: "hospital"
+     * - lacolina → dominio: "lacolina"
      * - default → dominio: "default"
      */
     /*
@@ -251,7 +251,7 @@ class LocalizationService
 
         // Traducciones específicas por tipo de establecimiento
         $tenantTranslations = [
-            'xxxmelisahospital' => [
+            'xxxhospital' => [
                 'es' => [
                     'establishment_type' => 'Hospital',
                     'welcome_message' => 'Bienvenido al Sistema Hospitalario',
@@ -263,7 +263,7 @@ class LocalizationService
                     'main_service' => 'Hospital Care'
                 ]
             ],
-            'melisalacolina' => [
+            'lacolina' => [
                 'es' => [
                     'establishment_type' => 'Clínica',
                     'welcome_message' => 'Bienvenido a La Colina',

@@ -1,0 +1,136 @@
+{#
+/**
+ * Componente de Paginación Moderno
+ * 
+ * Compatible con Turbo Frames para navegación sin refresh completo
+ * 
+ * Uso:
+ * {% if pagination %}
+ *     {% include 'components/_pagination.html.twig' with {
+ *         pagination: pagination,
+ *         route_name: 'app_maintainers_doctor_type_index'
+ *     } %}
+ * {% endif %}
+ * 
+ * Variables requeridas:
+ * - pagination: objeto con current_page, total_pages, has_previous, has_next, total_items
+ * - route_name: nombre de la ruta para generar URLs
+ * 
+ * Variables opcionales:
+ * - route_params: parámetros adicionales para la ruta (default: {})
+ * - turbo_frame: nombre del frame a actualizar (default: 'maintainer-content')
+ * - show_info: mostrar info de "Mostrando X de Y" (default: true)
+ * - max_links: máximo de enlaces de página a mostrar (default: 5)
+ */
+#}
+
+{% set route_params = route_params|default({}) %}
+{% set turbo_frame = turbo_frame|default('maintainer-content') %}
+{% set show_info = show_info|default(true) %}
+{% set max_links = max_links|default(5) %}
+
+{% if pagination and pagination.total_pages > 1 %}
+<nav aria-label="Pagination" class="mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        
+        {# Info: "Mostrando 1-10 de 45 registros" #}
+        {% if show_info %}
+        <div class="text-muted small">
+            {% set start = (pagination.current_page - 1) * pagination.items_per_page + 1 %}
+            {% set end = min(pagination.current_page * pagination.items_per_page, pagination.total_items) %}
+            Mostrando {{ start }} - {{ end }} de {{ pagination.total_items }} registros
+        </div>
+        {% endif %}
+        
+        {# Paginación principal #}
+        <ul class="pagination pagination-sm mb-0">
+            
+            {# Botón: Primera página #}
+            <li class="page-item {% if not pagination.has_previous %}disabled{% endif %}">
+                <a class="page-link" 
+                   href="{{ path(route_name, route_params|merge({page: 1})) }}"
+                   data-turbo-frame="{{ turbo_frame }}"
+                   aria-label="Primera página"
+                   style="border-radius: 6px 0 0 6px;"
+                   {% if not pagination.has_previous %}tabindex="-1" aria-disabled="true"{% endif %}>
+                    «
+                </a>
+            </li>
+            
+            {# Botón: Página anterior #}
+            <li class="page-item {% if not pagination.has_previous %}disabled{% endif %}">
+                <a class="page-link" 
+                   href="{{ path(route_name, route_params|merge({page: pagination.current_page - 1})) }}"
+                   data-turbo-frame="{{ turbo_frame }}"
+                   aria-label="Anterior"
+                   {% if not pagination.has_previous %}tabindex="-1" aria-disabled="true"{% endif %}>
+                    ‹
+                </a>
+            </li>
+            
+            {# Links de páginas con lógica inteligente #}
+            {% set half_max = (max_links / 2)|round(0, 'floor') %}
+            {% set start_page = max(1, pagination.current_page - half_max) %}
+            {% set end_page = min(pagination.total_pages, start_page + max_links - 1) %}
+            
+            {# Ajustar start si estamos cerca del final #}
+            {% if end_page - start_page + 1 < max_links %}
+                {% set start_page = max(1, end_page - max_links + 1) %}
+            {% endif %}
+            
+            {# Mostrar "..." si hay páginas omitidas al inicio #}
+            {% if start_page > 1 %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            {% endif %}
+            
+            {# Links de páginas #}
+            {% for page in start_page..end_page %}
+                <li class="page-item {% if page == pagination.current_page %}active{% endif %}">
+                    <a class="page-link" 
+                       href="{{ path(route_name, route_params|merge({page: page})) }}"
+                       data-turbo-frame="{{ turbo_frame }}"
+                       {% if page == pagination.current_page %}
+                       style="background-color: #5e72e4; border-color: #5e72e4; color: white;"
+                       aria-current="page"
+                       {% endif %}>
+                        {{ page }}
+                    </a>
+                </li>
+            {% endfor %}
+            
+            {# Mostrar "..." si hay páginas omitidas al final #}
+            {% if end_page < pagination.total_pages %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            {% endif %}
+            
+            {# Botón: Página siguiente #}
+            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" 
+                   href="{{ path(route_name, route_params|merge({page: pagination.current_page + 1})) }}"
+                   data-turbo-frame="{{ turbo_frame }}"
+                   aria-label="Siguiente"
+                   {% if not pagination.has_next %}tabindex="-1" aria-disabled="true"{% endif %}>
+                    ›
+                </a>
+            </li>
+            
+            {# Botón: Última página #}
+            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" 
+                   href="{{ path(route_name, route_params|merge({page: pagination.total_pages})) }}"
+                   data-turbo-frame="{{ turbo_frame }}"
+                   aria-label="Última página"
+                   style="border-radius: 0 6px 6px 0;"
+                   {% if not pagination.has_next %}tabindex="-1" aria-disabled="true"{% endif %}>
+                    »
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+</nav>
+{% endif %}

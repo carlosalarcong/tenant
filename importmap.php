@@ -28,4 +28,7 @@ return [
     'sweetalert2' => [
         'version' => '11.26.3',
     ],
+    'flatpickr' => [
+        'version' => '4.6.13',
+    ],
 ];

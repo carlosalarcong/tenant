@@ -6,8 +6,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: \App\Repository\CountryRepository::class)]
-#[ORM\Table(name: 'pais')]
+#[ORM\Entity()]
+#[ORM\Table(name: 'country')]
 class Country
 {
     #[ORM\Id]
@@ -15,17 +15,14 @@ class Country
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(name: "nombre_pais", type: "string", length: 255, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 
-    #[ORM\Column(name: "nombre_gentilicio", type: "string", length: 255, nullable: false)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $demonym = null;
 
-    #[ORM\Column(type: "boolean", options: ["default" => true])]
+    #[ORM\Column(options: ["default" => true])]
     private ?bool $isActive = true;
-
-    #[ORM\Column(name: "id_estado", type: "boolean", options: ["default" => true])]
-    private bool|null|Estado $status = true;
 
     /**
      * @var Collection<int, Region>
@@ -33,20 +30,28 @@ class Country
     #[ORM\OneToMany(targetEntity: Region::class, mappedBy: 'country')]
     private Collection $regions;
 
+    /**
+     * @var Collection<int, Person>
+     */
+    #[ORM\OneToMany(targetEntity: Person::class, mappedBy: 'nacionality')]
+    private Collection $people;
+
+    /**
+     * @var Collection<int, PersonAddress>
+     */
+    #[ORM\OneToMany(targetEntity: PersonAddress::class, mappedBy: 'country')]
+    private Collection $personAddresses;
+
     public function __construct()
     {
         $this->regions = new ArrayCollection();
+        $this->people = new ArrayCollection();
+        $this->personAddresses = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-        return $this;
     }
 
     public function getName(): ?string
@@ -57,6 +62,7 @@ class Country
     public function setName(?string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -68,6 +74,7 @@ class Country
     public function setDemonym(?string $demonym): static
     {
         $this->demonym = $demonym;
+
         return $this;
     }
 
@@ -76,20 +83,10 @@ class Country
         return $this->isActive;
     }
 
-    public function setIsActive(?bool $isActive): static
+    public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
-        return $this;
-    }
 
-    public function getStatus(): ?Estado
-    {
-        return $this->status;
-    }
-
-    public function setStatus(?Estado $status): static
-    {
-        $this->status = $status;
         return $this;
     }
 
@@ -114,6 +111,7 @@ class Country
     public function removeRegion(Region $region): static
     {
         if ($this->regions->removeElement($region)) {
+            // set the owning side to null (unless already changed)
             if ($region->getCountry() === $this) {
                 $region->setCountry(null);
             }
@@ -122,8 +120,61 @@ class Country
         return $this;
     }
 
-    public function __toString(): string
+    /**
+     * @return Collection<int, Person>
+     */
+    public function getPeople(): Collection
     {
-        return $this->name ?? 'Country without name';
+        return $this->people;
+    }
+
+    public function addPerson(Person $person): static
+    {
+        if (!$this->people->contains($person)) {
+            $this->people->add($person);
+            $person->setNacionality($this);
+        }
+
+        return $this;
+    }
+
+    public function removePerson(Person $person): static
+    {
+        if ($this->people->removeElement($person)) {
+            if ($person->getNacionality() === $this) {
+                $person->setNacionality(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PersonAddress>
+     */
+    public function getPersonAddresses(): Collection
+    {
+        return $this->personAddresses;
+    }
+
+    public function addPersonAddress(PersonAddress $personAddress): static
+    {
+        if (!$this->personAddresses->contains($personAddress)) {
+            $this->personAddresses->add($personAddress);
+            $personAddress->setCountry($this);
+        }
+
+        return $this;
+    }
+
+    public function removePersonAddress(PersonAddress $personAddress): static
+    {
+        if ($this->personAddresses->removeElement($personAddress)) {
+            if ($personAddress->getCountry() === $this) {
+                $personAddress->setCountry(null);
+            }
+        }
+
+        return $this;
     }
 }

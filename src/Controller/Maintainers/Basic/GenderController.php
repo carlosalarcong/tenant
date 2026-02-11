@@ -4,12 +4,15 @@ namespace App\Controller\Maintainers\Basic;
 
 use App\Controller\AbstractMantenedorController;
 use App\Entity\Tenant\Gender;
-use App\Form\Maintainers\GenderType;
+use App\Form\Maintainers\Personal\GenderType;
 use App\Repository\Tenant\GenderRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Export\ExportService;
+use Doctrine\ORM\QueryBuilder;
+use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Gender Controller
@@ -22,9 +25,12 @@ class GenderController extends AbstractMantenedorController
 {
     public function __construct(
         private GenderRepository $genderRepository,
-        EntityManagerInterface $entityManager
+        TenantEntityManager $tenantEntityManager,
+        ExportService $exportService,
+        TranslatorInterface $translator
     ) {
-        parent::__construct($entityManager);
+        parent::__construct($tenantEntityManager, $translator);
+        $this->setExportService($exportService);
     }
 
     #[Route('', name: 'app_maintainers_gender_index', methods: ['GET'])]
@@ -50,20 +56,36 @@ class GenderController extends AbstractMantenedorController
     {
         return $this->handleDelete($request, $id);
     }
+    
+    #[Route('/export', name: 'app_maintainers_gender_export', methods: ['GET'])]
+    public function export(Request $request): Response
+    {
+        return $this->handleExport(
+            request: $request,
+            columns: ['name', 'code', 'isActive'],
+            headers: $this->translateColumns(['name', 'code', 'is_active']),
+            filename: 'generos_' . date('Y-m-d') . '.csv'
+        );
+    }
 
     // ========================================================================
     // Implementación de métodos abstractos
     // ========================================================================
 
-    protected function getData(Request $request): array
+    protected function getData(Request $request): array|QueryBuilder
     {
-        // Todos los géneros - sin filtrar por tenant (dato maestro compartido)
-        return $this->genderRepository->findAll();
+        return $this->genderRepository->createQueryBuilder('g')
+            ->orderBy('g.id', 'DESC');
     }
 
     protected function getColumns(): array
     {
-        return ['name', 'code', 'isActive'];
+        return [
+        'name' => $this->translator->trans('maintainers.columns.name', [], 'maintainers'),
+        'code' => $this->translator->trans('maintainers.columns.code', [], 'maintainers'),
+        'isActive' => $this->translator->trans('maintainers.columns.is_active', [], 'maintainers')
+    ];
+    
     }
 
     protected function getTemplatePath(): string
@@ -84,15 +106,6 @@ class GenderController extends AbstractMantenedorController
     protected function getIndexRoute(): string
     {
         return 'app_maintainers_gender_index';
-    }
-
-    protected function getPageTitle(string $action = 'index'): string
-    {
-        return match($action) {
-            'create' => 'Create Gender',
-            'edit' => 'Edit Gender',
-            default => 'Gender Management'
-        };
     }
 
     // ========================================================================
@@ -126,22 +139,5 @@ class GenderController extends AbstractMantenedorController
     /**
      * Mensajes personalizados en español
      */
-    protected function getSuccessMessage(string $action): string
-    {
-        return match($action) {
-            'create' => 'Género creado exitosamente',
-            'edit' => 'Género actualizado exitosamente',
-            'delete' => 'Género eliminado exitosamente',
-            default => 'Operación completada exitosamente'
-        };
-    }
 
-    protected function getErrorMessage(string $type): string
-    {
-        return match($type) {
-            'not_found' => 'Género no encontrado',
-            'cannot_delete' => 'No se puede eliminar este género porque está en uso',
-            default => 'Ha ocurrido un error'
-        };
-    }
 }

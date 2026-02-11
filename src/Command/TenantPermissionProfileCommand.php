@@ -25,7 +25,7 @@ class TenantPermissionProfileCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('tenant_db', InputArgument::REQUIRED, 'Nombre de la BD del tenant (ej: melisalacolina)')
+            ->addArgument('tenant_db', InputArgument::REQUIRED, 'Nombre de la BD del tenant (ej: lacolina)')
             ->addArgument('action', InputArgument::OPTIONAL, 'Acción: show|set', 'show')
             ->addArgument('profile', InputArgument::OPTIONAL, 'Tipo de perfil: collaborative|restrictive|custom')
             ->setHelp(<<<'HELP'
@@ -33,16 +33,16 @@ Este comando permite visualizar y cambiar el perfil de permisos del tenant.
 
 Ejemplos:
   # Ver configuración actual del tenant
-  php bin/console app:tenant:permission-profile melisalacolina show
+  php bin/console app:tenant:permission-profile lacolina show
 
   # Cambiar a perfil collaborative
-  php bin/console app:tenant:permission-profile melisalacolina set collaborative
+  php bin/console app:tenant:permission-profile lacolina set collaborative
 
   # Cambiar a perfil restrictive
-  php bin/console app:tenant:permission-profile melisalacolina set restrictive
+  php bin/console app:tenant:permission-profile lacolina set restrictive
 
   # Cambiar a perfil custom (usa overrides de BD)
-  php bin/console app:tenant:permission-profile melisalacolina set custom
+  php bin/console app:tenant:permission-profile lacolina set custom
 HELP
             );
     }

@@ -1,0 +1,78 @@
+<turbo-frame id="admission-wizard-content">
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body p-4" data-controller="admission--wizard">
+            <h4 class="mb-3">Paso 3 de 3: Cama y servicio</h4>
+
+            {# Mensaje de error para fallos de fetch #}
+            <div class="alert alert-danger d-none"
+                 data-admission--wizard-target="errorMessage"
+                 role="alert">
+            </div>
+            {% if form_errors(form.service) or form_errors(form.bed) %}
+                <div class="alert alert-danger" role="alert">
+                    {{ form_errors(form.service) }}
+                    {{ form_errors(form.bed) }}
+                </div>
+            {% endif %}
+
+            {{ form_start(form, {
+                action: path('app_admission_wizard_step3')
+            }) }}
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="branch" class="form-label">Sucursal</label>
+                        <select id="branch"
+                                name="{{ form.branch.vars.full_name }}"
+                                class="form-select"
+                                data-admission--wizard-target="branchSelect"
+                                data-action="change->admission--wizard#onBranchChange">
+                            <option value="1" selected>Sucursal principal</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="service" class="form-label">
+                            Servicio <span class="text-danger">*</span>
+                        </label>
+                        <select id="service"
+                                name="{{ form.service.vars.full_name }}"
+                                class="form-select"
+                                data-admission--wizard-target="serviceSelect"
+                                data-action="change->admission--wizard#onServiceChange"
+                                required>
+                            <option value="">-- Seleccionar servicio --</option>
+                            {% if form.service.vars.value %}
+                                <option value="{{ form.service.vars.value }}" selected>Cargando selección...</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="bed" class="form-label">
+                            Cama <span class="text-danger">*</span>
+                        </label>
+                        <select id="bed"
+                                name="{{ form.bed.vars.full_name }}"
+                                class="form-select"
+                                data-admission--wizard-target="bedSelect"
+                                required>
+                            <option value="">-- Seleccionar cama --</option>
+                            {% if form.bed.vars.value %}
+                                <option value="{{ form.bed.vars.value }}" selected>Cargando selección...</option>
+                            {% endif %}
+                        </select>
+                        <small class="form-text text-muted">Seleccione primero un servicio</small>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end mt-4">
+                    <a href="{{ path('app_admission_wizard_step2') }}" class="btn btn-outline-secondary">
+                        <i class="bx bx-chevron-left"></i> Volver
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bx bx-check-circle"></i> Finalizar admisión
+                    </button>
+                </div>
+                {{ form_widget(form._token) }}
+            {{ form_end(form, { render_rest: false }) }}
+        </div>
+    </div>
+</turbo-frame>

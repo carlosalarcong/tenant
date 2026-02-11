@@ -4,6 +4,9 @@ framework:
     annotations: false
     http_method_override: false
     handle_all_throwables: true
+    asset_mapper:
+        paths:
+            - assets/
     
     # Configuración de idiomas
     default_locale: es

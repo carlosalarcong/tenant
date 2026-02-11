@@ -55,7 +55,7 @@
 # - mantenedores_region_configurar_iot: /mantenedores/basico/region/{id}/configurar-iot  
 # - mantenedores_region_dashboard_tiempo_real: /mantenedores/basico/region/dashboard-tiempo-real
 # 
-# Estas rutas IoT específicas para Melisawiclinic fueron eliminadas porque:
+# Estas rutas IoT específicas para Wiclinic fueron eliminadas porque:
 # - No tienen controladores implementados
 # - No hay código funcional para App\Controller\Mantenedores\Basico\Region\{tenant}\RegionController
 # - Eran solo plantillas sin usar en el sistema
@@ -73,12 +73,12 @@
 #     methods: [GET]
 
 # Patrones de resolución dinámica para rutas tenant-específicas:
-# - {tenant} se reemplaza automáticamente por el subdominio actual (Melisalacolina, Melisawiclinic, etc.)
+# - {tenant} se reemplaza automáticamente por el subdominio actual (Lacolina, Wiclinic, etc.)
 # - _tenant_specific define para qué tenants está disponible una ruta específica
 # - Las rutas se evalúan en orden, las más específicas primero
 
 # Configuración de subdominios soportados:
 # - Default: Fallback para cualquier subdominio no específico  
-# - Melisalacolina: Clínica La Colina (funcionalidades específicas)
-# - Melisawiclinic: Wi Clinic Technology (funcionalidades IoT)
-# - Melisahospital: Hospital Central (funcionalidades hospitalarias)
+# - Lacolina: Clínica La Colina (funcionalidades específicas)
+# - Wiclinic: Wi Clinic Technology (funcionalidades IoT)
+# - Hospital: Hospital Central (funcionalidades hospitalarias)

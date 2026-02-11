@@ -2,25 +2,182 @@
 
 {% block title %}Configuración de Menú - {{ tenant_name }}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Contenedor principal del árbol */
+        .menu-tree-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        /* Item del árbol */
+        .tree-item {
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        /* Contenido del item */
+        .tree-item-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: white;
+            border-left: 4px solid #0d6efd;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: move;
+            transition: all 0.2s ease;
+        }
+
+        .tree-item-content:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transform: translateX(3px);
+        }
+
+        /* Niveles con colores diferentes */
+        .tree-item[data-level="1"] > .tree-item-content {
+            border-left-color: #0d6efd; /* Azul */
+            background: linear-gradient(to right, #e7f1ff 0%, white 5%);
+        }
+
+        .tree-item[data-level="2"] > .tree-item-content {
+            border-left-color: #198754; /* Verde */
+            background: linear-gradient(to right, #d1f2e9 0%, white 5%);
+        }
+
+        .tree-item[data-level="3"] > .tree-item-content {
+            border-left-color: #fd7e14; /* Naranja */
+            background: linear-gradient(to right, #ffe5d0 0%, white 5%);
+        }
+
+        .tree-item[data-level="4"] > .tree-item-content {
+            border-left-color: #dc3545; /* Rojo */
+            background: linear-gradient(to right, #ffe0e3 0%, white 5%);
+        }
+
+        /* Toggle button */
+        .tree-toggle {
+            background: none;
+            border: none;
+            padding: 0.25rem;
+            cursor: pointer;
+            color: #6c757d;
+            transition: transform 0.2s ease;
+            font-size: 1.2rem;
+        }
+
+        .tree-toggle:hover {
+            color: #0d6efd;
+        }
+
+        .tree-item.collapsed > .tree-item-content .tree-toggle i {
+            transform: rotate(-90deg);
+        }
+
+        .tree-toggle-spacer {
+            display: inline-block;
+            width: 24px;
+        }
+
+        /* Label del item */
+        .tree-label {
+            font-weight: 500;
+            flex-grow: 1;
+        }
+
+        /* Información de ruta */
+        .route-info {
+            color: #6c757d;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+
+        /* Acciones */
+        .tree-actions {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Contenedor de hijos */
+        .tree-children {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tree-item.collapsed > .tree-children {
+            display: none;
+        }
+
+        /* Drag & Drop states */
+        .sortable-ghost {
+            opacity: 0.4;
+            background: #e9ecef;
+        }
+
+        .sortable-chosen {
+            cursor: grabbing;
+        }
+
+        .dragging {
+            opacity: 0.5;
+        }
+
+        /* Toolbar */
+        .tree-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tree-toolbar .search-input {
+            flex-grow: 1;
+            min-width: 200px;
+        }
+
+        /* Badges */
+        .badge {
+            font-size: 0.75rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tree-children {
+                margin-left: 1rem;
+            }
+            
+            .tree-item-content {
+                flex-wrap: wrap;
+            }
+            
+            .tree-actions {
+                width: 100%;
+                justify-content: flex-end;
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header">
                     <h4 class="mb-0">
-                        <i class="bx bx-menu"></i> Configuración del Menú
+                        <i class="bx bx-menu"></i> Configuración del Menú - {{ tenant_name }}
                     </h4>
-                    <div>
-                        <form method="POST" action="{{ path('admin_menu_config_clear_cache') }}" class="d-inline">
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                <i class="bx bx-refresh"></i> Limpiar Caché
-                            </button>
-                        </form>
-                        <a href="{{ path('admin_menu_config_new') }}" class="btn btn-primary btn-sm">
-                            <i class="bx bx-plus"></i> Nuevo Item
-                        </a>
-                    </div>
                 </div>
                 <div class="card-body">
                     {% for message in app.flashes('success') %}
@@ -30,38 +187,50 @@
                         </div>
                     {% endfor %}
 
-                    <div class="alert alert-info">
-                        <i class="bx bx-info-circle"></i>
-                        <strong>Información:</strong> El menú se carga desde la base de datos con caché de 1 hora. 
-                        Si está vacío, se usa la estructura por defecto. Usa "Limpiar Caché" después de modificar items.
+                    {# Toolbar #}
+                    <div class="tree-toolbar">
+                        <input type="text" 
+                               id="searchInput" 
+                               class="form-control search-input" 
+                               placeholder="🔍 Buscar en el menú...">
+                        
+                        <button type="button" id="btnExpandAll" class="btn btn-secondary">
+                            <i class="bx bx-chevron-down"></i> Expandir Todo
+                        </button>
+                        
+                        <button type="button" id="btnCollapseAll" class="btn btn-secondary">
+                            <i class="bx bx-chevron-right"></i> Colapsar Todo
+                        </button>
+                        
+                        <form method="POST" action="{{ path('admin_menu_config_clear_cache') }}" class="d-inline">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bx bx-refresh"></i> Limpiar Caché
+                            </button>
+                        </form>
+                        
+                        <a href="{{ path('admin_menu_config_new') }}" class="btn btn-primary">
+                            <i class="bx bx-plus"></i> Nuevo Item
+                        </a>
                     </div>
 
                     {% if menu_items is empty %}
                         <div class="alert alert-warning">
                             <i class="bx bx-error-circle"></i>
-                            No hay items de menú configurados. Se está usando la estructura por defecto.
+                            No hay items de menú configurados.
                             <a href="{{ path('admin_menu_config_new') }}" class="alert-link">Crear primer item</a>
                         </div>
                     {% else %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th width="50">Pos</th>
-                                        <th>Nombre / Label</th>
-                                        <th>Ruta</th>
-                                        <th>Icono</th>
-                                        <th>Padre</th>
-                                        <th width="100" class="text-center">Estado</th>
-                                        <th width="150" class="text-center">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for item in menu_items %}
-                                        {{ _self.render_menu_row(item) }}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                        {# Árbol de menú #}
+                        <div class="menu-tree-container" id="menuTreeContainer">
+                            {% for item in menu_items %}
+                                {% if item.parent is null %}
+                                    {{ _self.render_tree_item(item, 1) }}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-3 text-muted text-center">
+                            <small>✨ Arrastra los items para reorganizar la jerarquía</small>
                         </div>
                     {% endif %}
                 </div>
@@ -71,63 +240,392 @@
 </div>
 {% endblock %}
 
-{% macro render_menu_row(item, level = 0) %}
-    <tr>
-        <td>{{ item.position }}</td>
-        <td>
-            {% for i in 0..level %}
-                {% if i > 0 %}└─{% endif %}
-            {% endfor %}
-            <strong>{{ item.name }}</strong>
-            <br>
-            <small class="text-muted">{{ item.label }}</small>
-        </td>
-        <td>
+{% macro render_tree_item(item, level) %}
+    <div class="tree-item" 
+         data-id="{{ item.id }}" 
+         data-level="{{ level }}"
+         data-name="{{ item.name }}"
+         data-parent-id="{{ item.parent ? item.parent.id : '' }}">
+        
+        <div class="tree-item-content">
+            {# Toggle si tiene hijos #}
+            {% if item.children|length > 0 %}
+                <button class="tree-toggle" type="button">
+                    <i class="bx bx-chevron-down"></i>
+                </button>
+            {% else %}
+                <span class="tree-toggle-spacer"></span>
+            {% endif %}
+
+            {# Icono del item #}
+            <i class="{{ item.icon|default('bx bx-file') }}"></i>
+
+            {# Label principal #}
+            <span class="tree-label">{{ item.label }}</span>
+
+            {# Badge con contador de hijos #}
+            {% if item.children|length > 0 %}
+                <span class="badge bg-secondary">{{ item.children|length }}</span>
+            {% endif %}
+
+            {# Ruta si existe #}
             {% if item.route %}
-                <code>{{ item.route }}</code>
-            {% else %}
-                <span class="text-muted">-</span>
+                <small class="route-info">{{ item.route }}</small>
             {% endif %}
-        </td>
-        <td>
-            {% if item.icon %}
-                <i class="{{ item.icon }}"></i> <code class="small">{{ item.icon }}</code>
-            {% else %}
-                <span class="text-muted">-</span>
-            {% endif %}
-        </td>
-        <td>
-            {% if item.parent %}
-                {{ item.parent.label }}
-            {% else %}
-                <span class="text-muted">Raíz</span>
-            {% endif %}
-        </td>
-        <td class="text-center">
-            <form method="POST" action="{{ path('admin_menu_config_toggle', {id: item.id}) }}" class="d-inline">
-                <button type="submit" class="btn btn-sm {{ item.enabled ? 'btn-success' : 'btn-secondary' }}">
-                    <i class="bx bx-{{ item.enabled ? 'check' : 'x' }}"></i>
-                    {{ item.enabled ? 'Activo' : 'Inactivo' }}
+
+            {# Acciones #}
+            <div class="tree-actions">
+                {# Toggle enabled/disabled #}
+                <form method="POST" 
+                      action="{{ path('admin_menu_config_toggle', {id: item.id}) }}" 
+                      class="d-inline action-form">
+                    <button type="submit"
+                            class="btn btn-sm action-btn {{ item.enabled ? 'btn-success' : 'btn-secondary' }}"
+                            title="{{ item.enabled ? 'Activo' : 'Inactivo' }}">
+                        <i class="bx bx-{{ item.enabled ? 'check' : 'x' }}"></i>
+                    </button>
+                </form>
+
+                {# Botón editar #}
+                <a href="{{ path('admin_menu_config_edit', {id: item.id}) }}"
+                   class="btn btn-sm btn-info action-btn"
+                   title="Editar">
+                    <i class="bx bx-edit"></i>
+                </a>
+
+                {# Botón agregar hijo #}
+                <button type="button"
+                        class="btn btn-sm btn-success action-btn btn-add-child"
+                        data-parent-id="{{ item.id }}"
+                        title="Agregar hijo">
+                    <i class="bx bx-plus"></i>
                 </button>
-            </form>
-        </td>
-        <td class="text-center">
-            <a href="{{ path('admin_menu_config_edit', {id: item.id}) }}" 
-               class="btn btn-sm btn-info" title="Editar">
-                <i class="bx bx-edit"></i>
-            </a>
-            <form method="POST" 
-                  action="{{ path('admin_menu_config_delete', {id: item.id}) }}" 
-                  class="d-inline"
-                  onsubmit="return confirm('¿Eliminar este item del menú?');">
-                <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
-                    <i class="bx bx-trash"></i>
-                </button>
-            </form>
-        </td>
-    </tr>
-    
-    {% for child in item.children %}
-        {{ _self.render_menu_row(child, level + 1) }}
-    {% endfor %}
+
+                {# Botón eliminar #}
+                <form method="POST"
+                      action="{{ path('admin_menu_config_delete', {id: item.id}) }}"
+                      class="d-inline action-form"
+                      onsubmit="return confirm('¿Eliminar {{ item.label }}?');">
+                    <button type="submit"
+                            class="btn btn-sm btn-danger action-btn"
+                            title="Eliminar">
+                        <i class="bx bx-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {# Contenedor de hijos (recursivo) #}
+        {% if item.children|length > 0 %}
+            <div class="tree-children">
+                {% for child in item.children %}
+                    {{ _self.render_tree_item(child, level + 1) }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 {% endmacro %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"
+            crossorigin="anonymous"
+            data-turbo-track="reload"
+            onerror="console.error('Error al cargar SortableJS desde CDN'); alert('Error: No se pudo cargar la librería de drag & drop. Revisa tu conexión a internet.');">
+    </script>
+
+    <script>
+    (function() {
+        'use strict';
+
+        // ========================================
+        // 1. DRAG & DROP CON SORTABLEJS
+        // ========================================
+        
+        function initializeSortable() {
+            const containers = document.querySelectorAll('.tree-children, .menu-tree-container');
+
+            console.log('Inicializando SortableJS en', containers.length, 'contenedores');
+
+            if (containers.length === 0) {
+                console.warn('No se encontraron contenedores para drag & drop');
+                return;
+            }
+
+            containers.forEach((container, index) => {
+                // Destruir instancia previa si existe
+                if (container.sortable) {
+                    container.sortable.destroy();
+                }
+
+                console.log('Creando Sortable en contenedor', index, container);
+
+                container.sortable = Sortable.create(container, {
+                    group: 'menu-tree',
+                    animation: 150,
+                    handle: '.tree-item-content',
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    dragClass: 'dragging',
+                    fallbackOnBody: true,
+                    swapThreshold: 0.65,
+                    onStart: function(evt) {
+                        console.log('Drag iniciado:', evt.item);
+                    },
+                    onEnd: updateHierarchy
+                });
+            });
+
+            console.log('✓ SortableJS inicializado correctamente');
+        }
+
+        function updateHierarchy(evt) {
+            const itemElement = evt.item;
+            const itemId = itemElement.dataset.id;
+
+            // Detectar el nuevo padre correctamente
+            let newParentId = null;
+
+            // Si evt.to tiene clase .tree-children, buscar su padre .tree-item
+            if (evt.to.classList.contains('tree-children')) {
+                const parentItem = evt.to.parentElement;
+                if (parentItem && parentItem.classList.contains('tree-item')) {
+                    newParentId = parentItem.dataset.id;
+                }
+            }
+            // Si evt.to es .menu-tree-container, newParentId es null (raíz)
+
+            // Nueva posición
+            const newPosition = evt.newIndex;
+
+            // Actualizar data-attributes
+            itemElement.dataset.parentId = newParentId || '';
+
+            // Enviar AJAX
+            fetch(`/admin/menu-config/${itemId}/update-hierarchy`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    parent_id: newParentId ? parseInt(newParentId) : null,
+                    position: newPosition
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP ${response.status}: ${text.substring(0, 200)}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showToast('✓ Jerarquía actualizada correctamente', 'success');
+                    // Recargar después de 1 segundo para ver los cambios
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('✗ Error: ' + (data.error || 'No se pudo actualizar'), 'error');
+                }
+            })
+            .catch(error => {
+                showToast('✗ Error: ' + error.message, 'error');
+            });
+        }
+
+        // ========================================
+        // 2. COLAPSAR/EXPANDIR ÁRBOL
+        // ========================================
+        
+        function toggleTreeItem(treeItem) {
+            treeItem.classList.toggle('collapsed');
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.tree-item').forEach(item => {
+                item.classList.remove('collapsed');
+            });
+            showToast('✓ Todo expandido', 'info');
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.tree-item').forEach(item => {
+                item.classList.add('collapsed');
+            });
+            showToast('✓ Todo colapsado', 'info');
+        }
+
+        // Event listeners para toggles
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.tree-toggle')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const treeItem = e.target.closest('.tree-item');
+                if (treeItem) {
+                    toggleTreeItem(treeItem);
+                }
+            }
+        });
+
+        // Botones del toolbar
+        const btnExpandAll = document.getElementById('btnExpandAll');
+        const btnCollapseAll = document.getElementById('btnCollapseAll');
+        
+        if (btnExpandAll) {
+            btnExpandAll.addEventListener('click', expandAll);
+        }
+        
+        if (btnCollapseAll) {
+            btnCollapseAll.addEventListener('click', collapseAll);
+        }
+
+        // ========================================
+        // 3. BÚSQUEDA CON DEBOUNCE
+        // ========================================
+        
+        let searchTimeout;
+        
+        function searchMenu(query) {
+            const lowerQuery = query.toLowerCase();
+            const allItems = document.querySelectorAll('.tree-item');
+            
+            if (!query) {
+                // Mostrar todos
+                allItems.forEach(item => {
+                    item.style.display = '';
+                });
+                return;
+            }
+            
+            allItems.forEach(item => {
+                const label = item.querySelector('.tree-label')?.textContent.toLowerCase() || '';
+                const name = item.dataset.name?.toLowerCase() || '';
+                const route = item.querySelector('.route-info')?.textContent.toLowerCase() || '';
+                
+                const matches = label.includes(lowerQuery) || 
+                               name.includes(lowerQuery) || 
+                               route.includes(lowerQuery);
+                
+                if (matches) {
+                    item.style.display = '';
+                    // Expandir padres para que sea visible
+                    let parent = item.parentElement.closest('.tree-item');
+                    while (parent) {
+                        parent.classList.remove('collapsed');
+                        parent = parent.parentElement.closest('.tree-item');
+                    }
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchMenu(this.value);
+                }, 300);
+            });
+        }
+
+        // ========================================
+        // 4. AGREGAR HIJO DIRECTO
+        // ========================================
+        
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-add-child')) {
+                e.preventDefault();
+                const btn = e.target.closest('.btn-add-child');
+                const parentId = btn.dataset.parentId;
+                
+                if (!parentId) return;
+                
+                // Deshabilitar botón temporalmente
+                btn.disabled = true;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i>';
+                
+                fetch(`/admin/menu-config/${parentId}/add-child`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('✓ Hijo agregado: ' + data.item.label, 'success');
+                        // Recargar después de 1 segundo
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showToast('✗ Error: ' + (data.error || 'No se pudo crear'), 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('✗ Error de conexión', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                });
+            }
+        });
+
+        // ========================================
+        // 5. UTILIDADES - TOAST NOTIFICATIONS
+        // ========================================
+        
+        function showToast(message, type = 'info') {
+            // Crear toast container si no existe
+            let toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toastContainer';
+                toastContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+                document.body.appendChild(toastContainer);
+            }
+            
+            // Crear toast
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show`;
+            toast.style.cssText = 'min-width: 300px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto-remove después de 4 segundos
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 150);
+            }, 4000);
+        }
+
+        // ========================================
+        // 6. INICIALIZACIÓN
+        // ========================================
+
+        // Inicializar en DOMContentLoaded Y turbo:load
+        function initialize() {
+            // Verificar que SortableJS esté disponible
+            if (typeof Sortable === 'undefined') {
+                console.error('SortableJS no está cargado. Drag & drop no funcionará.');
+                showToast('⚠ Error: Librería de drag & drop no cargada', 'warning');
+                return;
+            }
+            initializeSortable();
+        }
+
+        document.addEventListener('DOMContentLoaded', initialize);
+        document.addEventListener('turbo:load', initialize);
+
+    })();
+    </script>
+{% endblock %}

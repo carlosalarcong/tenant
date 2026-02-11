@@ -4,12 +4,15 @@ namespace App\Controller\Maintainers\Basic;
 
 use App\Controller\AbstractMantenedorController;
 use App\Entity\Tenant\MaritalStatus;
-use App\Form\Maintainers\MaritalStatusType;
+use App\Form\Maintainers\Personal\MaritalStatusType;
 use App\Repository\Tenant\MaritalStatusRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Export\ExportService;
+use Doctrine\ORM\QueryBuilder;
+use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Marital Status Controller
@@ -21,9 +24,12 @@ class MaritalStatusController extends AbstractMantenedorController
 {
     public function __construct(
         private MaritalStatusRepository $repository,
-        EntityManagerInterface $entityManager
+        TenantEntityManager $tenantEntityManager,
+        ExportService $exportService,
+        TranslatorInterface $translator
     ) {
-        parent::__construct($entityManager);
+        parent::__construct($tenantEntityManager, $translator);
+        $this->setExportService($exportService);
     }
 
     #[Route('', name: 'app_maintainers_marital_status_index', methods: ['GET'])]
@@ -49,15 +55,32 @@ class MaritalStatusController extends AbstractMantenedorController
     {
         return $this->handleDelete($request, $id);
     }
-
-    protected function getData(Request $request): array
+    
+    #[Route('/export', name: 'app_maintainers_marital_status_export', methods: ['GET'])]
+    public function export(Request $request): Response
     {
-        return $this->repository->findAll();
+        return $this->handleExport(
+            request: $request,
+            columns: ['name', 'maritalStatusCodeHl7', 'isActive'],
+            headers: $this->translateColumns(['name', 'hl7_code', 'is_active']),
+            filename: 'estados_conyugales_' . date('Y-m-d') . '.csv'
+        );
+    }
+
+    protected function getData(Request $request): array|QueryBuilder
+    {
+        return $this->repository->createQueryBuilder('ms')
+            ->orderBy('ms.id', 'DESC');
     }
 
     protected function getColumns(): array
     {
-        return ['name', 'maritalStatusCodeHl7', 'isActive'];
+        return [
+        'name' => $this->translator->trans('maintainers.columns.name', [], 'maintainers'),
+        'maritalStatusCodeHl7' => 'Código HL7',
+        'isActive' => $this->translator->trans('maintainers.columns.is_active', [], 'maintainers')
+    ];
+    
     }
 
     protected function getTemplatePath(): string
@@ -78,15 +101,6 @@ class MaritalStatusController extends AbstractMantenedorController
     protected function getIndexRoute(): string
     {
         return 'app_maintainers_marital_status_index';
-    }
-
-    protected function getPageTitle(string $action = 'index'): string
-    {
-        return match($action) {
-            'create' => 'Crear Estado Conyugal',
-            'edit' => 'Editar Estado Conyugal',
-            default => 'Estados Conyugales'
-        };
     }
 
     protected function findEntity(int $id): ?object

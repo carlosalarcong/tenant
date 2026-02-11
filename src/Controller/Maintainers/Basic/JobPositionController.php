@@ -4,12 +4,15 @@ namespace App\Controller\Maintainers\Basic;
 
 use App\Controller\AbstractMantenedorController;
 use App\Entity\Tenant\JobPosition;
-use App\Form\Maintainers\JobPositionType;
+use App\Form\Maintainers\Labor\JobPositionType;
 use App\Repository\Tenant\JobPositionRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Export\ExportService;
+use Doctrine\ORM\QueryBuilder;
+use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Job Position Controller
@@ -21,9 +24,12 @@ class JobPositionController extends AbstractMantenedorController
 {
     public function __construct(
         private JobPositionRepository $repository,
-        EntityManagerInterface $entityManager
+        TenantEntityManager $tenantEntityManager,
+        ExportService $exportService,
+        TranslatorInterface $translator
     ) {
-        parent::__construct($entityManager);
+        parent::__construct($tenantEntityManager, $translator);
+        $this->setExportService($exportService);
     }
 
     #[Route('', name: 'app_maintainers_job_position_index', methods: ['GET'])]
@@ -50,14 +56,31 @@ class JobPositionController extends AbstractMantenedorController
         return $this->handleDelete($request, $id);
     }
 
-    protected function getData(Request $request): array
+    #[Route('/export', name: 'app_maintainers_job_position_export', methods: ['GET'])]
+    public function export(Request $request): Response
     {
-        return $this->repository->findAll();
+        return $this->handleExport(
+            request: $request,
+            columns: ['name', 'description', 'isActive'],
+            headers: $this->translateColumns(['name', 'description', 'is_active']),
+            filename: 'cargos_' . date('Y-m-d') . '.csv'
+        );
+    }
+
+    protected function getData(Request $request): array|QueryBuilder
+    {
+        return $this->repository->createQueryBuilder('jp')
+            ->orderBy('jp.id', 'DESC');
     }
 
     protected function getColumns(): array
     {
-        return ['name', 'description', 'isActive'];
+        return [
+        'name' => $this->translator->trans('maintainers.columns.name', [], 'maintainers'),
+        'description' => $this->translator->trans('maintainers.columns.description', [], 'maintainers'),
+        'isActive' => $this->translator->trans('maintainers.columns.is_active', [], 'maintainers')
+    ];
+    
     }
 
     protected function getTemplatePath(): string
@@ -78,15 +101,6 @@ class JobPositionController extends AbstractMantenedorController
     protected function getIndexRoute(): string
     {
         return 'app_maintainers_job_position_index';
-    }
-
-    protected function getPageTitle(string $action = 'index'): string
-    {
-        return match($action) {
-            'create' => 'Crear Cargo',
-            'edit' => 'Editar Cargo',
-            default => 'Cargos'
-        };
     }
 
     protected function findEntity(int $id): ?object

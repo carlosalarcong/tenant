@@ -1,0 +1,62 @@
+{% extends 'maintainers/modern_index.html.twig' %}
+
+{% block page_title %}Métodos de Pago{% endblock %}
+{% block icon %}fa-money-bill-wave{% endblock %}
+{% block breadcrumb_section %}Tesorería{% endblock %}
+{% block description %}Gestión de métodos de pago del sistema{% endblock %}
+
+{% block maintainer_routes %}
+    {% set index_route = 'app_maintainers_treasury_payment_method_index' %}
+    {% set create_route = 'app_maintainers_treasury_payment_method_create' %}
+    {% set edit_route = 'app_maintainers_treasury_payment_method_edit' %}
+    {% set delete_route = 'app_maintainers_treasury_payment_method_delete' %}
+    {% set export_route = 'app_maintainers_treasury_payment_method_export' %}
+{% endblock %}
+
+{% block table_headers %}
+    <th>ID</th>
+    <th>Código</th>
+    <th>Nombre</th>
+    <th>Método Padre</th>
+    <th>Tipo</th>
+    <th>Características</th>
+    <th>Estado</th>
+    <th>{{ 'maintainers.common.actions'|trans({}, 'maintainers') }}</th>
+{% endblock %}
+
+{% block table_row %}
+    <td>{{ item.id }}</td>
+    <td>{{ item.code ?? '-' }}</td>
+    <td>{{ item.name }}</td>
+    <td>{{ item.parent ? item.parent.name : '-' }}</td>
+    <td>{{ item.paymentMethodType ? item.paymentMethodType.name : '-' }}</td>
+    <td>
+        {% if item.issuesReceipt %}
+            <span class="badge bg-info" title="Emite Recibo">Recibo</span>
+        {% endif %}
+        {% if item.isGuarantee %}
+            <span class="badge bg-warning" title="Es Garantía">Garantía</span>
+        {% endif %}
+        {% if item.isWebPayment %}
+            <span class="badge bg-primary" title="Pago Web">Web</span>
+        {% endif %}
+        {% if item.creditCardPayment %}
+            <span class="badge bg-success" title="Pago con Tarjeta">Tarjeta</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if item.isActive %}
+            <span class="badge bg-success">Activo</span>
+        {% else %}
+            <span class="badge bg-danger">Inactivo</span>
+        {% endif %}
+    </td>
+    <td>
+        <button class="btn btn-sm btn-primary" onclick="editItem({{ item.id }})">
+            <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="deleteItem({{ item.id }})">
+            <i class="fas fa-trash"></i>
+        </button>
+    </td>
+{% endblock %}

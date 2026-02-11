@@ -70,6 +70,12 @@ trait MenuIconsTrait
             'origin_type' => 'bx bx-compass',
             'maintenance_origin_type' => 'bx bx-compass',
             
+            // Mantenedores de Estructura
+            'maintenance_structure' => 'bx bx-buildings',
+            'cost_center' => 'bx bx-calculator',
+            'service_type' => 'bx bx-category',
+            'medical_service' => 'bx bx-plus-medical',
+            
             // Mantenedores clínicos
             'maintenance_box' => 'bx bx-clinic',
             'maintenance_medical_specialty' => 'bx bx-plus-medical',

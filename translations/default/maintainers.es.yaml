@@ -1,0 +1,39 @@
+# DOMINIO: maintainers (Tenant: default - Terminología Genérica)
+# Traducciones estándar para uso general en instituciones médicas
+
+maintainers:
+  common:
+    title: 'Mantenedores del Sistema'
+    
+  persona:
+    title: 'Gestión de Personas'
+    singular: 'Persona'
+    description: 'Administración de personas del sistema'
+    
+  hospital:
+    title: 'Gestión de Establecimientos'
+    singular: 'Establecimiento'
+    plural: 'Establecimientos'
+    description: 'Administración de centros de salud'
+    
+  pabellon:
+    title: 'Gestión de Áreas'
+    singular: 'Área'
+    plural: 'Áreas'
+    description: 'Administración de espacios físicos'
+    
+  especialidad:
+    title: 'Gestión de Especialidades Médicas'
+    singular: 'Especialidad'
+    description: 'Administración de especialidades clínicas'
+    
+  servicio:
+    title: 'Gestión de Servicios Clínicos'
+    singular: 'Servicio Clínico'
+    description: 'Administración de servicios médicos'
+    
+  medico:
+    title: 'Gestión de Profesionales Médicos'
+    singular: 'Profesional Médico'
+    plural: 'Profesionales Médicos'
+    description: 'Administración de médicos del sistema'

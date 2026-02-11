@@ -1,0 +1,17 @@
+<turbo-frame id="admission-wizard-content">
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body p-4">
+            <h4 class="mb-3 text-success">Admisión creada correctamente</h4>
+            <p class="mb-4">ID de admisión generado: <strong>#{{ admission_id }}</strong></p>
+
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="{{ path('app_admission_hospitalization_index') }}"
+                   class="btn btn-outline-primary"
+                   data-turbo-frame="maintainer-content">
+                    Volver a Admisión Hospitalaria
+                </a>
+            </div>
+        </div>
+    </div>
+</turbo-frame>
+

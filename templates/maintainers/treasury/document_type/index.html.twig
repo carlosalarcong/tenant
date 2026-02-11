@@ -1,0 +1,59 @@
+{% extends 'maintainers/modern_index.html.twig' %}
+
+{% block page_title %}Tipos de Documento{% endblock %}
+{% block icon %}fa-file-alt{% endblock %}
+{% block breadcrumb_section %}Tesorería{% endblock %}
+{% block description %}Gestión de tipos de documentos del sistema{% endblock %}
+
+{% block maintainer_routes %}
+    {% set index_route = 'app_maintainers_treasury_document_type_index' %}
+    {% set create_route = 'app_maintainers_treasury_document_type_create' %}
+    {% set edit_route = 'app_maintainers_treasury_document_type_edit' %}
+    {% set delete_route = 'app_maintainers_treasury_document_type_delete' %}
+    {% set export_route = 'app_maintainers_treasury_document_type_export' %}
+{% endblock %}
+
+{% block table_headers %}
+    <th>ID</th>
+    <th>Código SII</th>
+    <th>Nombre</th>
+    <th>¿Es DTE?</th>
+    <th>¿Es de Logística?</th>
+    <th>Estado</th>
+    <th>{{ 'maintainers.common.actions'|trans({}, 'maintainers') }}</th>
+{% endblock %}
+
+{% block table_row %}
+    <td>{{ item.id }}</td>
+    <td>{{ item.siiCode ?? '-' }}</td>
+    <td>{{ item.name }}</td>
+    <td>
+        {% if item.isDte %}
+            <span class="badge bg-success">Sí</span>
+        {% else %}
+            <span class="badge bg-secondary">No</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if item.isLogistics %}
+            <span class="badge bg-info">Sí</span>
+        {% else %}
+            <span class="badge bg-secondary">No</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if item.isActive %}
+            <span class="badge bg-success">Activo</span>
+        {% else %}
+            <span class="badge bg-danger">Inactivo</span>
+        {% endif %}
+    </td>
+    <td>
+        <button class="btn btn-sm btn-primary" onclick="editItem({{ item.id }})">
+            <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="deleteItem({{ item.id }})">
+            <i class="fas fa-trash"></i>
+        </button>
+    </td>
+{% endblock %}

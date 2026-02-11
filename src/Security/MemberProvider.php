@@ -3,7 +3,7 @@
 namespace App\Security;
 
 use App\Entity\Tenant\Member;
-use App\Repository\MemberRepository;
+use App\Repository\Tenant\MemberRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;

@@ -1,0 +1,682 @@
+# DOMAIN: maintainers (Base Maintainers - Global Fallback)
+# This file contains general translations for all maintainers
+# Tenants can override these translations in their own files
+
+# === COMMON FOR ALL MAINTAINERS ===
+maintainers:
+  common:
+    title: 'Maintainers'
+    list: 'List'
+    create: 'Create New'
+    create_title: 'Create'
+    edit_title: 'Edit'
+    list_title: 'List'
+    create_first: 'Create First'
+    new_record: 'New Record'
+    edit: 'Edit'
+    delete: 'Delete'
+    save: 'Save'
+    cancel: 'Cancel'
+    back: 'Back'
+    actions: 'Actions'
+    search: 'Search'
+    search_placeholder: 'Search by name...'
+    filter: 'Filter'
+    filters: 'Filters'
+    columns: 'Columns'
+    export: 'Export'
+    export_csv: 'Export to CSV'
+    import: 'Import'
+    total: 'Total'
+    records: 'record(s)'
+    showing_records: 'Showing {count} records'
+    no_records: 'No records available'
+    no_records_message: 'Start by adding the first item'
+    confirm_delete: 'Are you sure you want to delete this record?'
+    confirm_delete_element: 'Are you sure you want to delete this item?'
+    success_create: 'Record created successfully'
+    success_update: 'Record updated successfully'
+    success_delete: 'Record deleted successfully'
+    error_create: 'Error creating record'
+    error_update: 'Error updating record'
+    error_delete: 'Error deleting record'
+    required_field: 'Required field'
+    invalid_format: 'Invalid format'
+    loading: 'Loading form...'
+    manage_and_admin: 'Manage and administer {entity}'
+  
+  # Search and Filters
+  search:
+    label: 'Search'
+    placeholder: 'Search by name...'
+  
+  filter:
+    status: 'Status'
+    all: 'All'
+    active: 'Active'
+    inactive: 'Inactive'
+  
+  filters_active: 'Active filters:'
+  clear_filters: 'Clear filters'
+    
+  # Common columns
+  columns:
+    name: 'Name'
+    code: 'Code'
+    description: 'Description'
+    number: 'Number'
+    is_active: 'Status'
+    active: 'Active'
+    inactive: 'Inactive'
+    yes: 'Yes'
+    no: 'No'
+    education_level: 'Education Level'
+    origin_type: 'Origin Type'
+    religion_code_hl7: 'HL7 Code'
+    marital_status_code_hl7: 'HL7 Code'
+    short_name: 'Short Name'
+    generic_name: 'Generic Name'
+    type: 'Type'
+    sub_company: 'Sub Company'
+    consignment: 'Consignment'
+    controlled: 'Controlled'
+    expiration_date: 'Exp. Date'
+    critical: 'Critical'
+    generic: 'Generic'
+    resterilizable: 'Resterilizable'
+    sale: 'Sale'
+    billable: 'Billable'
+    first_aid_deduction: 'First Aid Deduction'
+    min_stock: 'Min Stock'
+    critical_stock: 'Critical Stock'
+    optimal_stock: 'Optimal Stock'
+    max_stock: 'Max Stock'
+    cenabast_code: 'Cenabast Code'
+    article: 'Article'
+    supplier: 'Supplier'
+    price: 'Price'
+    warehouse: 'Warehouse'
+    specialty: 'Specialty'
+    is_critical: 'Is Critical'
+    is_drug: 'Is Drug'
+    branch: 'Branch'
+    quantity: 'Quantity'
+    unit: 'Unit'
+    weight: 'Weight'
+    temperature: 'Temperature'
+    grouping_1: 'Grouping 1'
+    field_type: 'Field Type'
+    required: 'Required'
+    intervals: 'Intervals'
+    daily_quantity: 'Daily Quantity'
+    time_unit: 'Time Unit'
+    hl7_code: 'HL7 Code'
+    checking_account: 'Checking Account'
+    rut: 'Tax ID'
+    email: 'Email'
+    phone: 'Phone'
+    city: 'City'
+    region: 'Region'
+    position: 'Position'
+    interface_code: 'Interface Code'
+    max_term: 'Max Term'
+    is_up_to_date: 'Is Up To Date'
+    abbreviation: 'Abbreviation'
+    direction: 'Direction'
+    is_cash: 'Is Cash'
+    is_clp: 'Is CLP'
+    gratuity_type: 'Gratuity Type'
+    order: 'Order'
+    
+  # Statistics
+  stats:
+    total_records: 'Total Records'
+    active_records: 'Active'
+    inactive_records: 'Inactive'
+    modified_today: 'Modified Today'
+    
+  # Breadcrumb
+  breadcrumb:
+    home: 'Home'
+    maintainers: 'Maintainers'
+    basic: 'Basic'
+    hospital: 'Hospital'
+    commercial: 'Commercial'
+    structure: 'Structure'
+    treasury: 'Treasury'
+    surgery: 'Surgery'
+    logistics: 'Logistics'
+
+# === PERSON ===
+  persona:
+    title: 'Person Management'
+    singular: 'Person'
+    plural: 'People'
+    create: 'Create Person'
+    edit: 'Edit Person'
+    fields:
+      rut: 'ID Number'
+      names: 'Names'
+      first_surname: 'First Surname'
+      second_surname: 'Second Surname'
+      birth_date: 'Birth Date'
+      gender: 'Gender'
+      email: 'Email'
+      phone: 'Phone'
+      address: 'Address'
+      city: 'City'
+      region: 'Region'
+      country: 'Country'
+      is_active: 'Active'
+    gender_options:
+      male: 'Male'
+      female: 'Female'
+      other: 'Other'
+      prefer_not_say: 'Prefer not to say'
+
+# === HOSPITAL ===
+  hospital:
+    title: 'Hospital Management'
+    singular: 'Hospital'
+    plural: 'Hospitals'
+    create: 'Create Hospital'
+    edit: 'Edit Hospital'
+    fields:
+      code: 'Code'
+      name: 'Name'
+      type: 'Establishment Type'
+      address: 'Address'
+      phone: 'Phone'
+      email: 'Email'
+      beds_capacity: 'Beds Capacity'
+      emergency_service: 'Emergency Service'
+      is_active: 'Active'
+
+# === PAVILION ===
+  pabellon:
+    title: 'Pavilion Management'
+    singular: 'Pavilion'
+    plural: 'Pavilions'
+    create: 'Create Pavilion'
+    edit: 'Edit Pavilion'
+    fields:
+      code: 'Code'
+      name: 'Name'
+      hospital: 'Hospital'
+      floor: 'Floor'
+      capacity: 'Capacity'
+      type: 'Pavilion Type'
+      is_active: 'Active'
+
+# === SPECIALTY ===
+  especialidad:
+    title: 'Specialty Management'
+    singular: 'Specialty'
+    plural: 'Specialties'
+    create: 'Create Specialty'
+    edit: 'Edit Specialty'
+    fields:
+      code: 'Code'
+      name: 'Name'
+      description: 'Description'
+      is_active: 'Active'
+
+# === SERVICE ===
+  servicio:
+    title: 'Service Management'
+    singular: 'Service'
+    plural: 'Services'
+    create: 'Create Service'
+    edit: 'Edit Service'
+    fields:
+      code: 'Code'
+      name: 'Name'
+      description: 'Description'
+      hospital: 'Hospital'
+      is_active: 'Active'
+
+# === DOCTOR ===
+  medico:
+    title: 'Doctor Management'
+    singular: 'Doctor'
+    plural: 'Doctors'
+    create: 'Create Doctor'
+    edit: 'Edit Doctor'
+    fields:
+      persona: 'Person'
+      license_number: 'License Number'
+      specialty: 'Specialty'
+      hospital: 'Hospital'
+      is_active: 'Active'
+  entities:
+      basic:
+          doctor_type:
+              title: "Doctor Types"
+              create_title: "Create Doctor Type"
+              edit_title: "Edit Doctor Type"
+          education_level:
+              title: "Education Levels"
+              create_title: "Create Education Level"
+              edit_title: "Edit Education Level"
+          education_level_detail:
+              title: "Education Level Details"
+              create_title: "Create Education Level Detail"
+              edit_title: "Edit Education Level Detail"
+          ethnic_group:
+              title: "Ethnic Groups"
+              create_title: "Create Ethnic Group"
+              edit_title: "Edit Ethnic Group"
+          gender:
+              title: "Gender Management"
+              create_title: "Create Gender"
+              edit_title: "Edit Gender"
+          insurance_administrator:
+              title: "Insurance Administrators"
+              create_title: "Create Insurance Administrator"
+              edit_title: "Edit Insurance Administrator"
+          job_position:
+              title: "Job Positions"
+              create_title: "Create Job Position"
+              edit_title: "Edit Job Position"
+          location:
+              title: "Locations"
+              create_title: "Create Location"
+              edit_title: "Edit Location"
+          marital_status:
+              title: "Marital Statuses"
+              create_title: "Create Marital Status"
+              edit_title: "Edit Marital Status"
+          medical_box:
+              title: "Medical Boxes"
+              create_title: "Create Medical Box"
+              edit_title: "Edit Medical Box"
+          occupation:
+              title: "Occupations"
+              create_title: "Create Occupation"
+              edit_title: "Edit Occupation"
+          origin:
+              title: "Origins"
+              create_title: "Create Origin"
+              edit_title: "Edit Origin"
+          origin_type:
+              title: "Origin Types"
+              create_title: "Create Origin Type"
+              edit_title: "Edit Origin Type"
+          religion:
+              title: "Religion Management"
+              create_title: "Create Religion"
+              edit_title: "Edit Religion"
+      commercial:
+          bed_type:
+              title: "Bed Types"
+              create_title: "Create Bed Type"
+              edit_title: "Edit Bed Type"
+          blocking_type:
+              title: "Blocking Types"
+              create_title: "Create Blocking Type"
+              edit_title: "Edit Blocking Type"
+          branch_payer:
+              title: "Payers by Branch"
+              create_title: "Assign Payer to Branch"
+              edit_title: "Edit Payer in Branch"
+          cancellation_type:
+              title: "Cancellation Types"
+              create_title: "Create Cancellation Type"
+              edit_title: "Edit Cancellation Type"
+          consultation_type:
+              title: "Consultation Types"
+              create_title: "Create Consultation Type"
+              edit_title: "Edit Consultation Type"
+          e_n_o_pathology:
+              title: "ENO Pathologies"
+              create_title: "Create ENO Pathology"
+              edit_title: "Edit ENO Pathology"
+          external_referrer:
+              title: "External Referrers"
+              create_title: "Create External Referrer"
+              edit_title: "Edit External Referrer"
+          g_e_s_pathology:
+              title: "GES Pathologies"
+              create_title: "Create GES Pathology"
+              edit_title: "Edit GES Pathology"
+          medical_service:
+              title: "Clinical Actions"
+              create_title: "Create Clinical Action"
+              edit_title: "Edit Clinical Action"
+          medical_service_bed_type:
+              title: "Bed Types by Clinical Action"
+              create_title: "Assign Bed Type to Clinical Action"
+              edit_title: "Edit Bed Type in Clinical Action"
+          medical_service_budget_item:
+              title: "Articles by Clinical Action"
+              create_title: "Assign Article to Clinical Action"
+              edit_title: "Edit Clinical Action Article"
+          medical_service_service:
+              title: "Services by Clinical Action"
+              create_title: "Assign Service to Clinical Action"
+              edit_title: "Edit Clinical Action Service"
+          pathology_article:
+              title: "GES Pathology Articles"
+              create_title: "Create Pathology Article"
+              edit_title: "Edit Pathology Article"
+          payer:
+              title: "Payers"
+              create_title: "Create Payer"
+              edit_title: "Edit Payer"
+          payer_type:
+              title: "Payer Types"
+              create_title: "Create Payer Type"
+              edit_title: "Edit Payer Type"
+          requesting_company:
+              title: "Requesting Companies"
+              create_title: "Create Requesting Company"
+              edit_title: "Edit Requesting Company"
+          room:
+              title: "Rooms"
+              create_title: "Create Room"
+              edit_title: "Edit Room"
+          service_package:
+              title: "Service Packages"
+              create_title: "Create Service Package"
+              edit_title: "Edit Service Package"
+          specialty:
+              title: "Medical Specialties"
+              create_title: "Create Specialty"
+              edit_title: "Edit Specialty"
+          specialty_branch:
+              title: "Specialties by Branch"
+              create_title: "Assign Specialty to Branch"
+              edit_title: "Edit Specialty in Branch"
+          surgery_item:
+              title: "Surgery Items"
+              create_title: "Create Surgery Item"
+              edit_title: "Edit Surgery Item"
+          treatment_type:
+              title: "Treatment Types"
+              create_title: "Create Treatment Type"
+              edit_title: "Edit Treatment Type"
+      hospital:
+          care_category:
+              title: "Care Categories"
+              create_title: "Create Care Category"
+              edit_title: "Edit Care Category"
+          care_closure_destination:
+              title: "Care Closure Destinations"
+              create_title: "Create Closure Destination"
+              edit_title: "Edit Closure Destination"
+          care_intervention:
+              title: "Clinical Interventions"
+              create_title: "Create Intervention"
+              edit_title: "Edit Intervention"
+          clinical_action_answer:
+              title: "Clinical Action Answers"
+              create_title: "Create Answer"
+              edit_title: "Edit Answer"
+          clinical_action_category:
+              title: "Clinical Action Categories"
+              create_title: "Create Category"
+              edit_title: "Edit Category"
+          clinical_action_question:
+              title: "Clinical Action Questions"
+              create_title: "Create Question"
+              edit_title: "Edit Question"
+          dosage_type:
+              title: "Dosage Types"
+              create_title: "Create Dosage Type"
+              edit_title: "Edit Dosage Type"
+          eating_disorder_history:
+              title: "Eating Disorder History"
+              create_title: "Create Eating Disorder Record"
+              edit_title: "Edit Eating Disorder Record"
+          intoxication_state:
+              title: "Intoxication States"
+              create_title: "Create Intoxication State"
+              edit_title: "Edit Intoxication State"
+          medical_device:
+              title: "Medical Devices"
+              create_title: "Create Medical Device"
+              edit_title: "Edit Medical Device"
+          nutritional_diagnosis:
+              title: "Nutritional Diagnoses"
+              create_title: "Create Nutritional Diagnosis"
+              edit_title: "Edit Nutritional Diagnosis"
+          nutritionist_bmi_index:
+              title: "BMI Indices"
+              create_title: "Create BMI Index"
+              edit_title: "Edit BMI Index"
+          nutritionist_index_classification:
+              title: "Index Classifications"
+              create_title: "Create Classification"
+              edit_title: "Edit Classification"
+          nutritionist_te_index:
+              title: "Height/Age Indices"
+              create_title: "Create Height/Age Index"
+              edit_title: "Edit Height/Age Index"
+          physical_exam_base_field:
+              title: "Physical Exam Base Fields"
+              create_title: "Create Base Field"
+              edit_title: "Edit Base Field"
+          physical_exam_field:
+              title: "Physical Exam Fields"
+              create_title: "Create Field"
+              edit_title: "Edit Field"
+          physical_exam_grouping:
+              title: "Physical Exam Groupings"
+              create_title: "Create Grouping"
+              edit_title: "Edit Grouping"
+          prescription_dispensation:
+              title: "Prescription Dispensations"
+              create_title: "Create Dispensation"
+              edit_title: "Edit Dispensation"
+          prescription_dosage:
+              title: "Prescription Dosages"
+              create_title: "Create Dosage"
+              edit_title: "Edit Dosage"
+          prescription_format:
+              title: "Prescription Formats"
+              create_title: "Create Format"
+              edit_title: "Edit Format"
+          prescription_frequency:
+              title: "Prescription Frequencies"
+              create_title: "Create Frequency"
+              edit_title: "Edit Frequency"
+          prescription_route:
+              title: "Administration Routes"
+              create_title: "Create Route"
+              edit_title: "Edit Route"
+          prescription_rule_detail:
+              title: "Prescription Rules"
+              create_title: "Create Rule"
+              edit_title: "Edit Rule"
+          prescription_type:
+              title: "Prescription Types"
+              create_title: "Create Prescription Type"
+              edit_title: "Edit Prescription Type"
+      logistics:
+          article:
+              title: "Articles"
+              create_title: "Create Article"
+              edit_title: "Edit Article"
+          article_outflow_type:
+              title: "Article Outflow Types"
+              create_title: "Create Article Outflow Type"
+              edit_title: "Edit Article Outflow Type"
+          article_supplier:
+              title: "Suppliers by Article"
+              create_title: "Assign Supplier to Article"
+              edit_title: "Edit Article Supplier"
+          article_type:
+              title: "Article Types"
+              create_title: "Create Article Type"
+              edit_title: "Edit Article Type"
+          article_warehouse:
+              title: "Articles by Warehouse"
+              create_title: "Assign Article to Warehouse"
+              edit_title: "Edit Article in Warehouse"
+          dispatch_type:
+              title: "Dispatch Types"
+              create_title: "Create Dispatch Type"
+              edit_title: "Edit Dispatch Type"
+          inventory_adjustment_reason:
+              title: "Inventory Adjustment Reasons"
+              create_title: "Create Adjustment Reason"
+              edit_title: "Edit Adjustment Reason"
+          product_condition_type:
+              title: "Product Condition Types"
+              create_title: "Create Product Condition Type"
+              edit_title: "Edit Product Condition Type"
+          signature_footer:
+              title: "Signature Footers"
+              create_title: "Create Signature Footer"
+              edit_title: "Edit Signature Footer"
+          warehouse_specialty:
+              title: "Specialties by Warehouse"
+              create_title: "Assign Specialty to Warehouse"
+              edit_title: "Edit Assignment"
+      structure:
+          branch:
+              title: "Branches"
+              create_title: "Create Branch"
+              edit_title: "Edit Branch"
+          cost_center:
+              title: "Cost Centers"
+              create_title: "Create Cost Center"
+              edit_title: "Edit Cost Center"
+          department:
+              title: "Departments"
+              create_title: "Create Department"
+              edit_title: "Edit Department"
+          medical_service:
+              title: "Medical Services"
+              create_title: "Create Service"
+              edit_title: "Edit Service"
+          service_type:
+              title: "Service Types"
+              create_title: "Create Service Type"
+              edit_title: "Edit Service Type"
+          sub_company:
+              title: "Sub-Companies"
+              create_title: "Create Sub-Company"
+              edit_title: "Edit Sub-Company"
+      surgery:
+          anesthesia_type:
+              title: "Anesthesia Types"
+              create_title: "Create Anesthesia Type"
+              edit_title: "Edit Anesthesia Type"
+          blood_type:
+              title: "Blood Types"
+              create_title: "Create Blood Type"
+              edit_title: "Edit Blood Type"
+          surgery_block_reason:
+              title: "Block Reasons"
+              create_title: "Create Block Reason"
+              edit_title: "Edit Block Reason"
+          surgery_cancellation_reason:
+              title: "Cancellation Reasons"
+              create_title: "Create Cancellation Reason"
+              edit_title: "Edit Cancellation Reason"
+          surgery_patient_status:
+              title: "Patient Statuses"
+              create_title: "Create Patient Status"
+              edit_title: "Edit Patient Status"
+          surgery_patient_status_config:
+              title: "Patient Status Configuration"
+              create_title: "Create Patient Status Config"
+              edit_title: "Edit Patient Status Config"
+          surgery_suspension_cause:
+              title: "Suspension Causes"
+              create_title: "Create Suspension Cause"
+              edit_title: "Edit Suspension Cause"
+          surgical_block:
+              title: "Surgical Blocks"
+              create_title: "Create Surgical Block"
+              edit_title: "Edit Surgical Block"
+          surgical_stage:
+              title: "Surgical Stages"
+              create_title: "Create Surgical Stage"
+              edit_title: "Edit Surgical Stage"
+          surgical_stage_item:
+              title: "Surgical Stage Items"
+              create_title: "Create Stage Item"
+              edit_title: "Edit Stage Item"
+          surgical_team_role:
+              title: "Surgical Team Roles"
+              create_title: "Create Team Role"
+              edit_title: "Edit Team Role"
+          treatment_regimen:
+              title: "Treatment Regimens"
+              create_title: "Create Treatment Regimen"
+              edit_title: "Edit Treatment Regimen"
+          wound_type:
+              title: "Wound Types"
+              create_title: "Create Wound Type"
+              edit_title: "Edit Wound Type"
+      treasury:
+          bank:
+              title: "Banks"
+              create_title: "Create Bank"
+              edit_title: "Edit Bank"
+          bank_account_type:
+              title: "Bank Account Types"
+              create_title: "Create Bank Account Type"
+              edit_title: "Edit Bank Account Type"
+          billing_payment_method:
+              title: "Billing Payment Methods"
+              create_title: "Create Billing Payment Method"
+              edit_title: "Edit Billing Payment Method"
+          cash_register_location:
+              title: "Cash Register Locations"
+              create_title: "Create Cash Register Location"
+              edit_title: "Edit Cash Register Location"
+          credit_card:
+              title: "Credit Cards"
+              create_title: "Create Credit Card"
+              edit_title: "Edit Credit Card"
+          credit_card_type:
+              title: "Credit Card Types"
+              create_title: "Create Credit Card Type"
+              edit_title: "Edit Credit Card Type"
+          currency_type:
+              title: "Currency Types"
+              create_title: "Create Currency Type"
+              edit_title: "Edit Currency Type"
+          difference_direction:
+              title: "Difference Directions"
+              create_title: "Create Difference Direction"
+              edit_title: "Edit Difference Direction"
+          difference_reason:
+              title: "Difference Reasons"
+              create_title: "Create Difference Reason"
+              edit_title: "Edit Difference Reason"
+          difference_type:
+              title: "Difference Types"
+              create_title: "Create Difference Type"
+              edit_title: "Edit Difference Type"
+          document_type:
+              title: "Document Types"
+              create_title: "Create Document Type"
+              edit_title: "Edit Document Type"
+          gratuity_reason:
+              title: "Gratuity Reasons"
+              create_title: "Create Gratuity Reason"
+              edit_title: "Edit Gratuity Reason"
+          gratuity_type:
+              title: "Gratuity Types"
+              create_title: "Create Gratuity Type"
+              edit_title: "Edit Gratuity Type"
+          payment_condition:
+              title: "Payment Conditions"
+              create_title: "Create Payment Condition"
+              edit_title: "Edit Payment Condition"
+          payment_method:
+              title: "Payment Methods"
+              create_title: "Create Payment Method"
+              edit_title: "Edit Payment Method"
+          payment_method_type:
+              title: "Payment Method Types"
+              create_title: "Create Payment Method Type"
+              edit_title: "Edit Payment Method Type"
+          transfer_indicator:
+              title: "Transfer Indicators"
+              create_title: "Create Transfer Indicator"
+              edit_title: "Edit Transfer Indicator"

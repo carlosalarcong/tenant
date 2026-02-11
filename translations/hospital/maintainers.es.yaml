@@ -1,0 +1,78 @@
+# DOMINIO: maintainers (Tenant: melisahospital - Terminología Hospitalaria)
+# Traducciones específicas para entorno hospitalario de alta complejidad
+# Enfoque en: urgencias, internación, turnos médicos, gestión de camas
+
+maintainers:
+  common:
+    title: 'Mantenedores Hospitalarios'
+    
+  persona:
+    title: 'Gestión de Pacientes Hospitalizados'
+    singular: 'Paciente'
+    plural: 'Pacientes'
+    description: 'Administración de pacientes internados y de urgencia'
+    fields:
+      rut: 'RUT del Paciente'
+      names: 'Nombres del Paciente'
+      admission_date: 'Fecha de Ingreso Hospitalario'
+      discharge_date: 'Fecha de Alta Médica'
+      bed_number: 'Número de Cama'
+      room_number: 'Número de Habitación'
+      
+  hospital:
+    title: 'Gestión de Hospitales y Complejos'
+    singular: 'Hospital'
+    plural: 'Hospitales'
+    description: 'Administración de centros de atención hospitalaria'
+    fields:
+      beds_capacity: 'Capacidad Total de Camas'
+      icu_beds: 'Camas UCI'
+      emergency_beds: 'Camas de Urgencia'
+      emergency_service: 'Servicio de Urgencias 24/7'
+      trauma_center: 'Centro de Trauma'
+      
+  pabellon:
+    title: 'Gestión de Pabellones Quirúrgicos'
+    singular: 'Pabellón Quirúrgico'
+    plural: 'Pabellones Quirúrgicos'
+    description: 'Administración de salas de operaciones y procedimientos'
+    fields:
+      surgery_type: 'Tipo de Cirugía'
+      sterilization_status: 'Estado de Esterilización'
+      equipment_status: 'Estado del Equipamiento'
+      
+  especialidad:
+    title: 'Gestión de Especialidades Hospitalarias'
+    singular: 'Especialidad Hospitalaria'
+    description: 'Administración de especialidades médicas complejas'
+    types:
+      surgery: 'Cirugía General'
+      traumatology: 'Traumatología'
+      cardiology: 'Cardiología'
+      neurology: 'Neurología'
+      intensive_care: 'Cuidados Intensivos'
+      emergency: 'Medicina de Urgencia'
+      
+  servicio:
+    title: 'Gestión de Servicios Hospitalarios'
+    singular: 'Servicio Hospitalario'
+    description: 'Administración de unidades y servicios del hospital'
+    types:
+      emergency: 'Servicio de Urgencias'
+      icu: 'Unidad de Cuidados Intensivos (UCI)'
+      surgery: 'Servicio de Cirugía'
+      hospitalization: 'Servicio de Hospitalización'
+      imaging: 'Servicio de Imagenología'
+      laboratory: 'Laboratorio Clínico'
+      
+  medico:
+    title: 'Gestión de Médicos de Turno'
+    singular: 'Médico de Turno'
+    plural: 'Médicos de Turno'
+    description: 'Administración de staff médico hospitalario'
+    fields:
+      shift_type: 'Tipo de Turno'
+      on_call: 'De Guardia'
+      shift_start: 'Inicio de Turno'
+      shift_end: 'Fin de Turno'
+      emergency_contact: 'Contacto de Emergencia'

@@ -29,4 +29,14 @@
     array (
     ),
   ),
+  'flatpickr' => 
+  array (
+    'version' => '4.6.13',
+    'dependencies' => 
+    array (
+    ),
+    'extraFiles' => 
+    array (
+    ),
+  ),
 );

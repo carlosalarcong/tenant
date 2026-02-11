@@ -37,6 +37,7 @@ class MenuItemRepository extends ServiceEntityRepository
 
     /**
      * Obtiene items del menú con sus hijos de forma eficiente (eager loading).
+     * Carga hasta 4 niveles de profundidad para soportar menús complejos.
      * 
      * @return MenuItem[]
      */
@@ -47,26 +48,42 @@ class MenuItemRepository extends ServiceEntityRepository
             ->addSelect('c')
             ->leftJoin('c.children', 'cc')
             ->addSelect('cc')
+            ->leftJoin('cc.children', 'ccc')
+            ->addSelect('ccc')
             ->where('m.parent IS NULL')
             ->andWhere('m.enabled = :enabled')
             ->setParameter('enabled', true)
             ->orderBy('m.position', 'ASC')
             ->addOrderBy('c.position', 'ASC')
-            ->addOrderBy('cc.position', 'ASC');
+            ->addOrderBy('cc.position', 'ASC')
+            ->addOrderBy('ccc.position', 'ASC');
 
         return $qb->getQuery()->getResult();
     }
 
     /**
      * Obtiene todos los items del menú para administración (incluye deshabilitados).
+     * Carga toda la jerarquía con sus hijos (eager loading) para evitar N+1 queries.
      * 
      * @return MenuItem[]
      */
     public function getAllForAdmin(): array
     {
         return $this->createQueryBuilder('m')
+            ->leftJoin('m.children', 'c')
+            ->addSelect('c')
+            ->leftJoin('c.children', 'cc')
+            ->addSelect('cc')
+            ->leftJoin('cc.children', 'ccc')
+            ->addSelect('ccc')
+            ->leftJoin('ccc.children', 'cccc')
+            ->addSelect('cccc')
             ->where('m.parent IS NULL')
             ->orderBy('m.position', 'ASC')
+            ->addOrderBy('c.position', 'ASC')
+            ->addOrderBy('cc.position', 'ASC')
+            ->addOrderBy('ccc.position', 'ASC')
+            ->addOrderBy('cccc.position', 'ASC')
             ->getQuery()
             ->getResult();
     }

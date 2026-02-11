@@ -1,0 +1,11 @@
+{% extends 'maintainers/modern_index.html.twig' %}
+
+{% block title %}Reglas de Prescripcion{% endblock %}
+
+{% set maintainerConfig = {
+    title: 'Reglas de Prescripcion',
+    icon: 'bx-list-ul',
+    description: 'Gestiona las reglas de detalle de prescripciones',
+    routes: { index: 'app_maintainers_hospital_prescription_rule_detail_index', create: 'app_maintainers_hospital_prescription_rule_detail_create', edit: 'app_maintainers_hospital_prescription_rule_detail_edit', delete: 'app_maintainers_hospital_prescription_rule_detail_delete' },
+    breadcrumb_section: 'Hospitalaria'
+} %}

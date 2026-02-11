@@ -42,9 +42,9 @@ class PasswordResetController extends AbstractController
         $connectionParams = [
             'host' => 'localhost',
             'port' => 5432,
-            'dbname' => 'melisa_central',
-            'user' => 'melisa',
-            'password' => 'melisa',
+            'dbname' => $_ENV['CENTRAL_DB_NAME'],
+            'user' => $_ENV['CENTRAL_DB_USER'],
+            'password' => $_ENV['CENTRAL_DB_PASSWORD'],
             'driver' => 'pdo_pgsql',
         ];
         

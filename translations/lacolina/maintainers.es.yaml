@@ -1,0 +1,78 @@
+# DOMINIO: maintainers (Tenant: melisalacolina - Terminología Clínica Privada)
+# Traducciones específicas para clínica/consultorio privado
+# Enfoque en: consultas, pacientes ambulatorios, atención personalizada
+
+maintainers:
+  common:
+    title: 'Mantenedores de la Clínica'
+    
+  persona:
+    title: 'Mis Pacientes Privados'
+    singular: 'Paciente Privado'
+    plural: 'Pacientes Privados'
+    description: 'Gestión de mi cartera personal de pacientes'
+    fields:
+      rut: 'RUT'
+      names: 'Nombre Completo'
+      insurance: 'Previsión / Seguro'
+      last_visit: 'Última Consulta'
+      next_appointment: 'Próxima Cita'
+      preferred_contact: 'Forma de Contacto Preferida'
+      vip_status: 'Paciente Preferente'
+      
+  hospital:
+    title: 'Gestión de Clínicas y Consultorios'
+    singular: 'Clínica'
+    plural: 'Clínicas'
+    description: 'Administración de centros de atención ambulatoria'
+    fields:
+      consultation_rooms: 'Número de Consultorios'
+      operating_hours: 'Horario de Atención'
+      parking_spaces: 'Estacionamientos Disponibles'
+      private_rooms: 'Salas de Atención Privada'
+      
+  pabellon:
+    title: 'Gestión de Consultorios'
+    singular: 'Consultorio'
+    plural: 'Consultorios'
+    description: 'Administración de salas de consulta médica'
+    fields:
+      room_type: 'Tipo de Consultorio'
+      equipment: 'Equipamiento Disponible'
+      doctor_assigned: 'Médico Asignado'
+      
+  especialidad:
+    title: 'Gestión de Especialidades Clínicas'
+    singular: 'Especialidad Clínica'
+    description: 'Administración de especialidades ambulatorias'
+    types:
+      general_medicine: 'Medicina General'
+      pediatrics: 'Pediatría'
+      gynecology: 'Ginecología'
+      dermatology: 'Dermatología'
+      ophthalmology: 'Oftalmología'
+      dentistry: 'Odontología'
+      
+  servicio:
+    title: 'Gestión de Servicios Clínicos'
+    singular: 'Servicio Clínico'
+    description: 'Administración de servicios ambulatorios'
+    types:
+      consultation: 'Consulta Médica'
+      procedure: 'Procedimientos Menores'
+      diagnostics: 'Exámenes Diagnósticos'
+      therapy: 'Terapias'
+      vaccination: 'Vacunación'
+      preventive_care: 'Medicina Preventiva'
+      
+  medico:
+    title: 'Gestión de Médicos de la Clínica'
+    singular: 'Médico Tratante'
+    plural: 'Médicos Tratantes'
+    description: 'Administración de staff médico ambulatorio'
+    fields:
+      consultation_fee: 'Valor Consulta'
+      availability: 'Disponibilidad'
+      consultation_duration: 'Duración Consulta (minutos)'
+      accepts_insurance: 'Acepta Previsión'
+      online_consultation: 'Consulta Online Disponible'

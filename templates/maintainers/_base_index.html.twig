@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ page_title }} - Melisa{% endblock %}
+{% block title %}{{ page_title }} - Sistema{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-4">
@@ -9,8 +9,8 @@
             <i class="bx bx-list-ul me-2"></i>{{ page_title }}
         </h1>
         {% if create_route is defined %}
-            <a href="{{ path(create_route) }}" class="btn btn-primary">
-                <i class="bx bx-plus me-1"></i>Crear Nuevo
+            <a href="{{ path(create_route) }}" class="btn btn-primary" data-turbo="false">
+                <i class="bx bx-plus me-1"></i>{{ 'maintainers.common.create'|trans({}, 'maintainers') }}
             </a>
         {% endif %}
     </div>
@@ -34,11 +34,11 @@
             {% if data is empty %}
                 <div class="text-center py-5">
                     <i class="bx bx-inbox bx-lg text-muted mb-3" style="font-size: 4rem;"></i>
-                    <h5 class="text-muted">No hay registros disponibles</h5>
-                    <p class="text-muted mb-3">Comienza agregando el primer elemento</p>
+                    <h5 class="text-muted">{{ 'maintainers.common.no_records'|trans({}, 'maintainers') }}</h5>
+                    <p class="text-muted mb-3">{{ 'maintainers.common.no_records_message'|trans({}, 'maintainers') }}</p>
                     {% if create_route is defined %}
-                        <a href="{{ path(create_route) }}" class="btn btn-primary">
-                            <i class="bx bx-plus me-1"></i>Crear Primero
+                        <a href="{{ path(create_route) }}" class="btn btn-primary" data-turbo="false">
+                            <i class="bx bx-plus me-1"></i>{{ 'maintainers.common.create_first'|trans({}, 'maintainers') }}
                         </a>
                     {% endif %}
                 </div>
@@ -49,20 +49,20 @@
                             <tr>
                                 {% for column in columns %}
                                     <th scope="col">
-                                        {% if column == 'name' %}Nombre
-                                        {% elseif column == 'code' %}Código
-                                        {% elseif column == 'isActive' %}Estado
-                                        {% elseif column == 'description' %}Descripción
-                                        {% elseif column == 'number' %}Número
-                                        {% elseif column == 'educationLevel' %}Nivel Instrucción
-                                        {% elseif column == 'originType' %}Tipo Origen
-                                        {% elseif column == 'religionCodeHl7' %}Código HL7
-                                        {% elseif column == 'maritalStatusCodeHl7' %}Código HL7
+                                        {% if column == 'name' %}{{ 'maintainers.columns.name'|trans({}, 'maintainers') }}
+                                        {% elseif column == 'code' %}{{ 'maintainers.columns.code'|trans({}, 'maintainers') }}
+                                        {% elseif column == 'isActive' %}{{ 'maintainers.columns.is_active'|trans({}, 'maintainers') }}
+                                        {% elseif column == 'description' %}{{ 'maintainers.columns.description'|trans({}, 'maintainers') }}
+                                        {% elseif column == 'number' %}{{ 'maintainers.columns.number'|trans({}, 'maintainers') }}
+                                        {% elseif column == 'educationLevel' %}{{ 'maintainers.columns.education_level'|trans({}, 'maintainers') }}
+                                        {% elseif column == 'originType' %}{{ 'maintainers.columns.origin_type'|trans({}, 'maintainers') }}
+                                        {% elseif column == 'religionCodeHl7' %}{{ 'maintainers.columns.religion_code_hl7'|trans({}, 'maintainers') }}
+                                        {% elseif column == 'maritalStatusCodeHl7' %}{{ 'maintainers.columns.marital_status_code_hl7'|trans({}, 'maintainers') }}
                                         {% else %}{{ column|title }}
                                         {% endif %}
                                     </th>
                                 {% endfor %}
-                                <th scope="col" class="text-end">Acciones</th>
+                                <th scope="col" class="text-end">{{ 'maintainers.common.actions'|trans({}, 'maintainers') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -74,11 +74,11 @@
                                             {% if column == 'isActive' %}
                                                 {% if value %}
                                                     <span class="badge bg-success">
-                                                        <i class="bx bx-check me-1"></i>Activo
+                                                        <i class="bx bx-check me-1"></i>{{ 'maintainers.columns.active'|trans({}, 'maintainers') }}
                                                     </span>
                                                 {% else %}
                                                     <span class="badge bg-secondary">
-                                                        <i class="bx bx-x me-1"></i>Inactivo
+                                                        <i class="bx bx-x me-1"></i>{{ 'maintainers.columns.inactive'|trans({}, 'maintainers') }}
                                                     </span>
                                                 {% endif %}
                                             {% elseif column == 'educationLevel' and value %}
@@ -93,19 +93,25 @@
                                     <td class="text-end">
                                         <div class="btn-group" role="group">
                                             {% set edit_route = app.request.attributes.get('_route')|replace({'_index': '_edit'}) %}
-                                            <a href="{{ path(edit_route, {'id': item.id}) }}" 
-                                               class="btn btn-sm btn-outline-primary" 
-                                               title="Editar">
+                                            <a href="{{ path(edit_route, {'id': item.id}) }}"
+                                               class="btn btn-sm btn-outline-primary"
+                                               data-turbo="false"
+                                               title="{{ 'maintainers.common.edit'|trans({}, 'maintainers') }}">
                                                 <i class="bx bx-edit-alt"></i>
                                             </a>
                                             {% set delete_route = app.request.attributes.get('_route')|replace({'_index': '_delete'}) %}
                                             <form method="post" 
                                                   action="{{ path(delete_route, {'id': item.id}) }}" 
                                                   class="d-inline"
-                                                  onsubmit="return confirm('¿Está seguro de eliminar este elemento?')">
+                                                  data-controller="confirm-delete"
+                                                  data-confirm-delete-title-value="{{ 'maintainers.common.confirm_delete_title'|trans({}, 'maintainers') }}"
+                                                  data-confirm-delete-text-value="{{ 'maintainers.common.confirm_delete_text'|trans({}, 'maintainers') }}"
+                                                  data-confirm-delete-confirm-button-text-value="{{ 'maintainers.common.yes_delete'|trans({}, 'maintainers') }}"
+                                                  data-confirm-delete-cancel-button-text-value="{{ 'maintainers.common.cancel'|trans({}, 'maintainers') }}"
+                                                  data-action="submit->confirm-delete#confirm">
                                                 <button type="submit" 
                                                         class="btn btn-sm btn-outline-danger" 
-                                                        title="Eliminar">
+                                                        title="{{ 'maintainers.common.delete'|trans({}, 'maintainers') }}">
                                                     <i class="bx bx-trash"></i>
                                                 </button>
                                             </form>
@@ -119,7 +125,7 @@
 
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div class="text-muted">
-                        Total: <strong>{{ data|length }}</strong> registro(s)
+                        {{ 'maintainers.common.total'|trans({}, 'maintainers') }}: <strong>{{ data|length }}</strong> {{ 'maintainers.common.records'|trans({}, 'maintainers') }}
                     </div>
                 </div>
             {% endif %}

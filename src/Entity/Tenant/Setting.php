@@ -2,7 +2,7 @@
 
 namespace App\Entity\Tenant;
 
-use App\Repository\SettingRepository;
+use App\Repository\Tenant\SettingRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 

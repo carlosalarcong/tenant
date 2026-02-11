@@ -4,12 +4,15 @@ namespace App\Controller\Maintainers\Basic;
 
 use App\Controller\AbstractMantenedorController;
 use App\Entity\Tenant\Occupation;
-use App\Form\Maintainers\OccupationType;
+use App\Form\Maintainers\Labor\OccupationType;
 use App\Repository\Tenant\OccupationRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Export\ExportService;
+use Doctrine\ORM\QueryBuilder;
+use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Occupation Controller
@@ -21,9 +24,12 @@ class OccupationController extends AbstractMantenedorController
 {
     public function __construct(
         private OccupationRepository $repository,
-        EntityManagerInterface $entityManager
+        TenantEntityManager $tenantEntityManager,
+        ExportService $exportService,
+        TranslatorInterface $translator
     ) {
-        parent::__construct($entityManager);
+        parent::__construct($tenantEntityManager, $translator);
+        $this->setExportService($exportService);
     }
 
     #[Route('', name: 'app_maintainers_occupation_index', methods: ['GET'])]
@@ -49,15 +55,31 @@ class OccupationController extends AbstractMantenedorController
     {
         return $this->handleDelete($request, $id);
     }
-
-    protected function getData(Request $request): array
+    
+    #[Route('/export', name: 'app_maintainers_occupation_export', methods: ['GET'])]
+    public function export(Request $request): Response
     {
-        return $this->repository->findAll();
+        return $this->handleExport(
+            request: $request,
+            columns: ['name', 'isActive'],
+            headers: $this->translateColumns(['name', 'is_active']),
+            filename: 'ocupaciones_' . date('Y-m-d') . '.csv'
+        );
+    }
+
+    protected function getData(Request $request): array|QueryBuilder
+    {
+        return $this->repository->createQueryBuilder('o')
+            ->orderBy('o.id', 'DESC');
     }
 
     protected function getColumns(): array
     {
-        return ['name', 'isActive'];
+        return [
+        'name' => $this->translator->trans('maintainers.columns.name', [], 'maintainers'),
+        'isActive' => $this->translator->trans('maintainers.columns.is_active', [], 'maintainers')
+    ];
+    
     }
 
     protected function getTemplatePath(): string
@@ -78,15 +100,6 @@ class OccupationController extends AbstractMantenedorController
     protected function getIndexRoute(): string
     {
         return 'app_maintainers_occupation_index';
-    }
-
-    protected function getPageTitle(string $action = 'index'): string
-    {
-        return match($action) {
-            'create' => 'Crear Ocupación',
-            'edit' => 'Editar Ocupación',
-            default => 'Ocupaciones'
-        };
     }
 
     protected function findEntity(int $id): ?object
