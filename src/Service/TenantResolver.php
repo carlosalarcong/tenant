@@ -86,7 +86,7 @@ class TenantResolver
 
             // Query compatible con PostgreSQL (is_active = true)
             $query = '
-                SELECT id, name, slug, subdomain, database_name, database_status, is_active
+                SELECT id, name, slug, slug AS subdomain, database_name, database_status, is_active
                 FROM tenant_db
                 WHERE slug = ? AND is_active = true
             ';
@@ -109,7 +109,7 @@ class TenantResolver
             
             // Query compatible con PostgreSQL (is_active = true)
             $query = '
-                SELECT id, name, slug, subdomain, database_name, database_status, is_active
+                SELECT id, name, slug, slug AS subdomain, database_name, database_status, is_active
                 FROM tenant_db
                 WHERE id = ? AND is_active = true
             ';
@@ -148,7 +148,7 @@ class TenantResolver
             $connection = DriverManager::getConnection($this->centralDbConfig, $this->dbalConfig);
             
             // Query compatible con PostgreSQL (is_active = true)
-            $query = 'SELECT subdomain, name FROM tenant_db WHERE is_active = true ORDER BY name';
+            $query = 'SELECT slug AS subdomain, name FROM tenant_db WHERE is_active = true ORDER BY name';
             $result = $connection->executeQuery($query);
             
             return $result->fetchAllAssociative();
