@@ -134,4 +134,27 @@ class BedRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    /**
+     * @return array<int, array{id:int,name:string}>
+     */
+    public function findActiveChoicesByService(?int $serviceId = null): array
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->select('b.id AS id', "CONCAT('Cama ', b.bedNumber) AS name")
+            ->where('b.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('b.bedNumber', 'ASC');
+
+        if ($serviceId !== null && $serviceId > 0) {
+            $qb->innerJoin('b.room', 'r')
+                ->andWhere('r.service = :serviceId')
+                ->setParameter('serviceId', $serviceId);
+        }
+
+        /** @var array<int, array{id:int,name:string}> $rows */
+        $rows = $qb->getQuery()->getArrayResult();
+
+        return $rows;
+    }
 }

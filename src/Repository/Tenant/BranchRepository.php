@@ -94,4 +94,21 @@ class BranchRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * @return array<int, array{id:int,name:string}>
+     */
+    public function findActiveChoices(): array
+    {
+        /** @var array<int, array{id:int,name:string}> $rows */
+        $rows = $this->createQueryBuilder('b')
+            ->select('b.id AS id', 'b.name AS name')
+            ->where('b.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('b.name', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return $rows;
+    }
 }

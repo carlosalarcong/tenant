@@ -7,6 +7,9 @@ export default class extends Controller {
         'payerSelect',
         'agreementSelect',
         'bedSelect',
+        'professionalSelect',
+        'specialtySelect',
+        'originSelect',
         'errorMessage',
     ];
 
@@ -20,13 +23,25 @@ export default class extends Controller {
         await Promise.all([
             this.loadServices(),
             this.loadPayers(),
+            this.loadProfessionals(),
+            this.loadSpecialties(),
+            this.loadOrigins(),
         ]);
+
+        if (this.hasPayerSelectTarget && this.payerSelectTarget.value && this.hasAgreementSelectTarget) {
+            await this.loadAgreements(this.payerSelectTarget.value);
+        }
+
+        if (this.hasServiceSelectTarget && this.serviceSelectTarget.value && this.hasBedSelectTarget) {
+            await this.loadBeds(this.serviceSelectTarget.value);
+        }
     }
 
     async onBranchChange() {
         await Promise.all([
             this.loadServices(),
             this.loadPayers(),
+            this.loadProfessionals(),
         ]);
 
         if (this.hasAgreementSelectTarget) {
@@ -69,7 +84,9 @@ export default class extends Controller {
         this.setLoadingState(this.serviceSelectTarget, true);
         
         try {
-            const data = await this.fetchJson('/api/admission/services');
+            const branchId = this.hasBranchSelectTarget ? this.branchSelectTarget.value : '';
+            const query = branchId ? `?branch=${encodeURIComponent(branchId)}` : '';
+            const data = await this.fetchJson(`/api/admission/services${query}`);
             this.populateSelect(this.serviceSelectTarget, data);
             this.hideError();
         } catch (error) {
@@ -88,7 +105,9 @@ export default class extends Controller {
         this.setLoadingState(this.payerSelectTarget, true);
         
         try {
-            const data = await this.fetchJson('/api/admission/payers');
+            const branchId = this.hasBranchSelectTarget ? this.branchSelectTarget.value : '';
+            const query = branchId ? `?branch=${encodeURIComponent(branchId)}` : '';
+            const data = await this.fetchJson(`/api/admission/payers${query}`);
             this.populateSelect(this.payerSelectTarget, data);
             this.hideError();
         } catch (error) {
@@ -126,6 +145,65 @@ export default class extends Controller {
             this.clearSelect(this.bedSelectTarget);
         } finally {
             this.setLoadingState(this.bedSelectTarget, false);
+        }
+    }
+
+    async loadProfessionals() {
+        if (!this.hasProfessionalSelectTarget) {
+            return;
+        }
+
+        this.setLoadingState(this.professionalSelectTarget, true);
+
+        try {
+            const branchId = this.hasBranchSelectTarget ? this.branchSelectTarget.value : '';
+            const query = branchId ? `?branch=${encodeURIComponent(branchId)}` : '';
+            const data = await this.fetchJson(`/api/admission/professionals${query}`);
+            this.populateSelect(this.professionalSelectTarget, data);
+            this.hideError();
+        } catch (error) {
+            this.handleFetchError('profesionales', error);
+            this.clearSelect(this.professionalSelectTarget);
+        } finally {
+            this.setLoadingState(this.professionalSelectTarget, false);
+        }
+    }
+
+    async loadSpecialties() {
+        if (!this.hasSpecialtySelectTarget) {
+            return;
+        }
+
+        this.setLoadingState(this.specialtySelectTarget, true);
+
+        try {
+            const data = await this.fetchJson('/api/admission/specialties');
+            this.populateSelect(this.specialtySelectTarget, data);
+            this.hideError();
+        } catch (error) {
+            this.handleFetchError('especialidades', error);
+            this.clearSelect(this.specialtySelectTarget);
+        } finally {
+            this.setLoadingState(this.specialtySelectTarget, false);
+        }
+    }
+
+    async loadOrigins() {
+        if (!this.hasOriginSelectTarget) {
+            return;
+        }
+
+        this.setLoadingState(this.originSelectTarget, true);
+
+        try {
+            const data = await this.fetchJson('/api/admission/origins');
+            this.populateSelect(this.originSelectTarget, data);
+            this.hideError();
+        } catch (error) {
+            this.handleFetchError('orígenes', error);
+            this.clearSelect(this.originSelectTarget);
+        } finally {
+            this.setLoadingState(this.originSelectTarget, false);
         }
     }
 
@@ -186,4 +264,3 @@ export default class extends Controller {
         }
     }
 }
-

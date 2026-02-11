@@ -1,66 +1,60 @@
 <turbo-frame id="admission-wizard-content">
     <div class="card shadow-sm border-0 mt-4">
-        <div class="card-body p-4" data-controller="admission--wizard">
-            <h4 class="mb-3">Paso 3 de 3: Cama y servicio</h4>
+        <div class="card-body p-4">
+            {{ include('admission/wizard/_timeline.html.twig', { current_step: 2 }) }}
+            <h4 class="mb-3">Paso 2 de 3: Resguardo Financiero</h4>
 
-            {# Mensaje de error para fallos de fetch #}
-            <div class="alert alert-danger d-none"
-                 data-admission--wizard-target="errorMessage"
-                 role="alert">
+            <div class="alert alert-success" role="alert">
+                <strong><i class="bx bx-info-circle"></i> Debe indicar un medio de pago para continuar...</strong>
             </div>
-            {% if form_errors(form.service) or form_errors(form.bed) %}
-                <div class="alert alert-danger" role="alert">
-                    {{ form_errors(form.service) }}
-                    {{ form_errors(form.bed) }}
-                </div>
-            {% endif %}
 
-            {{ form_start(form, {
-                action: path('app_admission_wizard_step3')
-            }) }}
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label for="branch" class="form-label">Sucursal</label>
-                        <select id="branch"
-                                name="{{ form.branch.vars.full_name }}"
-                                class="form-select"
-                                data-admission--wizard-target="branchSelect"
-                                data-action="change->admission--wizard#onBranchChange">
-                            <option value="1" selected>Sucursal principal</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="service" class="form-label">
-                            Servicio <span class="text-danger">*</span>
-                        </label>
-                        <select id="service"
-                                name="{{ form.service.vars.full_name }}"
-                                class="form-select"
-                                data-admission--wizard-target="serviceSelect"
-                                data-action="change->admission--wizard#onServiceChange"
-                                required>
-                            <option value="">-- Seleccionar servicio --</option>
-                            {% if form.service.vars.value %}
-                                <option value="{{ form.service.vars.value }}" selected>Cargando selección...</option>
-                            {% endif %}
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="bed" class="form-label">
-                            Cama <span class="text-danger">*</span>
-                        </label>
-                        <select id="bed"
-                                name="{{ form.bed.vars.full_name }}"
-                                class="form-select"
-                                data-admission--wizard-target="bedSelect"
-                                required>
-                            <option value="">-- Seleccionar cama --</option>
-                            {% if form.bed.vars.value %}
-                                <option value="{{ form.bed.vars.value }}" selected>Cargando selección...</option>
-                            {% endif %}
-                        </select>
-                        <small class="form-text text-muted">Seleccione primero un servicio</small>
-                    </div>
+            <form method="post" action="{{ path('app_admission_wizard_step3') }}" id="financial-safeguard-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('admission_step3_financial') }}">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead>
+                            <tr class="table-primary">
+                                <th style="width: 55%">GARANTÍA</th>
+                                <th style="width: 30%">Monto</th>
+                                <th style="width: 15%" class="text-center">Activar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for method in payment_methods %}
+                                {% set posted = posted_methods[method.id]|default({}) %}
+                                {% set enabled = posted.enabled|default('') in ['1', 'on', 'true'] %}
+                                <tr>
+                                    <td>{{ method.name }}</td>
+                                    <td>
+                                        <input type="number"
+                                               step="0.01"
+                                               min="0"
+                                               class="form-control js-amount"
+                                               name="methods[{{ method.id }}][amount]"
+                                               value="{{ posted.amount|default('') }}"
+                                               placeholder="0">
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="form-check form-switch d-inline-block">
+                                            <input class="form-check-input js-enabled"
+                                                   type="checkbox"
+                                                   name="methods[{{ method.id }}][enabled]"
+                                                   value="1"
+                                                   {% if enabled %}checked{% endif %}>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-muted">No hay medios de pago de garantía configurados.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-end mb-3">
+                    <h5 class="mb-0">Monto Total: <span class="text-danger" id="financial-total">0.00</span></h5>
                 </div>
 
                 <div class="d-flex gap-2 justify-content-end mt-4">
@@ -68,11 +62,37 @@
                         <i class="bx bx-chevron-left"></i> Volver
                     </a>
                     <button type="submit" class="btn btn-success">
-                        <i class="bx bx-check-circle"></i> Finalizar admisión
+                        Continuar <i class="bx bx-chevron-right"></i>
                     </button>
                 </div>
-                {{ form_widget(form._token) }}
-            {{ form_end(form, { render_rest: false }) }}
+            </form>
         </div>
     </div>
+
+    <script>
+        (() => {
+            const form = document.getElementById('financial-safeguard-form');
+            if (!form) return;
+
+            const calcTotal = () => {
+                let total = 0;
+                form.querySelectorAll('tbody tr').forEach((row) => {
+                    const enabled = row.querySelector('.js-enabled');
+                    const amount = row.querySelector('.js-amount');
+                    if (!enabled || !amount) return;
+                    if (!enabled.checked) return;
+                    const value = parseFloat(amount.value || '0');
+                    if (!Number.isNaN(value) && value > 0) {
+                        total += value;
+                    }
+                });
+                const node = document.getElementById('financial-total');
+                if (node) node.textContent = total.toFixed(2);
+            };
+
+            form.addEventListener('input', calcTotal);
+            form.addEventListener('change', calcTotal);
+            calcTotal();
+        })();
+    </script>
 </turbo-frame>

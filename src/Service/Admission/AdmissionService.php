@@ -67,10 +67,15 @@ class AdmissionService
 
         $record->setService($service);
         $record->setBed($bed);
-        $record->setStatus('completed');
         $this->entityManager->flush();
 
         return true;
+    }
+
+    public function finalizeAdmission(AdmissionRecord $record): void
+    {
+        $record->setStatus('completed');
+        $this->entityManager->flush();
     }
 
     public function resolveAdmissionLookups(AdmissionRecord $record): array

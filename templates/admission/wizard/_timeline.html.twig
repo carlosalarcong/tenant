@@ -1,0 +1,94 @@
+{% set steps = [
+    'Datos de la Admisión',
+    'Resguardo Financiero',
+    'Finalizar'
+] %}
+
+<div class="admission-timeline mb-4">
+    <div class="admission-timeline-track"></div>
+    <div class="admission-timeline-steps">
+        {% for label in steps %}
+            {% set stepNumber = loop.index %}
+            {% set state = stepNumber < current_step ? 'done' : (stepNumber == current_step ? 'active' : 'pending') %}
+            <div class="admission-timeline-step admission-timeline-step--{{ state }}">
+                <div class="admission-timeline-bullet">
+                    {% if state == 'done' %}
+                        <i class="bx bx-check"></i>
+                    {% else %}
+                        {{ stepNumber }}
+                    {% endif %}
+                </div>
+                <div class="admission-timeline-label">{{ label }}</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .admission-timeline {
+        position: relative;
+        padding: 8px 4px 0;
+    }
+
+    .admission-timeline-track {
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        top: 24px;
+        height: 3px;
+        background: #d9dee7;
+    }
+
+    .admission-timeline-steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .admission-timeline-step {
+        text-align: center;
+    }
+
+    .admission-timeline-bullet {
+        width: 34px;
+        height: 34px;
+        margin: 0 auto 8px;
+        border-radius: 50%;
+        border: 3px solid #c6ccd8;
+        background: #fff;
+        color: #6c7a92;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .admission-timeline-label {
+        font-size: 0.9rem;
+        color: #6c7a92;
+        line-height: 1.2;
+    }
+
+    .admission-timeline-step--active .admission-timeline-bullet {
+        border-color: #2a7de1;
+        color: #2a7de1;
+    }
+
+    .admission-timeline-step--active .admission-timeline-label {
+        color: #1e3b68;
+        font-weight: 600;
+    }
+
+    .admission-timeline-step--done .admission-timeline-bullet {
+        border-color: #2a7de1;
+        background: #2a7de1;
+        color: #fff;
+    }
+
+    .admission-timeline-step--done .admission-timeline-label {
+        color: #1e3b68;
+    }
+</style>
