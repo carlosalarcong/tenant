@@ -6,7 +6,7 @@ use App\Entity\Tenant\AdmissionRecord;
 use App\Entity\Tenant\Agreement;
 use App\Entity\Tenant\Bed;
 use App\Entity\Tenant\Payer;
-use App\Entity\Tenant\Person;
+use App\Entity\Tenant\Patient;
 use App\Entity\Tenant\Service;
 use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 
@@ -16,10 +16,10 @@ class AdmissionService
         private TenantEntityManager $entityManager
     ) {}
 
-    public function createDraftAdmission(Person $patient, string $admissionType): AdmissionRecord
+    public function createDraftAdmission(Patient $patient, string $admissionType): AdmissionRecord
     {
         $record = new AdmissionRecord();
-        $record->setPerson($patient);
+        $record->setPatient($patient);
         $record->setAdmissionType($admissionType);
         $record->setStatus('draft');
 

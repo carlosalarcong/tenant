@@ -4,7 +4,7 @@ namespace App\Controller\Admission;
 
 use App\Controller\AbstractTenantAwareController;
 use App\Entity\Tenant\AdmissionRecord;
-use App\Entity\Tenant\Person;
+use App\Entity\Tenant\Patient;
 use App\Form\Admission\PatientRegistrationUrgencyType;
 use App\Service\Admission\AdmissionService;
 use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
@@ -31,8 +31,20 @@ class EmergencyAdmissionController extends AbstractTenantAwareController
     #[Route('/create/{patientId}', name: 'create', methods: ['GET', 'POST'])]
     public function create(Request $request, int $patientId): Response
     {
-        $patient = $this->entityManager->find(Person::class, $patientId);
-        if (!$patient instanceof Person) {
+        $patient = $this->entityManager->find(Patient::class, $patientId);
+        if (!$patient instanceof Patient) {
+            $patient = $this->entityManager->createQueryBuilder()
+                ->select('p')
+                ->from(Patient::class, 'p')
+                ->where('IDENTITY(p.person) = :personId')
+                ->setParameter('personId', $patientId)
+                ->orderBy('p.id', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getOneOrNullResult();
+        }
+
+        if (!$patient instanceof Patient) {
             $this->addFlash('danger', 'Paciente no encontrado para urgencia.');
             return $this->redirectToRoute('app_admission_emergency_index');
         }
@@ -47,7 +59,7 @@ class EmergencyAdmissionController extends AbstractTenantAwareController
             /** @var array<string,mixed> $data */
             $data = $form->getData();
             $record = new AdmissionRecord();
-            $record->setPerson($patient);
+            $record->setPatient($patient);
             $record->setAdmissionType('urgencia');
             $record->setStatus('completed');
             $record->setTriage(trim((string) ($data['triage'] ?? '')));

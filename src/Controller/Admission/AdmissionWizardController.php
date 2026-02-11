@@ -4,7 +4,7 @@ namespace App\Controller\Admission;
 
 use App\Controller\AbstractTenantAwareController;
 use App\Entity\Tenant\AdmissionRecord;
-use App\Entity\Tenant\Person;
+use App\Entity\Tenant\Patient;
 use App\Form\Admission\AdmissionStep2Type;
 use App\Repository\Tenant\BranchRepository;
 use App\Repository\Tenant\PaymentMethodRepository;
@@ -27,8 +27,20 @@ class AdmissionWizardController extends AbstractTenantAwareController
     #[Route('/step1/{patientId}', name: 'step1', methods: ['GET', 'POST'])]
     public function step1(Request $request, int $patientId): Response
     {
-        $patient = $this->entityManager->find(Person::class, $patientId);
-        if (!$patient instanceof Person) {
+        $patient = $this->entityManager->find(Patient::class, $patientId);
+        if (!$patient instanceof Patient) {
+            $patient = $this->entityManager->createQueryBuilder()
+                ->select('p')
+                ->from(Patient::class, 'p')
+                ->where('IDENTITY(p.person) = :personId')
+                ->setParameter('personId', $patientId)
+                ->orderBy('p.id', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getOneOrNullResult();
+        }
+
+        if (!$patient instanceof Patient) {
             $this->addFlash('danger', 'Paciente no encontrado.');
             return $this->redirectToRoute('app_admission_hospitalization_index');
         }
@@ -39,13 +51,13 @@ class AdmissionWizardController extends AbstractTenantAwareController
         }
         $wizardData = $request->getSession()->get('admission_wizard', []);
         $recordId = isset($wizardData['admission_record_id']) ? (int) $wizardData['admission_record_id'] : 0;
-        $samePatient = isset($wizardData['patient_id']) && (int) $wizardData['patient_id'] === $patientId;
+        $samePatient = isset($wizardData['patient_id']) && (int) $wizardData['patient_id'] === $patient->getId();
         $record = $recordId > 0 ? $this->entityManager->find(AdmissionRecord::class, $recordId) : null;
 
         if (!$samePatient || !$record instanceof AdmissionRecord) {
             $record = $this->admissionService->createDraftAdmission($patient, $admissionType);
             $wizardData = [
-                'patient_id' => $patientId,
+                'patient_id' => $patient->getId(),
                 'admission_record_id' => $record->getId(),
                 'admission_type' => $admissionType,
             ];
