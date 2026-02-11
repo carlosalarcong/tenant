@@ -222,11 +222,11 @@ class DynamicControllerResolver
         // Generar patrones de búsqueda dinámicos
         $dynamicPatterns = [
             // 1. Inyectar tenant en la posición 3 (después de Controller)
-            // App\Controller\Dashboard\Melisahospital\DefaultController
+            // App\Controller\Dashboard\Hospital\DefaultController
             "{$baseNamespace}\\{$controllerType}\\{$tenantKey}\\{$controllerName}",
             
             // 2. Reemplazar la posición 3 completamente por el tenant
-            // App\Controller\Melisahospital\DefaultController
+            // App\Controller\Hospital\DefaultController
             "{$baseNamespace}\\{$tenantKey}\\{$controllerName}",
             
             // 3. Mantener estructura pero cambiar a Default si el tenant no existe
@@ -392,14 +392,14 @@ class DynamicControllerResolver
         if (!$tenant || !isset($tenant['name'])) {
             return [
                 'id' => 1,
-                'name' => 'Melisa Clinic',
+                'name' => 'Clinic',
                 'subdomain' => 'default',
                 'database_name' => '',
                 'rut_empresa' => null,
                 'host' => 'localhost',
                 'host_port' => 3306,
-                'db_user' => 'melisa',
-                'db_password' => 'melisamelisa'
+                'db_user' => $_ENV['TENANT_DB_USER'] ?? 'tenant',
+                'db_password' => $_ENV['TENANT_DB_PASSWORD'] ?? ''
             ];
         }
         

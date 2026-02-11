@@ -8,8 +8,30 @@ File: Common Plugins Js File
 */
 
 //Common plugins
-if(document.querySelectorAll("[toast-list]") || document.querySelectorAll('[data-choices]') || document.querySelectorAll("[data-provider]")){ 
-  document.writeln("<script type='text/javascript' src='https://cdn.jsdelivr.net/npm/toastify-js'></script>");
-  document.writeln("<script type='text/javascript' src='assets/libs/choices.js/public/assets/scripts/choices.min.js'></script>");
-  document.writeln("<script type='text/javascript' src='assets/libs/flatpickr/flatpickr.min.js'></script>");    
+const shouldLoadPlugins =
+  document.querySelectorAll("[toast-list]").length > 0 ||
+  document.querySelectorAll("[data-choices]").length > 0 ||
+  document.querySelectorAll("[data-provider]").length > 0;
+
+if (shouldLoadPlugins) {
+  const loadScript = (src) => {
+    const absoluteUrl = new URL(src, window.location.origin).toString();
+    const alreadyLoaded = Array.from(document.scripts).some(
+      (script) => script.src === absoluteUrl
+    );
+
+    if (alreadyLoaded) {
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = src;
+    script.defer = true;
+    document.head.appendChild(script);
+  };
+
+  loadScript("/assets/libs/toastify-js/src/toastify.js");
+  loadScript("/assets/libs/choices.js/public/assets/scripts/choices.min.js");
+  loadScript("/assets/libs/flatpickr/flatpickr.min.js");
 }

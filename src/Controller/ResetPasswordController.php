@@ -126,9 +126,9 @@ class ResetPasswordController extends AbstractController
         }
 
         $email = (new TemplatedEmail())
-            ->from(new Address('noreply@melisa.com', 'Sistema Melisa'))
+            ->from(new Address($_ENV['MAILER_SENDER_ADDRESS'], $_ENV['MAILER_SENDER_NAME']))
             ->to((string) $user->getEmail())
-            ->subject('Recuperación de Contraseña - Sistema Melisa')
+            ->subject('Recuperación de Contraseña - ' . $_ENV['MAILER_SENDER_NAME'])
             ->htmlTemplate('reset_password/email.html.twig')
             ->context([
                 'resetToken' => $resetToken,

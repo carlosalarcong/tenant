@@ -4,12 +4,15 @@ namespace App\Controller\Maintainers\Basic;
 
 use App\Controller\AbstractMantenedorController;
 use App\Entity\Tenant\InsuranceAdministrator;
-use App\Form\Maintainers\InsuranceAdministratorType;
+use App\Form\Maintainers\Insurance\InsuranceAdministratorType;
 use App\Repository\Tenant\InsuranceAdministratorRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Export\ExportService;
+use Doctrine\ORM\QueryBuilder;
+use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Insurance Administrator Controller
@@ -21,9 +24,12 @@ class InsuranceAdministratorController extends AbstractMantenedorController
 {
     public function __construct(
         private InsuranceAdministratorRepository $repository,
-        EntityManagerInterface $entityManager
+        TenantEntityManager $tenantEntityManager,
+        ExportService $exportService,
+        TranslatorInterface $translator
     ) {
-        parent::__construct($entityManager);
+        parent::__construct($tenantEntityManager, $translator);
+        $this->setExportService($exportService);
     }
 
     #[Route('', name: 'app_maintainers_insurance_administrator_index', methods: ['GET'])]
@@ -50,14 +56,31 @@ class InsuranceAdministratorController extends AbstractMantenedorController
         return $this->handleDelete($request, $id);
     }
 
-    protected function getData(Request $request): array
+    #[Route('/export', name: 'app_maintainers_insurance_administrator_export', methods: ['GET'])]
+    public function export(Request $request): Response
     {
-        return $this->repository->findAll();
+        return $this->handleExport(
+            request: $request,
+            columns: ['name', 'code', 'isActive'],
+            headers: $this->translateColumns(['name', 'code', 'is_active']),
+            filename: 'administradoras_seguro_' . date('Y-m-d') . '.csv'
+        );
+    }
+
+    protected function getData(Request $request): array|QueryBuilder
+    {
+        return $this->repository->createQueryBuilder('ia')
+            ->orderBy('ia.id', 'DESC');
     }
 
     protected function getColumns(): array
     {
-        return ['name', 'code', 'isActive'];
+        return [
+        'name' => $this->translator->trans('maintainers.columns.name', [], 'maintainers'),
+        'code' => $this->translator->trans('maintainers.columns.code', [], 'maintainers'),
+        'isActive' => $this->translator->trans('maintainers.columns.is_active', [], 'maintainers')
+    ];
+    
     }
 
     protected function getTemplatePath(): string
@@ -78,15 +101,6 @@ class InsuranceAdministratorController extends AbstractMantenedorController
     protected function getIndexRoute(): string
     {
         return 'app_maintainers_insurance_administrator_index';
-    }
-
-    protected function getPageTitle(string $action = 'index'): string
-    {
-        return match($action) {
-            'create' => 'Crear Administrador de Seguro',
-            'edit' => 'Editar Administrador de Seguro',
-            default => 'Administradores de Seguro'
-        };
     }
 
     protected function findEntity(int $id): ?object

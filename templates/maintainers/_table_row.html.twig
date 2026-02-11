@@ -1,0 +1,88 @@
+{#
+    Template parcial para renderizar una fila de tabla de mantenedores
+    Usado por Turbo Streams para actualizar filas individuales sin recargar toda la tabla
+    
+    Variables esperadas:
+    - entity: La entidad del mantenedor
+    - columns: Array de columnas a mostrar (pasado desde el template principal)
+    - edit_route: (opcional) Ruta para editar
+    - delete_route: (opcional) Ruta para eliminar
+#}
+<tr id="maintainer-row-{{ entity.id }}" style="border-bottom: 1px solid #f1f5f9;">
+    <td class="px-3">
+        <input type="checkbox" class="form-check-input">
+    </td>
+    {% for column_key, column_value in columns %}
+        {# Determinar nombre de columna según formato #}
+        {% set column = (column_key == loop.index0) ? column_value : column_key %}
+        <td class="px-3" style="font-size: 0.875rem; color: #0f172a;">
+            {% if '.' in column %}
+                {% set parts = column|split('.') %}
+                {% set rel = attribute(entity, parts[0]) %}
+                {% set value = rel is not null ? attribute(rel, parts[1]) : null %}
+            {% else %}
+                {% set value = attribute(entity, column) %}
+            {% endif %}
+            {% if column == 'isActive' %}
+                {% if value %}
+                    <span class="badge rounded-pill" style="background-color: #d1fae5; color: #065f46; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600;">
+                        {{ 'maintainers.columns.active'|trans({}, 'maintainers') }}
+                    </span>
+                {% else %}
+                    <span class="badge rounded-pill bg-secondary">{{ 'maintainers.columns.inactive'|trans({}, 'maintainers') }}</span>
+                {% endif %}
+            {% elseif column in ['isDte', 'isLogistics', 'isCash', 'isClp', 'isUpToDate'] %}
+                {% if value %}
+                    <span class="badge rounded-pill" style="background-color: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600;">{{ 'maintainers.columns.yes'|trans({}, 'maintainers') }}</span>
+                {% else %}
+                    <span class="badge rounded-pill bg-light text-muted" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">{{ 'maintainers.columns.no'|trans({}, 'maintainers') }}</span>
+                {% endif %}
+            {% elseif column == 'educationLevel' and value %}
+                {{ value.name }}
+            {% elseif column == 'originType' and value %}
+                {{ value.name }}
+            {% else %}
+                {{ value ?? '-' }}
+            {% endif %}
+        </td>
+    {% endfor %}
+   <td class="text-end px-3">
+        <div class="d-inline-flex gap-1">
+            {% set edit_route = app.request.attributes.get('_route')|replace({'_index': '_edit'}) %}
+            {% if is_granted(constant('App\\Security\\Voter\\MaintainerVoter::UPDATE'), entity) %}
+            <button type="button"
+               class="btn btn-sm action-btn action-btn-edit border-0" 
+               style="color: #5e72e4;"
+               data-bs-toggle="modal" 
+               data-bs-target="#maintainerModal"
+               data-modal-url="{{ path(edit_route, {'id': entity.id}) }}"
+               data-modal-title="<i class='bx bx-edit me-2'></i>{{ 'maintainers.common.edit_record'|trans({}, 'maintainers') }}"
+               title="{{ 'maintainers.common.edit'|trans({}, 'maintainers') }}">
+                <i class='bx bx-edit-alt'></i>
+            </button>
+            {% endif %}
+            
+            {% set delete_route = app.request.attributes.get('_route')|replace({'_index': '_delete'}) %}
+            {% if is_granted(constant('App\\Security\\Voter\\MaintainerVoter::DELETE'), entity) %}
+            <form method="post" 
+                  action="{{ path(delete_route, {'id': entity.id}) }}" 
+                  class="d-inline"
+                  data-turbo-frame="_top"
+                  data-controller="confirm-delete"
+                  data-confirm-delete-title-value="{{ 'maintainers.common.confirm_delete_title'|trans({}, 'maintainers') }}"
+                  data-confirm-delete-text-value="{{ 'maintainers.common.confirm_delete_text'|trans({}, 'maintainers') }}"
+                  data-confirm-delete-confirm-button-text-value="{{ 'maintainers.common.yes_delete'|trans({}, 'maintainers') }}"
+                  data-confirm-delete-cancel-button-text-value="{{ 'maintainers.common.cancel'|trans({}, 'maintainers') }}"
+                  data-action="submit->confirm-delete#confirm">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ entity.id) }}">
+                <button type="submit"
+                        class="btn btn-sm action-btn action-btn-delete border-0"
+                        style="color: #ef4444;"
+                        title="{{ 'maintainers.common.delete'|trans({}, 'maintainers') }}">
+                    <i class='bx bx-trash-alt'></i>
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </td>
+</tr>

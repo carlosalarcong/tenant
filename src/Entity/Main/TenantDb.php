@@ -76,12 +76,12 @@ class TenantDb implements TenantDbConfigurationInterface
 
     public function getDbUsername(): string
     {
-        return 'melisa';
+        return $_ENV['TENANT_DB_USER'] ?? 'tenant';
     }
 
     public function getDbPassword(): string
     {
-        return 'melisamelisa';
+        return $_ENV['TENANT_DB_PASSWORD'] ?? '';
     }
 
     public function getDbHost(): string

@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Tenant\Setting;
-use App\Repository\SettingRepository;
+use App\Repository\Tenant\SettingRepository;
 use App\Service\Settings;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;

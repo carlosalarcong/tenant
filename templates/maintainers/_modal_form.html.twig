@@ -1,0 +1,57 @@
+{#
+    Formulario Modal Universal para Mantenedores
+    
+    Este template renderiza automáticamente TODOS los campos del formulario,
+    funcionando para cualquier mantenedor sin importar sus campos específicos.
+    
+    El formulario se adapta automáticamente según los campos definidos en el FormType.
+#}
+
+<turbo-frame id="maintainer-form">
+    {{ form_start(form, {
+        'action': action_url|default(''),
+        'attr': {
+            'novalidate': 'novalidate',
+            'data-turbo-frame': '_top'
+        }
+    }) }}
+    
+    {# Iterar sobre todos los campos del formulario excepto _token y submit #}
+    {% for field in form %}
+        {% if field.vars.name not in ['_token'] %}
+            <div class="mb-3">
+                {# Para campos checkbox/switch (active, isActive) #}
+                {% if field.vars.block_prefixes[1] == 'checkbox' %}
+                    <div class="form-check form-switch">
+                        {{ form_widget(field, {'attr': {'class': 'form-check-input'}}) }}
+                        {{ form_label(field, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                        {% if field.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {{ form_errors(field) }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {# Para campos de texto, select, textarea, etc. #}
+                {% else %}
+                    {{ form_row(field, {
+                        'attr': {'class': 'form-control'},
+                        'label_attr': {'class': 'form-label'}
+                    }) }}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    {# Botones de acción #}
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            <i class="bx bx-x me-1"></i>{{ 'maintainers.common.cancel'|trans({}, 'maintainers') }}
+        </button>
+        <button type="submit" class="btn btn-primary">
+            <i class="bx bx-save me-1"></i>{{ 'maintainers.common.save'|trans({}, 'maintainers') }}
+        </button>
+    </div>
+
+    {{ form_end(form) }}
+</turbo-frame>
+

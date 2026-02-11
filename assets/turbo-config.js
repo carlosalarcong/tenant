@@ -1,31 +1,9 @@
 // Configuración global de Turbo para optimizar el rendimiento y evitar warnings
 
 // Configuración de Turbo para reducir conflictos con import maps
-import { Turbo } from '@hotwired/turbo';
+import '@hotwired/turbo';
 
-// Configurar Turbo para que sea más selectivo sobre qué elementos recarga
-Turbo.config.action = 'replace';
-
-// Agregar listeners específicos para optimizar la carga
-document.addEventListener('turbo:before-render', function(event) {
-    // Preservar elementos permanentes más específicamente
-    const importMaps = document.querySelectorAll('script[type="importmap"]');
-    importMaps.forEach(map => {
-        if (!map.hasAttribute('data-turbo-permanent')) {
-            map.setAttribute('data-turbo-permanent', '');
-        }
-    });
-    
-    // Preservar stylesheets específicos del tenant
-    const stylesheets = document.querySelectorAll('link[rel="stylesheet"]');
-    stylesheets.forEach(link => {
-        if (link.href.includes('bootstrap') || link.href.includes('fontawesome')) {
-            if (!link.hasAttribute('data-turbo-permanent')) {
-                link.setAttribute('data-turbo-permanent', '');
-            }
-        }
-    });
-});
+const Turbo = window.Turbo;
 
 // Optimizar carga de páginas
 document.addEventListener('turbo:load', function() {
@@ -49,25 +27,5 @@ document.addEventListener('turbo:load', function() {
 document.addEventListener('turbo:fetch-request-error', function(event) {
     console.warn('Error de navegación Turbo:', event.detail.error);
 });
-
-// Configuración para desarrollo - silenciar warnings molestos pero no críticos
-if (process.env.NODE_ENV === 'development') {
-    const originalConsoleWarn = console.warn;
-    console.warn = function(...args) {
-        const message = args.join(' ');
-        
-        // Lista de warnings que podemos silenciar de forma segura
-        const silencePatterns = [
-            /import map rule for specifier.*was removed.*conflicted/i,
-            /An import map rule for specifier.*was removed/i
-        ];
-        
-        const shouldSilence = silencePatterns.some(pattern => pattern.test(message));
-        
-        if (!shouldSilence) {
-            originalConsoleWarn.apply(console, args);
-        }
-    };
-}
 
 export default Turbo;

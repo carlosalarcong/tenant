@@ -1,6 +1,6 @@
 {% extends 'app_layout.html.twig' %}
 
-{% block title %}{{ page_title }} - Melisa{% endblock %}
+{% block title %}{{ page_title }} - Sistema{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -46,8 +46,8 @@
                 <li class="breadcrumb-item">
                     <i class="bx bx-home-alt"></i>
                 </li>
-                <li class="breadcrumb-item text-muted">Mantenedores</li>
-                <li class="breadcrumb-item text-muted">{{ breadcrumb_section ?? 'Básico' }}</li>
+                <li class="breadcrumb-item text-muted">{{ 'maintainers.breadcrumb.maintainers'|trans({}, 'maintainers') }}</li>
+                <li class="breadcrumb-item text-muted">{{ breadcrumb_section ?? ('maintainers.breadcrumb.basic'|trans({}, 'maintainers')) }}</li>
                 <li class="breadcrumb-item active" aria-current="page">{{ page_title }}</li>
             </ol>
         </nav>
@@ -60,60 +60,130 @@
                         <span style="font-size: 2rem;">{{ icon ?? '📋' }}</span>
                         <div>
                             <h1 class="h2 fw-bold mb-1" style="color: #0f172a;">{{ page_title }}</h1>
-                            <p class="text-muted mb-0 small">{{ description ?? 'Gestiona y administra ' ~ page_title|lower }}</p>
+                            <p class="text-muted mb-0 small">{{ description ?? ('maintainers.common.manage_and_admin'|trans({'entity': page_title|lower}, 'maintainers')) }}</p>
                         </div>
                     </div>
                     
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-secondary d-flex align-items-center gap-2">
-                            <i class="bx bx-download"></i>
-                            Exportar
-                        </button>
-                        {% if create_route is defined %}
-                            <a href="{{ path(create_route) }}" class="btn btn-primary d-flex align-items-center gap-2" style="box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);">
-                                <i class="bx bx-plus"></i>
-                                Nuevo Registro
+                        {% if export_route is defined and is_granted(constant('App\\Security\\Voter\\MaintainerVoter::EXPORT'), entity_class|default(null)) %}
+                            <a href="{{ path(export_route) }}" 
+                               class="btn btn-outline-secondary d-flex align-items-center gap-2"
+                               title="{{ 'maintainers.common.export_csv'|trans({}, 'maintainers') }}"
+                               data-turbo="false">
+                                <i class="bx bx-download"></i>
+                                {{ 'maintainers.common.export'|trans({}, 'maintainers') }}
                             </a>
+                        {% endif %}
+                        {% if create_route is defined and is_granted(constant('App\\Security\\Voter\\MaintainerVoter::CREATE'), entity_class|default(null)) %}
+                            <button type="button" 
+                                    class="btn btn-primary d-flex align-items-center gap-2" 
+                                    style="box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#maintainerModal"
+                                    data-modal-url="{{ path(create_route) }}"
+                                    data-modal-title="<i class='bx bx-plus me-2'></i>Nuevo {{ page_title }}">
+                                <i class="bx bx-plus"></i>
+                                {{ 'maintainers.common.new_record'|trans({}, 'maintainers') }}
+                            </button>
                         {% endif %}
                     </div>
                 </div>
 
-                {# Toolbar #}
-                <div class="d-flex gap-2 flex-wrap">
-                    <div class="flex-grow-1" style="min-width: 250px;">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0">
-                                <i class="bx bx-search text-muted"></i>
-                            </span>
-                            <input type="text" class="form-control search-input border-start-0" placeholder="Buscar..." style="border-radius: 0 8px 8px 0;">
-                        </div>
+                {# Search and Filters Toolbar #}
+                {% if search_config.enabled or filter_config.status.enabled %}
+                    <div data-controller="search-filter">
+                        <form method="get" 
+                              data-search-filter-target="form"
+                              data-action="submit->search-filter#preventRefresh">
+                            
+                            <div class="row g-3">
+                                {# Search Input #}
+                                {% if search_config.enabled %}
+                                    <div class="col-md-8">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0">
+                                                <i class="bx bx-search text-muted"></i>
+                                            </span>
+                                            <input type="search" 
+                                                   name="search"
+                                                   class="form-control search-input border-start-0" 
+                                                   placeholder="{{ search_config.placeholder }}"
+                                                   value="{{ search }}"
+                                                   data-search-filter-target="input"
+                                                   data-action="input->search-filter#debounce"
+                                                   style="border-radius: 0 8px 8px 0;">
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                {# Status Filter #}
+                                {% if filter_config.status.enabled %}
+                                    <div class="col-md-4">
+                                        <select name="status" 
+                                                class="form-select"
+                                                data-action="change->search-filter#submit"
+                                                style="border-radius: 8px;">
+                                            {% for value, label in filter_config.status.options %}
+                                                <option value="{{ value }}" {% if status == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {# Hidden inputs to preserve pagination #}
+                            <input type="hidden" name="page" value="{{ app.request.query.get('page', 1) }}">
+                        </form>
+
+                        {# Active Filters Indicator #}
+                        {% if search or status != 'all' %}
+                            <div class="mt-3">
+                                <small class="text-muted d-flex align-items-center gap-2">
+                                    <i class='bx bx-filter'></i>
+                                    <span>{{ 'maintainers.filters_active'|trans({}, 'maintainers') }}</span>
+                                    
+                                    {% if search %}
+                                        <span class="badge bg-info-subtle text-info border border-info">
+                                            {{ 'maintainers.search'|trans({}, 'maintainers') }}: "{{ search }}"
+                                        </span>
+                                    {% endif %}
+                                    
+                                    {% if status != 'all' %}
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary">
+                                            {{ filter_config.status.options[status] }}
+                                        </span>
+                                    {% endif %}
+                                    
+                                    <a href="{{ path(app.request.attributes.get('_route')) }}" 
+                                       class="text-decoration-none ms-2">
+                                        <i class='bx bx-x'></i> {{ 'maintainers.clear_filters'|trans({}, 'maintainers') }}
+                                    </a>
+                                </small>
+                            </div>
+                        {% endif %}
                     </div>
-                    <button class="btn btn-outline-secondary d-flex align-items-center gap-2">
-                        <i class="bx bx-filter-alt"></i>
-                        Filtros
-                    </button>
-                    <button class="btn btn-outline-secondary d-flex align-items-center gap-2">
-                        <i class="bx bx-cog"></i>
-                        Columnas
-                    </button>
-                </div>
+                {% endif %}
             </div>
         </div>
 
         {# Flash Messages #}
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-radius: 12px;">
-                <i class="bx bx-check-circle me-2"></i>{{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
+        <div id="flash-messages">
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-radius: 12px;">
+                    <i class="bx bx-check-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
 
-        {% for message in app.flashes('error') %}
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-radius: 12px;">
-                <i class="bx bx-error-circle me-2"></i>{{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-radius: 12px;">
+                    <i class="bx bx-error-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
 
         {# Stats Cards #}
         <div class="row g-3 mb-4">
@@ -123,9 +193,11 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="text-muted text-uppercase mb-2" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">
-                                    Total Registros
+                                    {{ 'maintainers.stats.total_records'|trans({}, 'maintainers') }}
                                 </p>
-                                <h2 class="fw-bold mb-0" style="color: #0f172a;">{{ data|length }}</h2>
+                                <h2 class="fw-bold mb-0" style="color: #0f172a;">
+                                    {{ pagination ? pagination.total_items : data|length }}
+                                </h2>
                             </div>
                             <span style="font-size: 1.5rem;">📊</span>
                         </div>
@@ -139,7 +211,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="text-muted text-uppercase mb-2" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">
-                                    Activos
+                                    {{ 'maintainers.stats.active_records'|trans({}, 'maintainers') }}
                                 </p>
                                 <h2 class="fw-bold mb-0" style="color: #0f172a;">
                                     {{ data|filter(item => item.isActive ?? item.active ?? true)|length }}
@@ -157,7 +229,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="text-muted text-uppercase mb-2" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">
-                                    Inactivos
+                                    {{ 'maintainers.stats.inactive_records'|trans({}, 'maintainers') }}
                                 </p>
                                 <h2 class="fw-bold mb-0" style="color: #0f172a;">
                                     {{ data|filter(item => not (item.isActive ?? item.active ?? true))|length }}
@@ -175,7 +247,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="text-muted text-uppercase mb-2" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">
-                                    Modificados Hoy
+                                    {{ 'maintainers.stats.modified_today'|trans({}, 'maintainers') }}
                                 </p>
                                 <h2 class="fw-bold mb-0" style="color: #0f172a;">0</h2>
                             </div>
@@ -191,12 +263,18 @@
             {% if data is empty %}
                 <div class="card-body text-center py-5">
                     <i class="bx bx-inbox text-muted mb-3" style="font-size: 4rem;"></i>
-                    <h5 class="text-muted">No hay registros disponibles</h5>
-                    <p class="text-muted mb-3">Comienza agregando el primer elemento</p>
-                    {% if create_route is defined %}
-                        <a href="{{ path(create_route) }}" class="btn btn-primary">
-                            <i class="bx bx-plus me-1"></i>Crear Primero
-                        </a>
+                    <h5 class="text-muted">{{ 'maintainers.common.no_records'|trans({}, 'maintainers') }}</h5>
+                    <p class="text-muted mb-3">{{ 'maintainers.common.no_records_message'|trans({}, 'maintainers') }}</p>
+                    {% if create_route is defined and is_granted(constant('App\\Security\\Voter\\MaintainerVoter::CREATE'), entity_class|default(null)) %}
+                        <button type="button"
+                                class="btn btn-primary"
+                                style="box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);"
+                                data-bs-toggle="modal"
+                                data-bs-target="#maintainerModal"
+                                data-modal-url="{{ path(create_route) }}"
+                                data-modal-title="<i class='bx bx-plus me-2'></i>{{ 'maintainers.common.create_first'|trans({}, 'maintainers') }}">
+                            <i class="bx bx-plus me-1"></i>{{ 'maintainers.common.create_first'|trans({}, 'maintainers') }}
+                        </button>
                     {% endif %}
                 </div>
             {% else %}
@@ -207,77 +285,29 @@
                                 <th scope="col" class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">
                                     <input type="checkbox" class="form-check-input">
                                 </th>
-                                {% for column in columns %}
+                                {% for column_key, column_value in columns %}
                                     <th scope="col" class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">
-                                        {% if column == 'name' %}Nombre
-                                        {% elseif column == 'code' %}Código
-                                        {% elseif column == 'isActive' %}Estado
-                                        {% elseif column == 'description' %}Descripción
-                                        {% elseif column == 'number' %}Número
-                                        {% elseif column == 'educationLevel' %}Nivel Instrucción
-                                        {% elseif column == 'originType' %}Tipo Origen
-                                        {% elseif column == 'religionCodeHl7' %}Código HL7
-                                        {% elseif column == 'maritalStatusCodeHl7' %}Código HL7
-                                        {% else %}{{ column|title }}
+                                        {# Soporte para array asociativo (nuevo) y array indexado (legacy) #}
+                                        {% if column_key == loop.index0 %}
+                                            {# Array indexado legacy: ['name', 'code'] #}
+                                            {{ column_value|title }}
+                                        {% else %}
+                                            {# Array asociativo nuevo: ['name' => 'Nombre'] #}
+                                            {{ column_value }}
                                         {% endif %}
                                     </th>
                                 {% endfor %}
                                 <th scope="col" class="text-end text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">
-                                    Acciones
+                                    {{ 'maintainers.common.actions'|trans({}, 'maintainers') }}
                                 </th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="maintainer-table-body">
                             {% for item in data %}
-                                <tr style="border-bottom: 1px solid #f1f5f9;">
-                                    <td class="px-3">
-                                        <input type="checkbox" class="form-check-input">
-                                    </td>
-                                    {% for column in columns %}
-                                        <td class="px-3" style="font-size: 0.875rem; color: #0f172a;">
-                                            {% set value = attribute(item, column) %}
-                                            {% if column == 'isActive' %}
-                                                {% if value %}
-                                                    <span class="badge rounded-pill" style="background-color: #d1fae5; color: #065f46; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600;">
-                                                        Activo
-                                                    </span>
-                                                {% else %}
-                                                    <span class="badge rounded-pill bg-secondary">Inactivo</span>
-                                                {% endif %}
-                                            {% elseif column == 'educationLevel' and value %}
-                                                {{ value.name }}
-                                            {% elseif column == 'originType' and value %}
-                                                {{ value.name }}
-                                            {% else %}
-                                                {{ value ?? '-' }}
-                                            {% endif %}
-                                        </td>
-                                    {% endfor %}
-                                    <td class="text-end px-3">
-                                        <div class="d-inline-flex gap-1">
-                                            {% set edit_route = app.request.attributes.get('_route')|replace({'_index': '_edit'}) %}
-                                            <a href="{{ path(edit_route, {'id': item.id}) }}" 
-                                               class="btn btn-sm action-btn action-btn-edit border-0" 
-                                               style="color: #5e72e4;"
-                                               data-turbo-frame="maintainer-content"
-                                               title="Editar">
-                                                <i class="bx bx-edit-alt"></i>
-                                            </a>
-                                            {% set delete_route = app.request.attributes.get('_route')|replace({'_index': '_delete'}) %}
-                                            <form method="post" action="{{ path(delete_route, {'id': item.id}) }}" 
-                                                  onsubmit="return confirm('¿Está seguro de eliminar este registro?');" 
-                                                  class="d-inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
-                                                <button type="submit" 
-                                                        class="btn btn-sm action-btn action-btn-delete border-0" 
-                                                        style="color: #f5365c;"
-                                                        title="Eliminar">
-                                                    <i class="bx bx-trash-alt"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
+                                {% include 'maintainers/_table_row.html.twig' with {
+                                    'entity': item,
+                                    'columns': columns,
+                                } %}
                             {% endfor %}
                         </tbody>
                     </table>
@@ -285,20 +315,30 @@
 
                 {# Paginación #}
                 <div class="card-footer border-top" style="background-color: #f8fafc; padding: 1rem 1.5rem;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <p class="text-muted small mb-0">
-                            Mostrando 1 a {{ data|length }} de {{ data|length }} registros
-                        </p>
-                        <nav>
-                            <ul class="pagination pagination-sm mb-0">
-                                <li class="page-item active">
-                                    <a class="page-link" href="#" style="background-color: #5e72e4; border-color: #5e72e4;">1</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
+                    {% if pagination %}
+                        {% include 'components/_pagination.html.twig' with {
+                            pagination: pagination,
+                            route_name: app.request.attributes.get('_route'),
+                            turbo_frame: 'maintainer-content'
+                        } %}
+                    {% else %}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="text-muted small mb-0">
+                                {{ 'maintainers.common.showing_records'|trans({'count': data|length}, 'maintainers') }}
+                            </p>
+                        </div>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>
     </div>
+
+    {# Modal Universal para Crear/Editar #}
+    {% include 'components/_modal_base.html.twig' with {
+        'modal_id': 'maintainerModal',
+        'modal_title': page_title,
+        'frame_id': 'maintainer-form',
+        'modal_size': 'lg',
+        'loading_text': ('maintainers.common.loading'|trans({}, 'maintainers'))
+    } %}
 {% endblock %}

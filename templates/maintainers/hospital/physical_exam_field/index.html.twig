@@ -1,0 +1,11 @@
+{% extends 'maintainers/modern_index.html.twig' %}
+
+{% block title %}Campos de Examen Fisico{% endblock %}
+
+{% set maintainerConfig = {
+    title: 'Campos de Examen Fisico',
+    icon: 'bx-pulse',
+    description: 'Gestiona los campos del examen fisico',
+    routes: { index: 'app_maintainers_hospital_physical_exam_field_index', create: 'app_maintainers_hospital_physical_exam_field_create', edit: 'app_maintainers_hospital_physical_exam_field_edit', delete: 'app_maintainers_hospital_physical_exam_field_delete' },
+    breadcrumb_section: 'Hospitalaria'
+} %}

@@ -1,0 +1,47 @@
+{#
+    Modal Universal Reutilizable con Turbo Frame
+    
+    Uso:
+    {% include 'components/_modal_base.html.twig' with {
+        'modal_id': 'myModal',
+        'modal_title': 'Título del Modal',
+        'frame_id': 'form-frame',
+        'frame_src': path('route_name'),  // Opcional
+        'modal_size': 'lg',  // sm, md, lg, xl
+        'header_class': 'bg-gradient-primary',  // Opcional
+        'loading_text': 'Cargando...',  // Opcional
+        'auto_close': true  // Opcional, default: true
+    } %}
+#}
+
+<div class="modal fade" 
+     id="{{ modal_id }}" 
+     data-controller="modal"
+     data-modal-auto-close-value="{{ auto_close|default(true) }}"
+     tabindex="-1" 
+     aria-labelledby="{{ modal_id }}Label" 
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-{{ modal_size|default('lg') }}">
+        <div class="modal-content border-0" style="border-radius: 12px;">
+            <div class="modal-header {{ header_class|default('') }}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px 12px 0 0;">
+                <h5 class="modal-title text-white" id="{{ modal_id }}Label" data-modal-target="title">
+                    {{ modal_title|default('Modal')|raw }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <turbo-frame id="{{ frame_id }}" 
+                            {% if frame_src is defined and frame_src %}src="{{ frame_src }}"{% endif %}
+                            loading="lazy"
+                            data-modal-target="frame">
+                    <div class="text-center py-5" data-modal-target="loader">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">{{ loading_text|default('Cargando...') }}</span>
+                        </div>
+                        <p class="mt-2 text-muted small">{{ loading_text|default('Cargando...') }}</p>
+                    </div>
+                </turbo-frame>
+            </div>
+        </div>
+    </div>
+</div>

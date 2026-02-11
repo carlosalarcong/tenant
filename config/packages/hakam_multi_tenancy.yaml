@@ -1,6 +1,6 @@
 hakam_multi_tenancy:
     # IMPORTANTE: Usamos nuestro CustomTenantConfigProvider
-    # que lee datos desde melisa_central vía TenantResolver
+    # que lee datos desde tenant_central vía TenantResolver
     
     # TenantDb está en Main/ porque es de la base de datos central
     tenant_database_className: 'App\Entity\Main\TenantDb'

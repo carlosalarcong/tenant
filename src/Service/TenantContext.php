@@ -73,7 +73,7 @@ class TenantContext
             if ($session->has('tenant_id') || $session->has('tenant_name') || $session->has('tenant_slug')) {
                 $reconstructedTenant = [
                     'id' => $session->get('tenant_id'),
-                    'name' => $session->get('tenant_name', 'Melisa Clinic'),
+                    'name' => $session->get('tenant_name', 'Clinic'),
                     'subdomain' => $session->get('tenant_slug', 'default'),
                     'database_name' => $session->get('database_name', ''),
                     'rut_empresa' => null, // Datos adicionales pueden ser null

@@ -119,6 +119,70 @@ class MenuDefinition
                 'children' => []
             ],
             [
+                'name' => 'admision',
+                'label' => 'Admisión',
+                'icon' => 'bx bx-clinic',
+                'module' => null,
+                'children' => [
+                    [
+                        'name' => 'admission_general',
+                        'label' => 'Admisión Hospitalaria',
+                        'icon' => 'bx bx-user-check',
+                        'route' => 'app_admission_hospitalization_index',
+                        'module' => 'admission',
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'admission_emergency',
+                        'label' => 'Admisión Urgencia',
+                        'icon' => 'bx bx-first-aid',
+                        'route' => 'app_admission_emergency_index',
+                        'module' => 'admission',
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'admission_pre',
+                        'label' => 'Pre-Admisión',
+                        'icon' => 'bx bx-time',
+                        'route' => 'app_admission_pre_index',
+                        'module' => 'admission',
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'admission_maintainers',
+                        'label' => 'Mantenedores Admisión',
+                        'icon' => 'bx bx-cog',
+                        'module' => null,
+                        'children' => [
+                            [
+                                'name' => 'emergency_consultation_type',
+                                'label' => 'Tipos Consulta Urgencia',
+                                'icon' => 'bx bx-list-ul',
+                                'route' => 'app_maintainers_admission_emergency_consultation_type_index',
+                                'module' => 'maintenance_admission',
+                                'children' => []
+                            ],
+                            [
+                                'name' => 'company_agreement',
+                                'label' => 'Convenios Empresa',
+                                'icon' => 'bx bx-buildings',
+                                'route' => 'app_maintainers_admission_company_agreement_index',
+                                'module' => 'maintenance_admission',
+                                'children' => []
+                            ],
+                            [
+                                'name' => 'cancellation_reason',
+                                'label' => 'Motivos de Anulación',
+                                'icon' => 'bx bx-x-circle',
+                                'route' => 'app_maintainers_admission_cancellation_reason_index',
+                                'module' => 'maintenance_admission',
+                                'children' => []
+                            ],
+                        ]
+                    ],
+                ]
+            ],
+            [
                 'name' => 'citas',
                 'label' => 'Citas',
                 'icon' => $this->getIconForItem('citas'),
@@ -232,6 +296,38 @@ class MenuDefinition
                                 'icon' => $this->getIconForItem('origin_type'),
                                 'route' => 'app_maintainers_origin_type_index',
                                 'module' => 'maintenance_basic',
+                                'children' => []
+                            ]
+                        ]
+                    ],
+                    [
+                        'name' => 'maintenance_structure',
+                        'label' => 'Estructura',
+                        'icon' => $this->getIconForItem('maintenance_structure'),
+                        'module' => null,
+                        'children' => [
+                            [
+                                'name' => 'cost_center',
+                                'label' => 'Centros de Costo',
+                                'icon' => $this->getIconForItem('cost_center'),
+                                'route' => 'app_maintainers_cost_center_index',
+                                'module' => 'maintenance_structure',
+                                'children' => []
+                            ],
+                            [
+                                'name' => 'service_type',
+                                'label' => 'Tipos de Servicio',
+                                'icon' => $this->getIconForItem('service_type'),
+                                'route' => 'app_maintainers_service_type_index',
+                                'module' => 'maintenance_structure',
+                                'children' => []
+                            ],
+                            [
+                                'name' => 'medical_service',
+                                'label' => 'Servicios Médicos',
+                                'icon' => $this->getIconForItem('medical_service'),
+                                'route' => 'app_maintainers_medical_service_index',
+                                'module' => 'maintenance_structure',
                                 'children' => []
                             ]
                         ]

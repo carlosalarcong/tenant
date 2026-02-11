@@ -1,0 +1,45 @@
+{% extends 'maintainers/modern_index.html.twig' %}
+
+{% block page_title %}Ubicaciones de Caja{% endblock %}
+{% block icon %}fa-cash-register{% endblock %}
+{% block breadcrumb_section %}Tesorería{% endblock %}
+{% block description %}Gestión de ubicaciones de cajas registradoras{% endblock %}
+
+{% block maintainer_routes %}
+    {% set index_route = 'app_maintainers_treasury_cash_register_location_index' %}
+    {% set create_route = 'app_maintainers_treasury_cash_register_location_create' %}
+    {% set edit_route = 'app_maintainers_treasury_cash_register_location_edit' %}
+    {% set delete_route = 'app_maintainers_treasury_cash_register_location_delete' %}
+    {% set export_route = 'app_maintainers_treasury_cash_register_location_export' %}
+{% endblock %}
+
+{% block table_headers %}
+    <th>ID</th>
+    <th>Nombre</th>
+    <th>Descripción</th>
+    <th>Sucursal</th>
+    <th>Estado</th>
+    <th>{{ 'maintainers.common.actions'|trans({}, 'maintainers') }}</th>
+{% endblock %}
+
+{% block table_row %}
+    <td>{{ item.id }}</td>
+    <td>{{ item.name }}</td>
+    <td>{{ item.description|default('-') }}</td>
+    <td>{{ item.branch ? item.branch.name : '-' }}</td>
+    <td>
+        {% if item.isActive %}
+            <span class="badge bg-success">Activo</span>
+        {% else %}
+            <span class="badge bg-danger">Inactivo</span>
+        {% endif %}
+    </td>
+    <td>
+        <button class="btn btn-sm btn-primary" onclick="editItem({{ item.id }})">
+            <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="deleteItem({{ item.id }})">
+            <i class="fas fa-trash"></i>
+        </button>
+    </td>
+{% endblock %}

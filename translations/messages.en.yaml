@@ -1,6 +1,6 @@
 # META
-melisa:
-  title: Melisa
+app:
+  title: Sistema
 meta:
   description: Sistema de registro para la gestión clínica
   author: Rayen Salud
@@ -11,7 +11,7 @@ login:
   title:
     main: Login
     welcome: Bienvenido
-  subtitle: Inicia sesión para continuar en Melisa.
+  subtitle: Inicia sesión para continuar.
   label:
     username: Nombre de usuario
     password: Contraseña

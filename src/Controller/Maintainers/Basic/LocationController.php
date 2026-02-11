@@ -4,12 +4,15 @@ namespace App\Controller\Maintainers\Basic;
 
 use App\Controller\AbstractMantenedorController;
 use App\Entity\Tenant\Location;
-use App\Form\Maintainers\LocationType;
+use App\Form\Maintainers\Organizational\LocationType;
 use App\Repository\Tenant\LocationRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Export\ExportService;
+use Doctrine\ORM\QueryBuilder;
+use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Location Controller
@@ -21,9 +24,12 @@ class LocationController extends AbstractMantenedorController
 {
     public function __construct(
         private LocationRepository $repository,
-        EntityManagerInterface $entityManager
+        TenantEntityManager $tenantEntityManager,
+        ExportService $exportService,
+        TranslatorInterface $translator
     ) {
-        parent::__construct($entityManager);
+        parent::__construct($tenantEntityManager, $translator);
+        $this->setExportService($exportService);
     }
 
     #[Route('', name: 'app_maintainers_location_index', methods: ['GET'])]
@@ -50,14 +56,31 @@ class LocationController extends AbstractMantenedorController
         return $this->handleDelete($request, $id);
     }
 
-    protected function getData(Request $request): array
+    #[Route('/export', name: 'app_maintainers_location_export', methods: ['GET'])]
+    public function export(Request $request): Response
     {
-        return $this->repository->findAll();
+        return $this->handleExport(
+            request: $request,
+            columns: ['name', 'description', 'isActive'],
+            headers: $this->translateColumns(['name', 'description', 'is_active']),
+            filename: 'ubicaciones_' . date('Y-m-d') . '.csv'
+        );
+    }
+
+    protected function getData(Request $request): array|QueryBuilder
+    {
+        return $this->repository->createQueryBuilder('l')
+            ->orderBy('l.id', 'DESC');
     }
 
     protected function getColumns(): array
     {
-        return ['name', 'description', 'isActive'];
+        return [
+        'name' => $this->translator->trans('maintainers.columns.name', [], 'maintainers'),
+        'description' => $this->translator->trans('maintainers.columns.description', [], 'maintainers'),
+        'isActive' => $this->translator->trans('maintainers.columns.is_active', [], 'maintainers')
+    ];
+    
     }
 
     protected function getTemplatePath(): string
@@ -78,15 +101,6 @@ class LocationController extends AbstractMantenedorController
     protected function getIndexRoute(): string
     {
         return 'app_maintainers_location_index';
-    }
-
-    protected function getPageTitle(string $action = 'index'): string
-    {
-        return match($action) {
-            'create' => 'Crear Ubicación',
-            'edit' => 'Editar Ubicación',
-            default => 'Ubicaciones'
-        };
     }
 
     protected function findEntity(int $id): ?object

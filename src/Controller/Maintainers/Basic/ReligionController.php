@@ -4,12 +4,15 @@ namespace App\Controller\Maintainers\Basic;
 
 use App\Controller\AbstractMantenedorController;
 use App\Entity\Tenant\Religion;
-use App\Form\Maintainers\ReligionType;
+use App\Form\Maintainers\Personal\ReligionType;
 use App\Repository\Tenant\ReligionRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Export\ExportService;
+use Doctrine\ORM\QueryBuilder;
+use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Religion Controller
@@ -22,9 +25,12 @@ class ReligionController extends AbstractMantenedorController
 {
     public function __construct(
         private ReligionRepository $religionRepository,
-        EntityManagerInterface $entityManager
+        TenantEntityManager $tenantEntityManager,
+        ExportService $exportService,
+        TranslatorInterface $translator
     ) {
-        parent::__construct($entityManager);
+        parent::__construct($tenantEntityManager, $translator);
+        $this->setExportService($exportService);
     }
 
     #[Route('', name: 'app_maintainers_religion_index', methods: ['GET'])]
@@ -50,20 +56,36 @@ class ReligionController extends AbstractMantenedorController
     {
         return $this->handleDelete($request, $id);
     }
+    
+    #[Route('/export', name: 'app_maintainers_religion_export', methods: ['GET'])]
+    public function export(Request $request): Response
+    {
+        return $this->handleExport(
+            request: $request,
+            columns: ['name', 'religionCodeHl7', 'isActive'],
+            headers: $this->translateColumns(['name', 'hl7_code', 'is_active']),
+            filename: 'religiones_' . date('Y-m-d') . '.csv'
+        );
+    }
 
     // ========================================================================
     // Implementación de métodos abstractos
     // ========================================================================
 
-    protected function getData(Request $request): array
+    protected function getData(Request $request): array|QueryBuilder
     {
-        // Todas las religiones - sin filtrar por tenant (dato maestro compartido)
-        return $this->religionRepository->findAll();
+        return $this->religionRepository->createQueryBuilder('r')
+            ->orderBy('r.id', 'DESC');
     }
 
     protected function getColumns(): array
     {
-        return ['name', 'religionCodeHl7', 'isActive'];
+        return [
+        'name' => $this->translator->trans('maintainers.columns.name', [], 'maintainers'),
+        'religionCodeHl7' => 'Código HL7',
+        'isActive' => $this->translator->trans('maintainers.columns.is_active', [], 'maintainers')
+    ];
+    
     }
 
     protected function getTemplatePath(): string
@@ -86,15 +108,6 @@ class ReligionController extends AbstractMantenedorController
         return 'app_maintainers_religion_index';
     }
 
-    protected function getPageTitle(string $action = 'index'): string
-    {
-        return match($action) {
-            'create' => 'Create Religion',
-            'edit' => 'Edit Religion',
-            default => 'Religion Management'
-        };
-    }
-
     // ========================================================================
     // Hooks personalizados (opcional)
     // ========================================================================
@@ -112,22 +125,5 @@ class ReligionController extends AbstractMantenedorController
     /**
      * Mensajes personalizados en español
      */
-    protected function getSuccessMessage(string $action): string
-    {
-        return match($action) {
-            'create' => 'Religión creada exitosamente',
-            'edit' => 'Religión actualizada exitosamente',
-            'delete' => 'Religión eliminada exitosamente',
-            default => 'Operación completada exitosamente'
-        };
-    }
 
-    protected function getErrorMessage(string $type): string
-    {
-        return match($type) {
-            'not_found' => 'Religión no encontrada',
-            'cannot_delete' => 'No se puede eliminar esta religión porque está en uso',
-            default => 'Ha ocurrido un error'
-        };
-    }
 }

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante Admisión Hospitalaria #{{ admission_id }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #1f2937;
+            padding: 24px;
+            max-width: 21cm;
+            margin: 0 auto;
+            background: #fff;
+        }
+        .no-print {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            border: 1px solid #1f2937;
+            background: #fff;
+            color: #1f2937;
+            padding: 10px 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: #f9fafb; }
+        .btn-primary { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+        .btn-primary:hover { background: #2563eb; }
+        
+        .document-header {
+            text-align: center;
+            padding: 24px 0;
+            border-bottom: 3px solid #3b82f6;
+            margin-bottom: 24px;
+        }
+        .document-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .document-header .subtitle {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .info-item {
+            padding: 12px;
+            background: #f9fafb;
+            border-left: 3px solid #3b82f6;
+            border-radius: 4px;
+        }
+        .info-item strong {
+            display: block;
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .info-item span {
+            display: block;
+            font-size: 16px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+        
+        .section {
+            margin: 24px 0;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .footer {
+            margin-top: 48px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+            .btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="bx bx-printer"></i> Imprimir documento
+        </button>
+        <button class="btn" onclick="window.close()">
+            <i class="bx bx-x"></i> Cerrar
+        </button>
+    </div>
+
+    <div class="document-header">
+        <h1>Comprobante de Admisión Hospitalaria</h1>
+        <p class="subtitle">Sistema - Gestión Hospitalaria</p>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-item">
+            <strong>N° Admisión</strong>
+            <span>#{{ admission_id }}</span>
+        </div>
+        <div class="info-item">
+            <strong>Tipo de documento</strong>
+            <span>{{ document_type|upper }}</span>
+        </div>
+        <div class="info-item">
+            <strong>Fecha de emisión</strong>
+            <span>{{ printed_at|date('d/m/Y') }}</span>
+        </div>
+        <div class="info-item">
+            <strong>Hora de emisión</strong>
+            <span>{{ printed_at|date('H:i:s') }}</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Datos del paciente</h2>
+        {% if admission_record is defined %}
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Nombre completo</strong>
+                    <span>{{ admission_record.person.name }} {{ admission_record.person.lastName }} {{ admission_record.person.middleName|default('') }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Identificación</strong>
+                    <span>{{ admission_record.person.identificationType ? admission_record.person.identificationType.name : 'Sin tipo' }} - {{ admission_record.person.identification }}</span>
+                </div>
+            </div>
+        {% else %}
+            <p><em>Sin datos de paciente.</em></p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Datos de la admisión</h2>
+        {% if admission_record is defined %}
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Estado</strong>
+                    <span>{{ admission_record.status|capitalize }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Tipo</strong>
+                    <span>{{ admission_record.admissionType|capitalize }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Financiador</strong>
+                    <span>{{ admission_lookups.payer_name|default('-') }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Convenio</strong>
+                    <span>{{ admission_lookups.agreement_name|default('-') }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Servicio</strong>
+                    <span>{{ admission_lookups.service_name|default('-') }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Cama</strong>
+                    <span>{{ admission_lookups.bed_name|default('-') }}</span>
+                </div>
+            </div>
+        {% else %}
+            <p><em>Sin datos de admisión.</em></p>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        <p>Este documento es válido como comprobante de admisión hospitalaria</p>
+        <p>Sistema © {{ 'now'|date('Y') }}</p>
+    </div>
+</body>
+</html>

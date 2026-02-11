@@ -26,7 +26,7 @@ class Region
     private ?string $regionCodeHl7 = null;
 
     #[ORM\ManyToOne(inversedBy: 'regions')]
-    private ?country $country = null;
+    private ?Country $country = null;
 
     #[ORM\Column(options: ["default" => true])]
     private ?bool $isActive = true;
@@ -95,12 +95,12 @@ class Region
         return $this;
     }
 
-    public function getCountry(): ?country
+    public function getCountry(): ?Country
     {
         return $this->country;
     }
 
-    public function setCountry(?country $country): static
+    public function setCountry(?Country $country): static
     {
         $this->country = $country;
 

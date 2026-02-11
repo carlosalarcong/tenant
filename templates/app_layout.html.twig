@@ -54,7 +54,30 @@
                 }
             });
             
-            console.log('✨ Melisa Dashboard cargado');
+            // Actualizar menú activo cuando Turbo Frame navega
+            document.addEventListener('turbo:frame-load', function(event) {
+                if (event.target.id === 'maintainer-content') {
+                    const frame = event.target;
+                    const src = frame.getAttribute('src');
+                    
+                    if (src) {
+                        // Remover todas las clases active del sidebar
+                        sidebar.querySelectorAll('.nav-link.active').forEach(link => {
+                            link.classList.remove('active');
+                        });
+                        
+                        // Buscar el link que coincida con la URL actual
+                        sidebar.querySelectorAll('.nav-link[href]').forEach(link => {
+                            const href = link.getAttribute('href');
+                            if (href && src.includes(href)) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                }
+            });
+            
+            console.log('✨ Dashboard cargado');
         })(); // Fin del IIFE
     </script>
 {% endblock %}

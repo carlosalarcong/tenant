@@ -1,0 +1,75 @@
+{% extends 'app_layout.html.twig' %}
+
+{% block title %}Ver Admisión - Sistema{% endblock %}
+
+{% block content %}
+    <div class="container-fluid px-4 py-4">
+        <h1>Detalle de Admisión</h1>
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-body p-4">
+                <p class="mb-2"><strong>ID:</strong> #{{ admission_id }}</p>
+                <p class="mb-4"><strong>Tipo:</strong> {{ admission_type|default('hospitalaria')|capitalize }}</p>
+                {% if admission_record is defined %}
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Paciente</label>
+                            <div class="form-control bg-light">
+                                {{ admission_record.person.name }} {{ admission_record.person.lastName }} {{ admission_record.person.middleName|default('') }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Identificación</label>
+                            <div class="form-control bg-light">
+                                {{ admission_record.person.identificationType ? admission_record.person.identificationType.name : 'Sin tipo' }} - {{ admission_record.person.identification }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Estado</label>
+                            <div class="form-control bg-light">{{ admission_record.status|capitalize }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Financiador / Convenio</label>
+                            <div class="form-control bg-light">
+                                {{ admission_lookups.payer_name|default('-') }} / {{ admission_lookups.agreement_name|default('-') }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Servicio / Cama</label>
+                            <div class="form-control bg-light">
+                                {{ admission_lookups.service_name|default('-') }} / {{ admission_lookups.bed_name|default('-') }}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="d-flex gap-2 justify-content-end">
+                    {% if admission_type|default('hospitalaria') == 'urgencia' %}
+                        <a href="{{ path('app_admission_print_urgency', { id: admission_id, type: 'pdf' }) }}"
+                           target="_blank"
+                           data-turbo="false"
+                           class="btn btn-outline-secondary">
+                            Imprimir urgencia
+                        </a>
+                    {% else %}
+                        <a href="{{ path('app_admission_print_admission', { id: admission_id, type: 'pdf' }) }}"
+                           target="_blank"
+                           data-turbo="false"
+                           class="btn btn-outline-secondary">
+                            Imprimir admisión
+                        </a>
+                    {% endif %}
+                    <a href="{{ path('app_admission_hospitalization_index') }}"
+                       class="btn btn-outline-primary"
+                       data-turbo-frame="maintainer-content">
+                        Volver a Admisión Hospitalaria
+                    </a>
+                    <a href="{{ path('app_admission_emergency_index') }}"
+                       class="btn btn-outline-danger"
+                       data-turbo-frame="maintainer-content">
+                        Volver a Urgencia
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

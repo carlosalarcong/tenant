@@ -3,7 +3,7 @@
         <div class="clinic-logo">
             <i class="fas fa-clinic-medical fa-2x" style="color: white;"></i>
         </div>
-        <h5 class="clinic-name">Melisa Health</h5>
+        <h5 class="clinic-name">Sistema Health</h5>
         <small class="clinic-subdomain">{{ tenant_info.subdomain|default('sistema') }}</small>
     </div>
     
@@ -14,8 +14,10 @@
         <span>Principal</span>
     </div>
     <ul class="nav flex-column">
+        {# Lazy loading: Cargar menú DESPUÉS de que tenant esté establecido #}
+        {% set menu_items = get_menu() %}
         {% for item in menu_items %}
-            {{ _self.render_menu_item(item, 1) }}
+            {{ _self.render_menu_item(item, 1, loop.index) }}
         {% endfor %}
     </ul>
     
@@ -23,7 +25,7 @@
 </aside>
 
 {# Macro recursiva para renderizar items de menú en cualquier nivel #}
-{% macro render_menu_item(item, level) %}
+{% macro render_menu_item(item, level, key_prefix) %}
     {# Iconos por defecto si no viene especificado en el item #}
     {% set icon_by_level = {
         1: 'bx bx-home-circle',
@@ -41,7 +43,11 @@
         <li class="nav-item">
             <a class="nav-link nav-level-{{ level }} {% if item.is_active|default(false) %}active{% endif %}" 
                href="{{ (item.route is defined and item.route) ? path(item.route) : '#' }}"
-               {% if item.module|default(false) and 'maintenance_' in item.module %}
+               {% if item.module|default(false) and (
+                   'maintenance_' in item.module or
+                   item.module == 'admission' or
+                   item.module == 'maintenance_admission'
+               ) %}
                    data-turbo-frame="maintainer-content"
                    data-turbo-action="advance"
                {% endif %}
@@ -53,14 +59,17 @@
     {% else %}
         {# Item con hijos (colapsable) #}
         {% set shouldExpand = item.should_expand|default(false) %}
+        {% set collapse_id = 'sidebarItem' ~ key_prefix %}
         
         <li class="nav-item">
             <a class="nav-link menu-link nav-level-{{ level }} {% if not shouldExpand %}collapsed{% endif %}" 
-               href="#sidebar{{ item.name|capitalize }}" 
+               href="#{{ collapse_id }}"
                data-bs-toggle="collapse" 
+               data-bs-target="#{{ collapse_id }}"
+               data-turbo="false"
                role="button" 
-               aria-expanded="{{ shouldExpand ? 'true' : 'false' }}" 
-               aria-controls="sidebar{{ item.name|capitalize }}"
+               aria-expanded="{{ shouldExpand ? 'true' : 'false' }}"
+               aria-controls="{{ collapse_id }}"
                title="{{ item.label }}">
                 <i class="{{ item_icon }}"></i>
                 <span class="nav-link-text">{{ item.label }}</span>
@@ -68,10 +77,10 @@
             
             {# Submenú colapsable recursivo #}
             <div class="collapse menu-dropdown menu-level-{{ level + 1 }} {% if shouldExpand %}show{% endif %}" 
-                 id="sidebar{{ item.name|capitalize }}">
+                 id="{{ collapse_id }}">
                 <ul class="nav nav-sm flex-column">
                     {% for child in item.children %}
-                        {{ _self.render_menu_item(child, level + 1) }}
+                        {{ _self.render_menu_item(child, level + 1, key_prefix ~ '-' ~ loop.index) }}
                     {% endfor %}
                 </ul>
             </div>

@@ -4,12 +4,15 @@ namespace App\Controller\Maintainers\Basic;
 
 use App\Controller\AbstractMantenedorController;
 use App\Entity\Tenant\MedicalBox;
-use App\Form\Maintainers\MedicalBoxType;
+use App\Form\Maintainers\Clinical\MedicalBoxType;
 use App\Repository\Tenant\MedicalBoxRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Export\ExportService;
+use Doctrine\ORM\QueryBuilder;
+use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Medical Box Controller
@@ -21,9 +24,12 @@ class MedicalBoxController extends AbstractMantenedorController
 {
     public function __construct(
         private MedicalBoxRepository $repository,
-        EntityManagerInterface $entityManager
+        TenantEntityManager $tenantEntityManager,
+        ExportService $exportService,
+        TranslatorInterface $translator
     ) {
-        parent::__construct($entityManager);
+        parent::__construct($tenantEntityManager, $translator);
+        $this->setExportService($exportService);
     }
 
     #[Route('', name: 'app_maintainers_medical_box_index', methods: ['GET'])]
@@ -50,14 +56,31 @@ class MedicalBoxController extends AbstractMantenedorController
         return $this->handleDelete($request, $id);
     }
 
-    protected function getData(Request $request): array
+    #[Route('/export', name: 'app_maintainers_medical_box_export', methods: ['GET'])]
+    public function export(Request $request): Response
     {
-        return $this->repository->findAll();
+        return $this->handleExport(
+            request: $request,
+            columns: ['name', 'number', 'isActive'],
+            headers: $this->translateColumns(['name', 'number', 'is_active']),
+            filename: 'boxes_medicos_' . date('Y-m-d') . '.csv'
+        );
+    }
+
+    protected function getData(Request $request): array|QueryBuilder
+    {
+        return $this->repository->createQueryBuilder('mb')
+            ->orderBy('mb.id', 'DESC');
     }
 
     protected function getColumns(): array
     {
-        return ['name', 'number', 'isActive'];
+        return [
+        'name' => $this->translator->trans('maintainers.columns.name', [], 'maintainers'),
+        'number' => 'Número',
+        'isActive' => $this->translator->trans('maintainers.columns.is_active', [], 'maintainers')
+    ];
+    
     }
 
     protected function getTemplatePath(): string
@@ -78,15 +101,6 @@ class MedicalBoxController extends AbstractMantenedorController
     protected function getIndexRoute(): string
     {
         return 'app_maintainers_medical_box_index';
-    }
-
-    protected function getPageTitle(string $action = 'index'): string
-    {
-        return match($action) {
-            'create' => 'Crear Box',
-            'edit' => 'Editar Box',
-            default => 'Boxes Médicos'
-        };
     }
 
     protected function findEntity(int $id): ?object

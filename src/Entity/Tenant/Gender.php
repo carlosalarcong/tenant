@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Datos compartidos por todos los tenants
  */
 #[ORM\Entity(repositoryClass: GenderRepository::class)]
-#[ORM\Table(name: 'sexo')]
+#[ORM\Table(name: 'gender')]
 class Gender
 {
     #[ORM\Id]
