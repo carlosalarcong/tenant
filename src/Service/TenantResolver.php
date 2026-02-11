@@ -64,7 +64,7 @@ class TenantResolver
         $host = $request->getHost();
         
         // Extraer subdomain de la URL
-        // Ejemplo: melisalacolina.melisaupgrade.prod → melisalacolina
+        // Ejemplo: lacolina.melisaupgrade.prod → lacolina
         $parts = explode('.', $host);
         
         if (count($parts) < 2) {

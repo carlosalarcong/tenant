@@ -44,7 +44,7 @@ services:
             $centralDbUrl: '%env(DATABASE_URL)%'
 
     # CustomTenantConfigProvider: Integración con hakam/multi-tenancy-bundle
-    # Usa TenantResolver para leer desde melisa_central
+    # Usa TenantResolver para leer desde tenant_central
     App\Service\CustomTenantConfigProvider: ~
 
     # Alias para que el bundle use nuestro provider personalizado
@@ -97,9 +97,3 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
-    # Commands (Legacy - deprecated)
-    App\Command\MigrationsTenantLegacyCommand:
-        arguments:
-            $centralDbUrl: '%env(DATABASE_URL)%'
-        tags:
-            - { name: console.command }

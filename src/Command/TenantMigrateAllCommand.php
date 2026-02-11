@@ -27,7 +27,7 @@ class TenantMigrateAllCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('tenant', InputArgument::OPTIONAL, 'Subdomain del tenant (ej: melisalacolina). Si se omite, migra todos.')
+            ->addArgument('tenant', InputArgument::OPTIONAL, 'Subdomain del tenant (ej: lacolina). Si se omite, migra todos.')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Mostrar qué se ejecutaría sin aplicar cambios')
             ->setHelp('
 Wrapper simplificado para tenant:migrations:migrate del bundle.
@@ -38,10 +38,10 @@ Wrapper simplificado para tenant:migrations:migrate del bundle.
   php bin/console app:tenant:migrate-all
 
   <comment># Migrar solo un tenant específico</comment>
-  php bin/console app:tenant:migrate-all melisalacolina
+  php bin/console app:tenant:migrate-all lacolina
 
   <comment># Ver qué migraciones se aplicarían (dry-run)</comment>
-  php bin/console app:tenant:migrate-all melisalacolina --dry-run
+  php bin/console app:tenant:migrate-all lacolina --dry-run
 
 <info>Comandos del bundle disponibles:</info>
   tenant:migrations:migrate    - Migrar tenants
@@ -86,7 +86,7 @@ Wrapper simplificado para tenant:migrations:migrate del bundle.
         $tenant = $this->tenantResolver->getTenantBySlug($subdomain);
         
         if (!$tenant) {
-            $io->error("Tenant '{$subdomain}' no encontrado en melisa_central");
+            $io->error("Tenant '{$subdomain}' no encontrado en tenant_central");
             return Command::FAILURE;
         }
 

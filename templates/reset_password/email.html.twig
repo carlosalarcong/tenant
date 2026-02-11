@@ -107,7 +107,7 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            <h1>🔐 Sistema Melisa</h1>
+            <h1>🔐 Sistema</h1>
         </div>
         
         <div class="email-body">
@@ -115,7 +115,7 @@
             
             <p>Hola{% if user is defined and user.firstName %} {{ user.firstName }}{% endif %},</p>
             
-            <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en el Sistema Melisa.</p>
+            <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en el Sistema.</p>
             
             <p>Para crear una nueva contraseña, haz clic en el siguiente botón:</p>
             
@@ -139,9 +139,9 @@
         </div>
         
         <div class="footer">
-            <p><strong>Sistema Melisa</strong></p>
+            <p><strong>Sistema</strong></p>
             <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
-            <p style="margin-top: 15px; font-size: 11px;">© {{ 'now'|date('Y') }} Sistema Melisa. Todos los derechos reservados.</p>
+            <p style="margin-top: 15px; font-size: 11px;">© {{ 'now'|date('Y') }} Sistema. Todos los derechos reservados.</p>
         </div>
     </div>
 </body>

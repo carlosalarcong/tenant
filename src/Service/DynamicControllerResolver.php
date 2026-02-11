@@ -398,8 +398,8 @@ class DynamicControllerResolver
                 'rut_empresa' => null,
                 'host' => 'localhost',
                 'host_port' => 3306,
-                'db_user' => 'melisa',
-                'db_password' => 'melisamelisa'
+                'db_user' => $_ENV['TENANT_DB_USER'] ?? 'tenant',
+                'db_password' => $_ENV['TENANT_DB_PASSWORD'] ?? ''
             ];
         }
         

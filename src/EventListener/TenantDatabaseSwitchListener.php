@@ -59,16 +59,16 @@ class TenantDatabaseSwitchListener implements EventSubscriberInterface
 
         $this->logger->info('📍 Subdomain detectado', ['subdomain' => $subdomain]);
 
-        // Resolver tenant usando TenantResolver (lee de melisa_central)
+        // Resolver tenant usando TenantResolver (lee de tenant_central)
         try {
             $tenant = $this->tenantResolver->getTenantBySlug($subdomain);
             
             if (!$tenant) {
-                $this->logger->warning('⚠️ Tenant no encontrado en melisa_central', ['subdomain' => $subdomain]);
+                $this->logger->warning('⚠️ Tenant no encontrado en tenant_central', ['subdomain' => $subdomain]);
                 return;
             }
 
-            $this->logger->info('✅ Tenant resuelto desde melisa_central', [
+            $this->logger->info('✅ Tenant resuelto desde tenant_central', [
                 'subdomain' => $subdomain,
                 'database' => $tenant['database_name'] ?? 'unknown'
             ]);
@@ -95,7 +95,7 @@ class TenantDatabaseSwitchListener implements EventSubscriberInterface
     private function extractSubdomainFromHost(string $host): ?string
     {
         // Extraer primer segmento del host
-        // ej: melisalacolina.melisaupgrade.prod -> melisalacolina
+        // ej: lacolina.melisaupgrade.prod -> lacolina
         $parts = explode('.', $host);
 
         if (count($parts) >= 2) {
@@ -114,7 +114,7 @@ class TenantDatabaseSwitchListener implements EventSubscriberInterface
     private function getFallbackSubdomain(): ?string
     {
         // Para desarrollo o testing
-        return 'melisahospital';
+        return $_ENV['TENANT_DEFAULT_FALLBACK'] ?? null;
     }
 
     private function switchDatabase(array $tenant): void

@@ -35,7 +35,7 @@ class TestTenantEntityManagerCommand extends Command
         $io->title('🧪 Prueba de TenantEntityManager y SwitchDbEvent');
         
         // 1. Listar tenants disponibles
-        $io->section('1️⃣ Listando tenants activos desde melisa_central');
+        $io->section('1️⃣ Listando tenants activos desde tenant_central');
         try {
             $tenants = $this->tenantResolver->getAllActiveTenants();
             $io->table(
@@ -48,7 +48,7 @@ class TestTenantEntityManagerCommand extends Command
         }
 
         // 2. Probar resolución de tenant específico
-        $testSubdomain = 'melisalacolina';
+        $testSubdomain = 'lacolina';
         $io->section("2️⃣ Resolviendo tenant: {$testSubdomain}");
         
         try {
@@ -133,7 +133,7 @@ class TestTenantEntityManagerCommand extends Command
             return Command::FAILURE;
         }
 
-        // 6. Probar con otro tenant que existe (melisalacolina ya fue probado en paso 4-5)
+        // 6. Probar con otro tenant que existe (lacolina ya fue probado en paso 4-5)
         $io->section("6️⃣ Probando cambio dinámico a melisa_template");
         
         try {

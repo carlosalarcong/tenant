@@ -23,7 +23,7 @@ abstract class AbstractTenantAwareController extends AbstractController
     protected ?array $tenant = null;
 
     /**
-     * Subdomain del tenant actual (ej: "melisahospital")
+     * Subdomain del tenant actual (ej: "hospital")
      * Inyectado automáticamente por TenantContextInjector
      */
     protected ?string $tenantSubdomain = null;
@@ -87,7 +87,7 @@ abstract class AbstractTenantAwareController extends AbstractController
      * con fallback automático a versión default
      * 
      * Ejemplo: renderTenantTemplate('dashboard/index.html.twig', [...])
-     * Busca: 1) melisahospital/dashboard/index.html.twig
+     * Busca: 1) hospital/dashboard/index.html.twig
      *        2) default/dashboard/index.html.twig
      */
     protected function renderTenantTemplate(string $template, array $parameters = []): Response
