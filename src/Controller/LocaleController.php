@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Controlador de gestión de idiomas para Melisa Tenant
+ * Controlador de gestión de idiomas del tenant
  */
 #[Route('/locale')]
 class LocaleController extends AbstractController

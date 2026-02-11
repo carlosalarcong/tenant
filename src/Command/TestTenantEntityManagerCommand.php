@@ -134,10 +134,10 @@ class TestTenantEntityManagerCommand extends Command
         }
 
         // 6. Probar con otro tenant que existe (lacolina ya fue probado en paso 4-5)
-        $io->section("6️⃣ Probando cambio dinámico a melisa_template");
-        
+        $io->section("6️⃣ Probando cambio dinámico a tenant_template");
+
         try {
-            $switchEvent = new SwitchDbEvent('template');  // Usar 'template' que apunta a melisa_template
+            $switchEvent = new SwitchDbEvent('template');  // Usar 'template' que apunta a tenant_template
             $this->eventDispatcher->dispatch($switchEvent);
             
             $connection = $this->tenantEntityManager->getConnection();

@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Servicio de localización para Melisa Tenant
+ * Servicio de localización del tenant
  * Maneja el idioma por tenant y usuario
  */
 class LocalizationService

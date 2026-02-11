@@ -8,7 +8,7 @@ use Twig\TwigFunction;
 use Twig\TwigFilter;
 
 /**
- * Extensión Twig para funcionalidades de localización en Melisa Tenant
+ * Extensión Twig para funcionalidades de localización del tenant
  * 
  * IMPORTANTE: Esta extensión SOBRESCRIBE el filtro |trans de Symfony
  * para hacerlo tenant-aware automáticamente.

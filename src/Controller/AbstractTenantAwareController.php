@@ -29,7 +29,7 @@ abstract class AbstractTenantAwareController extends AbstractController
     protected ?string $tenantSubdomain = null;
 
     /**
-     * Nombre del tenant actual (ej: "Melisa Hospital")
+     * Nombre del tenant actual (ej: "Hospital")
      * Inyectado automáticamente por TenantContextInjector
      */
     protected ?string $tenantName = null;
