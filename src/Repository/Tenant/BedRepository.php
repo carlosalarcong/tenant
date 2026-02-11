@@ -94,4 +94,26 @@ class BedRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return array<int, array{id:int,name:string}>
+     */
+    public function findActiveChoicesByService(?int $serviceId = null): array
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->select('b.id AS id', "CONCAT('Cama ', b.bedNumber) AS name")
+            ->where('b.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('b.bedNumber', 'ASC');
+
+        // TODO: filtrar por servicio cuando exista relación Bed -> Service en el modelo.
+        if ($serviceId !== null && $serviceId > 0) {
+            // Sin filtro por ahora
+        }
+
+        /** @var array<int, array{id:int,name:string}> $rows */
+        $rows = $qb->getQuery()->getArrayResult();
+
+        return $rows;
+    }
 }

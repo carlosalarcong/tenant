@@ -1,48 +1,51 @@
-<turbo-frame id="admission-wizard-content">
-    <div class="card shadow-sm border-0 mt-4">
-        <div class="card-body p-4">
-            <h4 class="mb-3">Paso 1 de 3: Confirmar paciente</h4>
-            <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <label class="form-label text-muted">ID Paciente</label>
-                    <div class="form-control bg-light">#{{ patient_id }}</div>
-                </div>
-                <div class="col-md-5">
-                    <label class="form-label text-muted">Nombre</label>
-                    <div class="form-control bg-light">
-                        {{ patient.name }} {{ patient.lastName }} {{ patient.middleName|default('') }}
+<turbo-frame id="maintainer-content">
+    <turbo-frame id="admission-wizard-content">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-body p-4">
+                {{ include('admission/wizard/_timeline.html.twig', { current_step: 1 }) }}
+                <h4 class="mb-3">Paso 1 de 5: Confirmar paciente</h4>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label text-muted">ID Paciente</label>
+                        <div class="form-control bg-light">#{{ patient_id }}</div>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label text-muted">Nombre</label>
+                        <div class="form-control bg-light">
+                            {{ patient.name }} {{ patient.lastName }} {{ patient.middleName|default('') }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Identificación</label>
+                        <div class="form-control bg-light">
+                            {{ patient.identificationType ? patient.identificationType.name : 'Sin tipo' }} - {{ patient.identification }}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted">Nacimiento</label>
+                        <div class="form-control bg-light">{{ patient.birthDateAt|date('d/m/Y') }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted">Móvil</label>
+                        <div class="form-control bg-light">{{ patient.mobilePhone }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Email</label>
+                        <div class="form-control bg-light">{{ patient.email|default('-') }}</div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label text-muted">Identificación</label>
-                    <div class="form-control bg-light">
-                        {{ patient.identificationType ? patient.identificationType.name : 'Sin tipo' }} - {{ patient.identification }}
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label text-muted">Nacimiento</label>
-                    <div class="form-control bg-light">{{ patient.birthDateAt|date('d/m/Y') }}</div>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label text-muted">Móvil</label>
-                    <div class="form-control bg-light">{{ patient.mobilePhone }}</div>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label text-muted">Email</label>
-                    <div class="form-control bg-light">{{ patient.email|default('-') }}</div>
-                </div>
-            </div>
 
-            <form method="post" action="{{ path('app_admission_wizard_step1', { patientId: patient_id, type: admission_type|default('hospitalaria') }) }}">
-                <div class="d-flex gap-2 justify-content-end">
-                    <a href="{{ path('app_admission_hospitalization_index') }}"
-                       class="btn btn-outline-secondary"
-                       data-turbo-frame="maintainer-content">
-                        Cancelar
-                    </a>
-                    <button type="submit" class="btn btn-primary">Siguiente</button>
-                </div>
-            </form>
+                <form method="post" action="{{ path('app_admission_wizard_step1', { patientId: patient_id, type: admission_type|default('hospitalaria') }) }}">
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{{ path('app_admission_hospitalization_index') }}"
+                           class="btn btn-outline-secondary"
+                           data-turbo-frame="maintainer-content">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">Siguiente</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
+    </turbo-frame>
 </turbo-frame>

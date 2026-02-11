@@ -96,4 +96,27 @@ class ProfessionalRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return array<int, array{id:int,name:string}>
+     */
+    public function findActiveChoicesByBranch(?int $branchId = null): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select("p.id AS id", "CONCAT(p.firstName, ' ', p.lastName) AS name")
+            ->where('p.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('p.firstName', 'ASC')
+            ->addOrderBy('p.lastName', 'ASC');
+
+        // TODO: filtrar por sucursal cuando exista relación Professional -> Branch en el modelo.
+        if ($branchId !== null && $branchId > 0) {
+            // Sin filtro por ahora
+        }
+
+        /** @var array<int, array{id:int,name:string}> $rows */
+        $rows = $qb->getQuery()->getArrayResult();
+
+        return $rows;
+    }
 }
