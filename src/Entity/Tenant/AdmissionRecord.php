@@ -15,9 +15,13 @@ class AdmissionRecord
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Person::class)]
+    /**
+     * The patient visit record this admission is linked to.
+     * Legacy: idPaciente → Paciente
+     */
+    #[ORM\ManyToOne(targetEntity: Patient::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Person $person = null;
+    private ?Patient $patient = null;
 
     #[ORM\Column(length: 30)]
     private string $admissionType = 'hospitalaria';
@@ -69,14 +73,14 @@ class AdmissionRecord
         return $this->id;
     }
 
-    public function getPerson(): ?Person
+    public function getPatient(): ?Patient
     {
-        return $this->person;
+        return $this->patient;
     }
 
-    public function setPerson(Person $person): self
+    public function setPatient(Patient $patient): self
     {
-        $this->person = $person;
+        $this->patient = $patient;
         return $this;
     }
 
