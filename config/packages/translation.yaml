@@ -11,6 +11,6 @@ framework:
         paths:
             - '%kernel.project_dir%/translations'
             - '%kernel.project_dir%/translations/default'
-            - '%kernel.project_dir%/translations/melisahospital'
-            - '%kernel.project_dir%/translations/melisalacolina'
+            - '%kernel.project_dir%/translations/hospital'
+            - '%kernel.project_dir%/translations/lacolina'
         providers:

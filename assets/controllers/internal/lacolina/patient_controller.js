@@ -185,7 +185,7 @@ export default class extends PatientController {
         // Agregar datos específicos de La Colina
         return {
             ...baseData,
-            clinic: 'melisalacolina',
+            clinic: 'lacolina',
             theme: this.clinicThemeValue,
             hasSpecialtyValidation: this.enableSpecialtySelectionValue
         }
@@ -204,7 +204,7 @@ export default class extends PatientController {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-Clinic-Context': 'melisalacolina',
+                'X-Clinic-Context': 'lacolina',
                 'X-Specialty-Required': this.enableSpecialtySelectionValue ? 'true' : 'false'
             },
             body: JSON.stringify(formData)
@@ -237,7 +237,7 @@ export default class extends PatientController {
 
     async performDoctorSearch(query) {
         try {
-            const response = await fetch(`/api/doctors/search?q=${encodeURIComponent(query)}&clinic=melisalacolina`)
+            const response = await fetch(`/api/doctors/search?q=${encodeURIComponent(query)}&clinic=lacolina`)
             const doctors = await response.json()
             
             this.displayDoctorSuggestions(doctors)
@@ -256,7 +256,7 @@ export default class extends PatientController {
         }
         
         dropdown.innerHTML = doctors.map(doctor => 
-            `<div class="p-2 hover:bg-gray-100 cursor-pointer" data-action="click->internal--melisalacolina--patient#selectDoctor" data-doctor-id="${doctor.id}">
+            `<div class="p-2 hover:bg-gray-100 cursor-pointer" data-action="click->internal--lacolina--patient#selectDoctor" data-doctor-id="${doctor.id}">
                 <strong>${doctor.name}</strong><br>
                 <small class="text-gray-600">${doctor.specialty}</small>
             </div>`

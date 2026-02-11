@@ -4,7 +4,7 @@ import { Controller } from "@hotwired/stimulus"
  * Controller específico para Hospital - Demostración Stimulus
  * 
  * Este controller demuestra la integración con la base de datos
- * específica del tenant melisahospital
+ * específica del tenant hospital
  */
 export default class extends Controller {
     
@@ -24,7 +24,7 @@ export default class extends Controller {
 
     connect() {
         console.log("🏥 [Hospital] Patient controller conectado")
-        console.log("📊 Tenant: melisahospital")
+        console.log("📊 Tenant: hospital")
         console.log("🆔 Patient ID inicial:", this.patientIdValue)
     }
 
@@ -41,7 +41,7 @@ export default class extends Controller {
         this.hideError()
 
         try {
-            // Simular datos del paciente desde la base de datos melisahospital
+            // Simular datos del paciente desde la base de datos hospital
             const patientData = await this.fetchPatientData(this.patientIdValue)
             
             this.displayPatientData(patientData)
@@ -102,7 +102,7 @@ export default class extends Controller {
     // ======================================
 
     async fetchPatientData(patientId) {
-        // Simular llamada a la API que consulta la base de datos melisahospital
+        // Simular llamada a la API que consulta la base de datos hospital
         console.log("🌐 Simulando fetch a:", `${this.apiUrlValue}/${patientId}`)
         
         // Simular delay de red
@@ -119,7 +119,7 @@ export default class extends Controller {
                 address: "Av. Providencia 1234, Santiago",
                 bloodType: "O+",
                 allergies: ["Penicilina", "Mariscos"],
-                tenant: "melisahospital"
+                tenant: "hospital"
             },
             "67890": {
                 id: "67890", 
@@ -130,21 +130,21 @@ export default class extends Controller {
                 address: "Las Condes 5678, Santiago",
                 bloodType: "A-",
                 allergies: ["Aspirina"],
-                tenant: "melisahospital"
+                tenant: "hospital"
             }
         }
         
         const patient = patients[patientId]
         
         if (!patient) {
-            throw new Error(`Paciente ${patientId} no encontrado en melisahospital`)
+            throw new Error(`Paciente ${patientId} no encontrado en hospital`)
         }
         
         return { patient, success: true }
     }
 
     async performSearch(searchTerm) {
-        console.log("🔍 Simulando búsqueda en BD melisahospital para:", searchTerm)
+        console.log("🔍 Simulando búsqueda en BD hospital para:", searchTerm)
         
         // Simular delay de búsqueda
         await this.delay(300)

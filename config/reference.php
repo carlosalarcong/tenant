@@ -1569,7 +1569,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     tenant_database_identifier?: mixed, // tenant db column name to get db configuration // Default: "id"
  *     tenant_config_provider?: mixed, // Service ID of the TenantConfigProviderInterface implementation // Default: "hakam_tenant_config_provider.doctrine"
  *     tenant_connection?: array{ // tenant entity manager connection configuration
- *         url?: mixed, // Default: "postgresql://melisa:melisamelisa@localhost:5432/melisa_central?serverVersion=16&charset=utf8"
+ *         url?: mixed, // Default: "postgresql://tenant:tenanttenant@localhost:5432/tenant_central?serverVersion=16&charset=utf8"
  *         host?: mixed, // Default: "127.0.0.1"
  *         port?: mixed, // Default: "3306"
  *         driver?: mixed, // Default: "pdo_mysql"
