@@ -95,7 +95,7 @@ class TenantDatabaseSwitchListener implements EventSubscriberInterface
     private function extractSubdomainFromHost(string $host): ?string
     {
         // Extraer primer segmento del host
-        // ej: lacolina.melisaupgrade.prod -> lacolina
+        // ej: lacolina.tenant -> lacolina
         $parts = explode('.', $host);
 
         if (count($parts) >= 2) {
