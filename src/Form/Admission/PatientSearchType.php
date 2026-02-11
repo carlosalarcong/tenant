@@ -16,6 +16,7 @@ class PatientSearchType extends AbstractType
             ->add('identification_type', ChoiceType::class, [
                 'required' => false,
                 'choices' => $options['identification_choices'],
+                'placeholder' => 'Seleccionar',
                 'label' => 'Tipo documento',
             ])
             ->add('q', TextType::class, [

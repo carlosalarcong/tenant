@@ -63,12 +63,12 @@ class AdmissionController extends AbstractTenantAwareController
 
     private function buildSearchViewData(Request $request, string $pageTitle, string $searchActionRoute): array
     {
-        $rawType = (string) $request->query->get('identification_type', '');
-        $initialTypeId = ctype_digit($rawType) ? (int) $rawType : 0;
+        $rawType = trim((string) $request->query->get('identification_type', ''));
+        $initialTypeId = ($rawType !== '' && is_numeric($rawType)) ? (int) $rawType : null;
 
         $identificationTypes = $this->patientSearchService->getActiveIdentificationTypes();
 
-        $identificationChoices = ['Todos' => 0];
+        $identificationChoices = [];
         $rutTypeId = 0;
         foreach ($identificationTypes as $type) {
             $identificationChoices[$type->getName()] = $type->getId();
@@ -88,8 +88,8 @@ class AdmissionController extends AbstractTenantAwareController
 
         $formData = $form->getData();
         $searchTerm = trim((string) ($formData['q'] ?? ''));
-        $selectedTypeId = $initialTypeId;
-        if (isset($formData['identification_type']) && ctype_digit((string) $formData['identification_type'])) {
+        $selectedTypeId = $initialTypeId ?? 0;
+        if (isset($formData['identification_type']) && $formData['identification_type'] !== '' && $formData['identification_type'] !== null) {
             $selectedTypeId = (int) $formData['identification_type'];
         }
         $searched = $searchTerm !== '';
