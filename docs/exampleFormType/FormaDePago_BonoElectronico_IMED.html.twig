@@ -1,0 +1,36 @@
+{% set NumeroForm = cantidad + 1 %}
+  {% set claseForm = 'class_' ~ listadoMediosPago.id %}   
+    {% set claseFormTabla = 'form_' ~ listadoMediosPago.id %}   
+      <div class="table-header header-color-grey MedioPagoBono" style="text-align:left;"> Resumen Pago IMED </div>
+      <table width="100%" class="table-bordered table-condensed {{claseFormTabla}}" >
+        <tr>
+          <td width="30%"> N° bono </td>
+          <td width="70%">
+           {% set nombreCampobono = 'bono_' ~ listadoMediosPago.id ~  '_' ~ cantidad %}  
+             {% set nombreClassbono = 'bono_' ~ listadoMediosPago.id %}
+              {{ form_widget(mediospago_form[nombreCampobono], {'attr': {'class': 'Input_num obligatorioConsolidado ' ~ claseForm ~ ' ' ~ nombreClassbono ~ ' ' ~ nombreCampobono ,'MaxLength': 12  ,  'onkeyup':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+            </td>
+          </tr>
+          <tr>
+            <td width="30%"> Bonificación Financiador </td>
+            <td width="70%">
+              {% set Bonificacion = 'Bonificacion_'~ listadoMediosPago.id ~ '_' ~ cantidad %}
+                {{ form_widget(mediospago_form[Bonificacion], {'attr': {'class': 'saldoMedio Input_num readOnlyConsolidado ' ~ claseForm  , 'MaxLength': 12, 'onkeyup':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+              </td>
+            </tr>
+            <tr>
+              <td width="30%"> Seguro Comp. </td>
+              <td width="70%">
+               {% set Seguro = 'Seguro_' ~ listadoMediosPago.id ~ '_' ~ cantidad %}
+                {{ form_widget(mediospago_form[Seguro],  {'attr': {'class': 'saldoMedio Input_num readOnlyConsolidado ' ~ claseForm , 'MaxLength': 12, 'onkeyup':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+              </td>
+            </tr>
+            <tr>
+              <td width="30%"> Copago </td>
+              <td width="70%">
+               {% set nombreCampoCopago = 'copago_' ~ listadoMediosPago.id ~ '_' ~ cantidad %}
+                {{ form_widget(mediospago_form[nombreCampoCopago],  {'attr': {'class':  'Input_num readOnlyConsolidado ' ~  claseForm ,'MaxLength': 12  ,  'onkeyup':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+              </td>
+            </tr>
+          </table>
+          <br>

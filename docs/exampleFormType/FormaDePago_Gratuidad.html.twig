@@ -1,0 +1,19 @@
+{% set claseForm = 'class_' ~ listadoMediosPago.id %}
+    <table width="100%" class="table-bordered table-condensed">
+        <tr>
+            <td width="30%">Gratuidad
+            </td>
+            <td width="70%">
+                {% set nombreGratuidad = 'idGratuidad_' ~ listadoMediosPago.id %} 
+                 {{ form_widget(mediospago_form[nombreGratuidad]  , {'attr': {'class': 'Input_select ' ~ claseForm }}) }}
+             </td>
+         </tr>
+         <tr>
+            <td width="30%">Monto
+            </td>
+            <td width="70%">
+              {% set nombreCampoMonto = 'monto_' ~ listadoMediosPago.id ~ '_0' %}
+                {{ form_widget(mediospago_form[nombreCampoMonto], {'attr': {'class': 'saldoMedio Input_num readOnlyConsolidado ' ~ claseForm , 'MaxLength': 8,'onkeyup':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+            </td>
+        </tr>
+    </table>
