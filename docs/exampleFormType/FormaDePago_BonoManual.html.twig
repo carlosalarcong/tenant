@@ -1,0 +1,48 @@
+{% set NumeroForm = cantidad + 1 %}
+    {% set claseForm = 'class_' ~ listadoMediosPago.id %}   
+        {% set claseFormTabla = 'form_' ~ listadoMediosPago.id %}   
+            <div class="table-header header-color-grey MedioPagoBono" style="text-align:left;">
+                Pago de {{listadoMediosPago.nombre}} N° {{NumeroForm}}
+            </div>
+
+    {% set nombreCampoValida = 'validaBonoOculto_' ~ listadoMediosPago.id ~  '_' ~ cantidad %}
+    <input type="hidden" value="0" name="xxx">
+            <table width="100%" class="table-bordered table-condensed {{claseFormTabla}}" >
+                {{ form_widget(mediospago_form[nombreCampoValida],{'attr': { 'class': ' validaBonoOculto ', 'value': '2'}}) }}
+                <tr>
+                    <td width="30%"> N° bono </td>
+                    <td width="70%">
+                       {% set nombreCampobono = 'bono_' ~ listadoMediosPago.id ~  '_' ~ cantidad %}
+                           {% set nombreClassbono = 'bono_' ~ listadoMediosPago.id %}
+                              {{ form_widget(mediospago_form[nombreCampobono], {'attr': {'class': 'Input_num obligatorioConsolidado valida-bono ' ~ claseForm ~ ' ' ~ nombreClassbono ~ ' ' ~ nombreCampobono ,'MaxLength': 12,  'onkeyup':'javascript:SumaSaldoVsMediosPago()', 'onmouseout': 'javascript:validaBonoInput($(this));', 'onmouseleave': 'javascript:validaBonoInput($(this));' }} ) }}
+                          </td>
+                      </tr>
+                      <tr>
+                        <td width="30%"> Bonificación Financiador </td>
+                        <td width="70%">
+                            {% set nombreCampoMonto = 'Bonificacion_' ~ listadoMediosPago.id ~  '_' ~ cantidad %}
+                              {{ form_widget(mediospago_form[nombreCampoMonto], {'attr': {'class': 'saldoMedio Input_num readOnlyConsolidado montoBonoManual bManualValor ' ~ claseForm , 'MaxLength': 12,  'onkeyup':'javascript:SumaSaldoVsMediosPago2($(this))' }} ) }}
+                          </td>
+                      </tr>
+                        <tr>
+                            <td width="30%"> Seguro Comp. </td>
+                            <td width="70%">
+                                {% set Seguro = 'Seguro_' ~ listadoMediosPago.id ~ '_' ~ cantidad %}
+                                {{ form_widget(mediospago_form[Seguro],  {'attr': {'class': 'saldoMedio Input_num bElectronico readOnlyConsolidado bManualValor seguroCompleBonoManual ' ~ claseForm , 'MaxLength': 12, 'onkeyup':'javascript:SumaSaldoVsMediosPago2($(this))'}} ) }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="30%"> Copago </td>
+                            <td width="70%">
+                                {% set nombreCampoCopago = 'copago_' ~ listadoMediosPago.id ~ '_' ~ cantidad %}
+                                {{ form_widget(mediospago_form[nombreCampoCopago],  {'attr': {'class':  'Input_num bElectronico readOnlyConsolidado copagoBonoManual ' ~  claseForm ,'MaxLength': 12  ,  'onkeyup':'javascript:SumaSaldoVsMediosPago2()'}} ) }}
+                            </td>
+                        </tr>
+                  </table>
+                  <br>
+                  <div class="btn-group pull-right clonar_{{listadoMediosPago.id}}_{{cantidad}} hideConsolidado">
+                    <button type="button" class="btn btn-mini btn-success" onclick="javascript:NuevoFormDinamico({{listadoMediosPago.id}});">
+                        <i class="icon-plus"></i></button>
+                        <button type="button" class="btn btn-mini btn-danger" onclick="javascript:Eliminar('{{listadoMediosPago.id}}', '{{cantidad}}');">
+                            <i class="icon-minus"></i></button>
+                        </div>

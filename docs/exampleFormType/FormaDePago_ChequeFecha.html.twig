@@ -1,0 +1,70 @@
+<style>
+    .datepicker{z-index:9999 !important;}
+</style>
+{% set NumeroForm = cantidad + 1 %}
+    {% set claseForm = 'class_' ~ listadoMediosPago.id %}
+        {% set claseFormTabla = 'form_' ~ listadoMediosPago.id %}   
+            <div class="table-header header-color-grey " style="text-align:left;">
+                Pago de {{listadoMediosPago.nombre}} N° {{NumeroForm}}
+            </div>
+            <table width="100%" class="table-bordered table-condensed {{claseFormTabla}}" >
+                <tr>
+                    <td width="30%"> Número de cheque </td>
+                    <td width="70%">
+                     {% set nombreCampocheque = 'cheque_' ~ listadoMediosPago.id ~  '_' ~ cantidad %}
+                         {{ form_widget(mediospago_form[nombreCampocheque],  {'attr': {'class':  'Input_num obligatorioConsolidado ' ~ claseForm  ,  'onkeyup':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+                     </td>
+                 </tr>
+                 <tr>
+                    <td width="30%"> Banco </td>
+                    <td width="70%">
+                     {% set nombreCampobanco = 'banco_' ~ listadoMediosPago.id ~  '_' ~ cantidad %}
+                         {{ form_widget(mediospago_form[nombreCampobanco],  {'attr': {'class': 'Input_select obligatorioConsolidado ' ~ claseForm  ,  'onchange':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+                     </td>
+                 </tr>
+                 <tr>
+                    <td width="30%"> Monto </td>
+                    <td width="70%">
+                     {% set nombreCampoMonto = 'monto_' ~ listadoMediosPago.id ~  '_' ~ cantidad %}
+                         {{ form_widget(mediospago_form[nombreCampoMonto], {'attr': {'class': 'saldoMedio Input_num readOnlyConsolidado ' ~ claseForm , 'MaxLength': 12,  'onkeyup':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+                     </td>
+                 </tr>
+                 <tr> 
+                    <td width="30%"> Rut </td>
+                    <td width="70%"> 
+                        {% set aa = listadoMediosPago.id ~  '_' ~ cantidad%}
+                        <span id="aux_{{aa}}" class="hide">{{aa}}</span>
+                        {% set nombreCamporut = 'rut_' ~ listadoMediosPago.id ~  '_' ~ cantidad %}
+                         {{ form_widget(mediospago_form[nombreCamporut],  {'attr': {'class': 'val-rutdv readOnlyConsolidado ' ~  claseForm , 'MaxLength': 12, 'onkeydown':'if (event.keyCode == 13) {javascript:ValidaRutDinamico($(this))}',  'onblur':'javascript:ValidaRutDinamico($(this))' ,  'onkeyup':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+                         <div id="errorrut_{{aa}}" class="hide aux_mesage"><span class="red"><i class="icon-remove red"> </i> Debe Ingresar un Rut Válido</span></div>
+                     </td>
+                 </tr>
+                 <tr>
+                    <td width="30%"> Nombre </td>
+                    <td width="70%">
+                     {% set nombreCamponombre = 'nombre_' ~ listadoMediosPago.id ~  '_' ~ cantidad %}          
+                         {{ form_widget(mediospago_form[nombreCamponombre],  {'attr': {'class': 'Input_text obligatorioConsolidado ' ~ claseForm  ,  'onkeyup':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+                     </td>
+                 </tr>
+                 <tr>
+                    <td width="30%"> Condición </td>
+                    <td width="70%">
+                     {% set condicion = 'condicion_' ~ listadoMediosPago.id ~ '_' ~ cantidad %}     
+                         {{ form_widget(mediospago_form[condicion],  {'attr': {'class': 'Input_select readOnlyConsolidado class-condicion ' ~  claseForm  ,  'onchange':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+                     </td>
+                 </tr>
+                <tr>
+                    <td width="30%">Fecha Cheque</td>
+                    <td width="70%">
+                        {% set fecha_cheque = 'fecha_cheque_' ~ listadoMediosPago.id ~ '_' ~ cantidad %}
+                        {{ form_widget(mediospago_form[fecha_cheque],  {'attr': {'class':'date-picker fecha-cheque ' ~  claseForm   , 'onchange':'javascript:SumaSaldoVsMediosPago()', 'autocomplete': 'off'}} ) }}
+                    </td>
+                </tr>
+             </table>
+             <br>
+             <div class="btn-group pull-right clonar_{{listadoMediosPago.id}}_{{cantidad}} hideConsolidado">
+                <button type="button" class="btn btn-mini btn-success" onclick="javascript:NuevoFormDinamico({{listadoMediosPago.id}});">
+                    <i class="icon-plus"></i></button>
+                    <button type="button" class="btn btn-mini btn-danger" onclick="javascript:Eliminar('{{listadoMediosPago.id}}', '{{cantidad}}');">
+                        <i class="icon-minus"></i></button>
+                    </div>
