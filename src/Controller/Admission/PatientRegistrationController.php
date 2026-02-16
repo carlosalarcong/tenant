@@ -14,6 +14,7 @@ use App\Entity\Tenant\Religion;
 use App\Form\Admission\ForeignPatientType;
 use App\Form\Admission\PatientRegistrationType;
 use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -159,7 +160,7 @@ class PatientRegistrationController extends AbstractTenantAwareController
 
             $this->addFlash('success', 'Persona creada. Continúa con la admisión.');
 
-            return $this->redirectToRoute('app_admission_wizard_step1', [
+            return $this->safeRedirect($request, 'app_admission_wizard_step1', [
                 'patientId' => $person->getId(),
                 'type' => ((string) ($formData['admission_type'] ?? 'hospitalaria')) === 'pre' ? 'pre' : 'hospitalaria',
             ]);
@@ -215,5 +216,21 @@ class PatientRegistrationController extends AbstractTenantAwareController
     {
         $text = trim((string) ($value ?? ''));
         return $text === '' ? null : $text;
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    private function safeRedirect(Request $request, string $route, array $parameters = []): RedirectResponse
+    {
+        $response = $this->redirectToRoute($route, $parameters);
+
+        if ($request->headers->has('Turbo-Frame')) {
+            $url = $this->generateUrl($route, $parameters);
+            $response->headers->set('Turbo-Location', $url);
+            $response->headers->set('Turbo-Visit-Control', 'reload');
+        }
+
+        return $response;
     }
 }

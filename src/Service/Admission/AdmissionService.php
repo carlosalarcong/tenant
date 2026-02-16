@@ -5,8 +5,10 @@ namespace App\Service\Admission;
 use App\Entity\Tenant\AdmissionRecord;
 use App\Entity\Tenant\Agreement;
 use App\Entity\Tenant\Bed;
+use App\Entity\Tenant\CareType;
 use App\Entity\Tenant\Payer;
 use App\Entity\Tenant\Patient;
+use App\Entity\Tenant\Person;
 use App\Entity\Tenant\Service;
 use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 
@@ -29,7 +31,7 @@ class AdmissionService
         return $record;
     }
 
-    public function assignFinancialData(AdmissionRecord $record, int $payerId, int $agreementId): bool
+    public function validateFinancialData(int $payerId, int $agreementId): bool
     {
         $payer = $this->entityManager->find(Payer::class, $payerId);
         if (!$payer instanceof Payer || !$payer->isActive()) {
@@ -42,7 +44,31 @@ class AdmissionService
             ['id' => $agreementId, 'payer' => $payerId]
         );
         $agreement = $this->entityManager->find(Agreement::class, $agreementId);
-        if (!$agreementMatchesPayer || !$agreement instanceof Agreement || !$agreement->isActive()) {
+
+        return (bool) $agreementMatchesPayer && $agreement instanceof Agreement && $agreement->isActive();
+    }
+
+    public function validateLocationData(int $serviceId, int $bedId): bool
+    {
+        $service = $this->entityManager->find(Service::class, $serviceId);
+        if (!$service instanceof Service || !$service->isActive()) {
+            return false;
+        }
+
+        $bed = $this->entityManager->find(Bed::class, $bedId);
+
+        return $bed instanceof Bed && $bed->isActive();
+    }
+
+    public function assignFinancialData(AdmissionRecord $record, int $payerId, int $agreementId): bool
+    {
+        if (!$this->validateFinancialData($payerId, $agreementId)) {
+            return false;
+        }
+
+        $payer = $this->entityManager->find(Payer::class, $payerId);
+        $agreement = $this->entityManager->find(Agreement::class, $agreementId);
+        if (!$payer instanceof Payer || !$agreement instanceof Agreement) {
             return false;
         }
 
@@ -55,13 +81,13 @@ class AdmissionService
 
     public function assignLocationData(AdmissionRecord $record, int $serviceId, int $bedId): bool
     {
-        $service = $this->entityManager->find(Service::class, $serviceId);
-        if (!$service instanceof Service || !$service->isActive()) {
+        if (!$this->validateLocationData($serviceId, $bedId)) {
             return false;
         }
 
+        $service = $this->entityManager->find(Service::class, $serviceId);
         $bed = $this->entityManager->find(Bed::class, $bedId);
-        if (!$bed instanceof Bed || !$bed->isActive()) {
+        if (!$service instanceof Service || !$bed instanceof Bed) {
             return false;
         }
 
@@ -70,6 +96,103 @@ class AdmissionService
         $this->entityManager->flush();
 
         return true;
+    }
+
+    public function createAdmissionFromWizard(
+        int $personId,
+        string $admissionType,
+        int $payerId,
+        int $agreementId,
+        int $serviceId,
+        int $bedId
+    ): ?AdmissionRecord {
+        if (
+            !$this->validateFinancialData($payerId, $agreementId)
+            || !$this->validateLocationData($serviceId, $bedId)
+        ) {
+            return null;
+        }
+
+        $person = $this->entityManager->find(Person::class, $personId);
+        $payer = $this->entityManager->find(Payer::class, $payerId);
+        $agreement = $this->entityManager->find(Agreement::class, $agreementId);
+        $service = $this->entityManager->find(Service::class, $serviceId);
+        $bed = $this->entityManager->find(Bed::class, $bedId);
+        $careType = $this->entityManager->createQueryBuilder()
+            ->select('ct')
+            ->from(CareType::class, 'ct')
+            ->where('ct.isActive = true')
+            ->orderBy('ct.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (
+            !$person instanceof Person
+            || !$payer instanceof Payer
+            || !$agreement instanceof Agreement
+            || !$service instanceof Service
+            || !$bed instanceof Bed
+            || !$careType instanceof CareType
+        ) {
+            return null;
+        }
+
+        $patient = new Patient();
+        $patient->setPerson($person);
+        $patient->setPayer($payer);
+        $patient->setAgreement($agreement);
+        $patient->setCareType($careType);
+
+        $record = new AdmissionRecord();
+        $record->setPatient($patient);
+        $record->setAdmissionType($admissionType);
+        $record->setStatus('draft');
+        $record->setPayer($payer);
+        $record->setAgreement($agreement);
+        $record->setService($service);
+        $record->setBed($bed);
+
+        $this->entityManager->persist($patient);
+        $this->entityManager->persist($record);
+        $this->entityManager->flush();
+
+        return $record;
+    }
+
+    public function getWizardCreationBlockingReason(
+        int $personId,
+        int $payerId,
+        int $agreementId,
+        int $serviceId,
+        int $bedId
+    ): ?string {
+        $person = $this->entityManager->find(Person::class, $personId);
+        if (!$person instanceof Person) {
+            return 'La persona seleccionada no existe.';
+        }
+
+        if (!$this->validateFinancialData($payerId, $agreementId)) {
+            return 'El financiador o convenio no son válidos para esta admisión.';
+        }
+
+        if (!$this->validateLocationData($serviceId, $bedId)) {
+            return 'El servicio o la cama no son válidos o no están activos.';
+        }
+
+        $hasActiveCareType = (bool) $this->entityManager->createQueryBuilder()
+            ->select('ct.id')
+            ->from(CareType::class, 'ct')
+            ->where('ct.isActive = true')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$hasActiveCareType) {
+            return 'No hay Tipo de Atención activo (tabla care_type). Debes crear al menos uno para continuar.';
+        }
+
+        return null;
     }
 
     public function finalizeAdmission(AdmissionRecord $record): void
@@ -95,5 +218,45 @@ class AdmissionService
             'service_name' => $record->getService()?->getName(),
             'bed_name' => $bedName,
         ];
+    }
+
+    /**
+     * @param list<int> $personIds
+     * @return array<int, list<AdmissionRecord>>
+     */
+    public function getAdmissionsByPersonIds(array $personIds): array
+    {
+        $personIds = array_values(array_unique(array_map('intval', $personIds)));
+        if ($personIds === []) {
+            return [];
+        }
+
+        /** @var list<AdmissionRecord> $records */
+        $records = $this->entityManager->createQueryBuilder()
+            ->select('ar', 'pat', 'per', 'payer', 'agreement')
+            ->from(AdmissionRecord::class, 'ar')
+            ->join('ar.patient', 'pat')
+            ->join('pat.person', 'per')
+            ->leftJoin('ar.payer', 'payer')
+            ->leftJoin('ar.agreement', 'agreement')
+            ->where('per.id IN (:personIds)')
+            ->setParameter('personIds', $personIds)
+            ->orderBy('ar.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $grouped = [];
+        foreach ($records as $record) {
+            $personId = $record->getPatient()?->getPerson()?->getId();
+            if ($personId === null) {
+                continue;
+            }
+            if (!isset($grouped[$personId])) {
+                $grouped[$personId] = [];
+            }
+            $grouped[$personId][] = $record;
+        }
+
+        return $grouped;
     }
 }

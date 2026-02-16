@@ -10,17 +10,27 @@
                 <p class="mb-2"><strong>ID:</strong> #{{ admission_id }}</p>
                 <p class="mb-4"><strong>Tipo:</strong> {{ admission_type|default('hospitalaria')|capitalize }}</p>
                 {% if admission_record is defined %}
+                    {% set patient = admission_record.patient %}
+                    {% set person = patient ? patient.person : null %}
                     <div class="row g-3 mb-4">
                         <div class="col-md-4">
                             <label class="form-label text-muted">Paciente</label>
                             <div class="form-control bg-light">
-                                {{ admission_record.person.name }} {{ admission_record.person.lastName }} {{ admission_record.person.middleName|default('') }}
+                                {% if person %}
+                                    {{ person.name }} {{ person.lastName }} {{ person.middleName|default('') }}
+                                {% else %}
+                                    -
+                                {% endif %}
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted">Identificación</label>
                             <div class="form-control bg-light">
-                                {{ admission_record.person.identificationType ? admission_record.person.identificationType.name : 'Sin tipo' }} - {{ admission_record.person.identification }}
+                                {% if person %}
+                                    {{ person.identificationType ? person.identificationType.name : 'Sin tipo' }} - {{ person.identification }}
+                                {% else %}
+                                    -
+                                {% endif %}
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -43,31 +53,18 @@
                 {% endif %}
 
                 <div class="d-flex gap-2 justify-content-end">
-                    {% if admission_type|default('hospitalaria') == 'urgencia' %}
-                        <a href="{{ path('app_admission_print_urgency', { id: admission_id, type: 'pdf' }) }}"
-                           target="_blank"
-                           data-turbo="false"
-                           class="btn btn-outline-secondary">
-                            Imprimir urgencia
-                        </a>
-                    {% else %}
-                        <a href="{{ path('app_admission_print_admission', { id: admission_id, type: 'pdf' }) }}"
-                           target="_blank"
-                           data-turbo="false"
-                           class="btn btn-outline-secondary">
-                            Imprimir admisión
-                        </a>
-                    {% endif %}
-                    <a href="{{ path('app_admission_hospitalization_index') }}"
-                       class="btn btn-outline-primary"
-                       data-turbo-frame="maintainer-content">
-                        Volver a Admisión Hospitalaria
+                    <a href="{{ path(print_route, { id: admission_id, type: 'pdf' }) }}"
+                       target="_blank"
+                       data-turbo="false"
+                       class="btn btn-outline-secondary">
+                        Imprimir admisión
                     </a>
-                    <a href="{{ path('app_admission_emergency_index') }}"
-                       class="btn btn-outline-danger"
-                       data-turbo-frame="maintainer-content">
-                        Volver a Urgencia
-                    </a>
+                    <form method="post" action="{{ path('app_admission_finalize', { id: admission_id }) }}" class="m-0">
+                        <input type="hidden" name="_token" value="{{ csrf_token('admission_finalize_' ~ admission_id) }}">
+                        <button type="submit" class="btn btn-success">
+                            Guardar y finalizar
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
