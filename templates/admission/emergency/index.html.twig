@@ -3,6 +3,23 @@
 {% block title %}{{ page_title }} - Sistema{% endblock %}
 
 {% block content %}
+    {% set admission_success_messages = app.flashes('admission_finalized_success') %}
+    {% if admission_success_messages is not empty %}
+        <script>
+            (() => {
+                if (!window.Swal) {
+                    return;
+                }
+                window.Swal.fire({
+                    icon: 'success',
+                    title: 'Ingreso exitoso',
+                    text: {{ admission_success_messages|last|json_encode|raw }},
+                    confirmButtonText: 'Aceptar'
+                });
+            })();
+        </script>
+    {% endif %}
+
     <div class="container-fluid px-4 py-4">
         <h1>{{ page_title }}</h1>
         <div class="card shadow-sm border-0 mt-4">
