@@ -135,6 +135,20 @@ class AdmissionController extends AbstractTenantAwareController
         $patients = $this->patientSearchService->searchPatients($searchTerm, $selectedTypeId, 20);
         $personIds = array_map(static fn($person) => (int) $person->getId(), $patients);
         $admissionsByPerson = $this->admissionService->getAdmissionsByPersonIds($personIds);
+        $admissionLocksByPerson = [];
+        foreach ($admissionsByPerson as $personId => $admissions) {
+            foreach ($admissions as $admission) {
+                if (!$this->admissionService->isBlockingAdmissionStatus($admission->getStatus())) {
+                    continue;
+                }
+
+                $admissionLocksByPerson[(int) $personId] = [
+                    'id' => (int) $admission->getId(),
+                    'status' => (string) $admission->getStatus(),
+                ];
+                break;
+            }
+        }
 
         return [
             'page_title' => $pageTitle,
@@ -143,6 +157,7 @@ class AdmissionController extends AbstractTenantAwareController
             'selected_type_id' => $selectedTypeId,
             'patients' => $patients,
             'admissions_by_person' => $admissionsByPerson,
+            'admission_locks_by_person' => $admissionLocksByPerson,
             'searched' => $searched,
             'search_form' => $form->createView(),
             'rut_type_id' => $rutTypeId,
