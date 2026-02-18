@@ -135,7 +135,7 @@
                                         {% set admission_type = page_title == 'Pre-Admisión' ? 'pre' : 'hospitalaria' %}
                                         {% set admission_lock = admission_locks_by_person[patient.id]|default(null) %}
                                         {% if admission_lock %}
-                                            <a href="{{ path('app_admission_view', { id: admission_lock.id }) }}"
+                                            <a href="{{ path('app_admission_view', { id: admission_lock.id, back: app.request.uri }) }}"
                                                class="btn btn-outline-secondary btn-sm"
                                                data-turbo-frame="maintainer-content">
                                                 Ya admitido (#{{ admission_lock.id }})
@@ -184,7 +184,7 @@
                                                             <td>{{ status_label }}</td>
                                                             <td>-</td>
                                                             <td class="text-end">
-                                                                <a href="{{ path('app_admission_view', { id: admission.id }) }}"
+                                                                <a href="{{ path('app_admission_view', { id: admission.id, back: app.request.uri }) }}"
                                                                    class="btn btn-outline-primary btn-sm"
                                                                    data-turbo-frame="maintainer-content">
                                                                     Ver
