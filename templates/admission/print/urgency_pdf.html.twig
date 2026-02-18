@@ -132,14 +132,17 @@
     </style>
 </head>
 <body>
-    <div class="no-print">
-        <button class="btn btn-danger" onclick="window.print()">
-            <i class="bx bx-printer"></i> Imprimir documento
-        </button>
-        <button class="btn" onclick="window.close()">
-            <i class="bx bx-x"></i> Cerrar
-        </button>
-    </div>
+    {% set is_embedded_preview = app.request.query.get('preview') == '1' %}
+    {% if not is_embedded_preview %}
+        <div class="no-print">
+            <button class="btn btn-danger" onclick="window.print()">
+                <i class="bx bx-printer"></i> Imprimir documento
+            </button>
+            <button class="btn" onclick="window.close()">
+                <i class="bx bx-x"></i> Cerrar
+            </button>
+        </div>
+    {% endif %}
 
     <div class="document-header">
         <h1>Comprobante de Admisión Urgencia</h1>
@@ -172,11 +175,11 @@
             <div class="info-grid">
                 <div class="info-item">
                     <strong>Nombre completo</strong>
-                    <span>{{ admission_record.person.name }} {{ admission_record.person.lastName }} {{ admission_record.person.middleName|default('') }}</span>
+                    <span>{{ admission_record.patient.person.name }} {{ admission_record.patient.person.lastName }} {{ admission_record.patient.person.middleName|default('') }}</span>
                 </div>
                 <div class="info-item">
                     <strong>Identificación</strong>
-                    <span>{{ admission_record.person.identificationType ? admission_record.person.identificationType.name : 'Sin tipo' }} - {{ admission_record.person.identification }}</span>
+                    <span>{{ admission_record.patient.person.identificationType ? admission_record.patient.person.identificationType.name : 'Sin tipo' }} - {{ admission_record.patient.person.identification }}</span>
                 </div>
             </div>
         {% else %}
