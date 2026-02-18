@@ -43,6 +43,18 @@ class AdmissionWizardController extends AbstractTenantAwareController
             return $this->safeRedirect($request, 'app_admission_hospitalization_index');
         }
 
+        $blockingAdmission = $this->admissionService->findBlockingAdmissionForPerson((int) $person->getId());
+        if ($blockingAdmission instanceof AdmissionRecord) {
+            $this->addFlash(
+                'danger',
+                sprintf('La persona ya tiene una admisión activa (#%d).', (int) $blockingAdmission->getId())
+            );
+
+            return $this->safeRedirect($request, 'app_admission_view', [
+                'id' => (int) $blockingAdmission->getId(),
+            ]);
+        }
+
         $admissionType = (string) $request->query->get('type', 'hospitalaria');
         if (!in_array($admissionType, ['hospitalaria', 'pre'], true)) {
             $admissionType = 'hospitalaria';

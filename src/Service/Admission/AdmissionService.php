@@ -14,6 +14,14 @@ use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 
 class AdmissionService
 {
+    private const BLOCKING_ADMISSION_STATUSES = [
+        'admitido',
+        'hospitalizado',
+        'preadmision',
+        'draft',
+        'completed',
+    ];
+
     public function __construct(
         private TenantEntityManager $entityManager
     ) {}
@@ -106,6 +114,10 @@ class AdmissionService
         int $serviceId,
         int $bedId
     ): ?AdmissionRecord {
+        if ($this->findBlockingAdmissionForPerson($personId) instanceof AdmissionRecord) {
+            return null;
+        }
+
         if (
             !$this->validateFinancialData($payerId, $agreementId)
             || !$this->validateLocationData($serviceId, $bedId)
@@ -172,6 +184,14 @@ class AdmissionService
             return 'La persona seleccionada no existe.';
         }
 
+        $blockingAdmission = $this->findBlockingAdmissionForPerson($personId);
+        if ($blockingAdmission instanceof AdmissionRecord) {
+            return sprintf(
+                'La persona ya tiene una admisión activa (#%d). Debes revisar ese ingreso antes de admitir nuevamente.',
+                (int) $blockingAdmission->getId()
+            );
+        }
+
         if (!$this->validateFinancialData($payerId, $agreementId)) {
             return 'El financiador o convenio no son válidos para esta admisión.';
         }
@@ -197,7 +217,7 @@ class AdmissionService
 
     public function finalizeAdmission(AdmissionRecord $record): void
     {
-        $record->setStatus('completed');
+        $record->setStatus('admitido');
         $this->entityManager->flush();
     }
 
@@ -218,6 +238,57 @@ class AdmissionService
             'service_name' => $record->getService()?->getName(),
             'bed_name' => $bedName,
         ];
+    }
+
+    public function findBlockingAdmissionForPerson(int $personId): ?AdmissionRecord
+    {
+        if ($personId <= 0) {
+            return null;
+        }
+
+        /** @var list<AdmissionRecord> $records */
+        $records = $this->entityManager->createQueryBuilder()
+            ->select('ar', 'pat', 'per')
+            ->from(AdmissionRecord::class, 'ar')
+            ->join('ar.patient', 'pat')
+            ->join('pat.person', 'per')
+            ->where('per.id = :personId')
+            ->setParameter('personId', $personId)
+            ->orderBy('ar.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        foreach ($records as $record) {
+            if ($this->isBlockingAdmissionStatus($record->getStatus())) {
+                return $record;
+            }
+        }
+
+        return null;
+    }
+
+    public function isBlockingAdmissionStatus(?string $status): bool
+    {
+        if ($status === null) {
+            return false;
+        }
+
+        return in_array($this->normalizeAdmissionStatus($status), self::BLOCKING_ADMISSION_STATUSES, true);
+    }
+
+    private function normalizeAdmissionStatus(string $status): string
+    {
+        $value = mb_strtolower(trim($status));
+        $value = strtr($value, [
+            'á' => 'a',
+            'é' => 'e',
+            'í' => 'i',
+            'ó' => 'o',
+            'ú' => 'u',
+        ]);
+        $value = str_replace([' ', '-', '_'], '', $value);
+
+        return $value;
     }
 
     /**

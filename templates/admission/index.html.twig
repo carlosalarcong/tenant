@@ -133,11 +133,20 @@
                                     <td>{{ patient.mobilePhone }}</td>
                                     <td class="text-end">
                                         {% set admission_type = page_title == 'Pre-Admisión' ? 'pre' : 'hospitalaria' %}
-                                        <a href="{{ path('app_admission_wizard_step1', { patientId: patient.id, type: admission_type }) }}"
-                                           class="btn btn-primary btn-sm"
-                                           data-turbo-frame="admission-wizard-content">
-                                            Admitir
-                                        </a>
+                                        {% set admission_lock = admission_locks_by_person[patient.id]|default(null) %}
+                                        {% if admission_lock %}
+                                            <a href="{{ path('app_admission_view', { id: admission_lock.id }) }}"
+                                               class="btn btn-outline-secondary btn-sm"
+                                               data-turbo-frame="maintainer-content">
+                                                Ya admitido (#{{ admission_lock.id }})
+                                            </a>
+                                        {% else %}
+                                            <a href="{{ path('app_admission_wizard_step1', { patientId: patient.id, type: admission_type }) }}"
+                                               class="btn btn-primary btn-sm"
+                                               data-turbo-frame="admission-wizard-content">
+                                                Admitir
+                                            </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% if previousAdmissions is not empty %}
@@ -159,6 +168,8 @@
                                                     </thead>
                                                     <tbody>
                                                     {% for admission in previousAdmissions %}
+                                                        {% set normalized_status = admission.status|lower|replace({'á':'a','é':'e','í':'i','ó':'o','ú':'u','-':'','_':'',' ':''}) %}
+                                                        {% set status_label = normalized_status == 'completed' ? 'Admitido' : (admission.status|capitalize) %}
                                                         <tr>
                                                             <td>{{ admission.id }}</td>
                                                             <td>{{ admission.createdAt|date('d-m-Y') }}</td>
@@ -169,7 +180,7 @@
                                                                     ({{ admission.agreement.name }})
                                                                 {% endif %}
                                                             </td>
-                                                            <td>{{ admission.status|upper }}</td>
+                                                            <td>{{ status_label }}</td>
                                                             <td>-</td>
                                                             <td class="text-end">
                                                                 <a href="{{ path('app_admission_view', { id: admission.id }) }}"
