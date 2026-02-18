@@ -15,4 +15,18 @@ class AdmissionStatusRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AdmissionStatus::class);
     }
+
+    /**
+     * @return list<AdmissionStatus>
+     */
+    public function findAllForResolution(): array
+    {
+        /** @var list<AdmissionStatus> $statuses */
+        $statuses = $this->createQueryBuilder('s')
+            ->orderBy('s.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $statuses;
+    }
 }

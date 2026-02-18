@@ -51,7 +51,7 @@
                     <h1 class="mb-1">Detalle de Admisión</h1>
                     <div class="text-muted">Ficha clínica y administrativa del ingreso</div>
                 </div>
-                {% set status_name = admission_record is defined and admission_record.admissionStatus ? admission_record.admissionStatus.name : 'Sin estado' %}
+                {% set status_name = admission_status_label|default('Sin estado') %}
                 <div class="d-flex flex-wrap gap-2">
                     <span class="summary-chip">Admisión #{{ admission_id }}</span>
                     <span class="summary-chip">{{ admission_type|default('hospitalaria')|capitalize }}</span>

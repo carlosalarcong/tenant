@@ -11,6 +11,10 @@ use App\Entity\Tenant\Payer;
 use App\Entity\Tenant\Patient;
 use App\Entity\Tenant\Person;
 use App\Entity\Tenant\Service;
+use App\Repository\Tenant\AdmissionRecordRepository;
+use App\Repository\Tenant\AdmissionStatusRepository;
+use App\Repository\Tenant\AgreementRepository;
+use App\Repository\Tenant\CareTypeRepository;
 use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 
 class AdmissionService
@@ -24,7 +28,11 @@ class AdmissionService
     ];
 
     public function __construct(
-        private TenantEntityManager $entityManager
+        private TenantEntityManager $entityManager,
+        private AgreementRepository $agreementRepository,
+        private CareTypeRepository $careTypeRepository,
+        private AdmissionRecordRepository $admissionRecordRepository,
+        private AdmissionStatusRepository $admissionStatusRepository
     ) {}
 
     public function createDraftAdmission(Patient $patient, string $admissionType): AdmissionRecord
@@ -47,14 +55,11 @@ class AdmissionService
             return false;
         }
 
-        $connection = $this->entityManager->getConnection();
-        $agreementMatchesPayer = $connection->fetchOne(
-            'SELECT id FROM agreement WHERE id = :id AND is_active = true AND payer_id = :payer',
-            ['id' => $agreementId, 'payer' => $payerId]
-        );
         $agreement = $this->entityManager->find(Agreement::class, $agreementId);
 
-        return (bool) $agreementMatchesPayer && $agreement instanceof Agreement && $agreement->isActive();
+        return $agreement instanceof Agreement
+            && $agreement->isActive()
+            && $this->agreementRepository->isActiveForPayer($agreementId, $payerId);
     }
 
     public function validateLocationData(int $serviceId, int $bedId): bool
@@ -131,14 +136,7 @@ class AdmissionService
         $agreement = $this->entityManager->find(Agreement::class, $agreementId);
         $service = $this->entityManager->find(Service::class, $serviceId);
         $bed = $this->entityManager->find(Bed::class, $bedId);
-        $careType = $this->entityManager->createQueryBuilder()
-            ->select('ct')
-            ->from(CareType::class, 'ct')
-            ->where('ct.isActive = true')
-            ->orderBy('ct.id', 'ASC')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+        $careType = $this->careTypeRepository->findFirstActive();
 
         if (
             !$person instanceof Person
@@ -201,13 +199,7 @@ class AdmissionService
             return 'El servicio o la cama no son válidos o no están activos.';
         }
 
-        $hasActiveCareType = (bool) $this->entityManager->createQueryBuilder()
-            ->select('ct.id')
-            ->from(CareType::class, 'ct')
-            ->where('ct.isActive = true')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+        $hasActiveCareType = $this->careTypeRepository->hasAnyActive();
 
         if (!$hasActiveCareType) {
             return 'No hay Tipo de Atención activo (tabla care_type). Debes crear al menos uno para continuar.';
@@ -247,21 +239,10 @@ class AdmissionService
             return null;
         }
 
-        /** @var list<AdmissionRecord> $records */
-        $records = $this->entityManager->createQueryBuilder()
-            ->select('ar', 'pat', 'per', 'admissionStatus')
-            ->from(AdmissionRecord::class, 'ar')
-            ->join('ar.patient', 'pat')
-            ->join('pat.person', 'per')
-            ->leftJoin('ar.admissionStatus', 'admissionStatus')
-            ->where('per.id = :personId')
-            ->setParameter('personId', $personId)
-            ->orderBy('ar.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
+        $records = $this->admissionRecordRepository->findRecentByPersonId($personId);
 
         foreach ($records as $record) {
-            if ($this->isBlockingAdmissionStatus($record->getAdmissionStatus()?->getName())) {
+            if ($this->isBlockingAdmissionStatus($this->getEffectiveAdmissionStatusName($record))) {
                 return $record;
             }
         }
@@ -276,6 +257,22 @@ class AdmissionService
         }
 
         return in_array($this->normalizeAdmissionStatus($status), self::BLOCKING_ADMISSION_STATUSES, true);
+    }
+
+    public function getEffectiveAdmissionStatusName(AdmissionRecord $record): ?string
+    {
+        $directStatus = trim((string) ($record->getAdmissionStatus()?->getName() ?? ''));
+        if ($directStatus !== '') {
+            return $directStatus;
+        }
+
+        $admissionType = mb_strtolower(trim((string) $record->getAdmissionType()));
+        if ($admissionType === 'pre') {
+            return 'Pre-admisión';
+        }
+
+        // Fallback para registros legacy sin FK de estado poblada.
+        return 'Admitido';
     }
 
     private function normalizeAdmissionStatus(string $status): string
@@ -304,20 +301,7 @@ class AdmissionService
             return [];
         }
 
-        /** @var list<AdmissionRecord> $records */
-        $records = $this->entityManager->createQueryBuilder()
-            ->select('ar', 'pat', 'per', 'payer', 'agreement', 'admissionStatus')
-            ->from(AdmissionRecord::class, 'ar')
-            ->join('ar.patient', 'pat')
-            ->join('pat.person', 'per')
-            ->leftJoin('ar.payer', 'payer')
-            ->leftJoin('ar.agreement', 'agreement')
-            ->leftJoin('ar.admissionStatus', 'admissionStatus')
-            ->where('per.id IN (:personIds)')
-            ->setParameter('personIds', $personIds)
-            ->orderBy('ar.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
+        $records = $this->admissionRecordRepository->findRecentByPersonIds($personIds);
 
         $grouped = [];
         foreach ($records as $record) {
@@ -340,12 +324,7 @@ class AdmissionService
             return null;
         }
 
-        /** @var list<AdmissionStatus> $statuses */
-        $statuses = $this->entityManager->createQueryBuilder()
-            ->select('status')
-            ->from(AdmissionStatus::class, 'status')
-            ->getQuery()
-            ->getResult();
+        $statuses = $this->admissionStatusRepository->findAllForResolution();
 
         if ($statuses === []) {
             return null;

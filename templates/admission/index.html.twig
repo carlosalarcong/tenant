@@ -168,7 +168,7 @@
                                                     </thead>
                                                     <tbody>
                                                     {% for admission in previousAdmissions %}
-                                                        {% set raw_status = admission.admissionStatus ? admission.admissionStatus.name : '' %}
+                                                        {% set raw_status = admissions_status_by_id[admission.id]|default('-') %}
                                                         {% set normalized_status = raw_status|lower|replace({'á':'a','é':'e','í':'i','ó':'o','ú':'u','-':'','_':'',' ':''}) %}
                                                         {% set status_label = normalized_status == 'completed' ? 'Admitido' : (raw_status != '' ? raw_status : '-') %}
                                                         <tr>

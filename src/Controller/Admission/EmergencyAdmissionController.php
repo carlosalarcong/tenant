@@ -100,6 +100,7 @@ class EmergencyAdmissionController extends AbstractTenantAwareController
             'admission_id' => $id,
             'admission_type' => 'urgencia',
             'admission_record' => $record,
+            'admission_status_label' => $this->admissionService->getEffectiveAdmissionStatusName($record),
             'admission_lookups' => $lookups,
             'finish_route' => 'app_admission_emergency_index',
             'print_route' => 'app_admission_print_urgency',
