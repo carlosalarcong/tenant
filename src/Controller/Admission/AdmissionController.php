@@ -43,7 +43,7 @@ class AdmissionController extends AbstractTenantAwareController
     }
 
     #[Route('/{id}/view', name: 'view', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function view(int $id): Response
+    public function view(Request $request, int $id): Response
     {
         /** @var AdmissionRecord|null $record */
         $record = $this->entityManager->find(AdmissionRecord::class, $id);
@@ -69,6 +69,7 @@ class AdmissionController extends AbstractTenantAwareController
             'admission_lookups' => $lookups,
             'finish_route' => $finishRoute,
             'print_route' => $printRoute,
+            'back_url' => (string) $request->query->get('back', ''),
         ]);
     }
 
