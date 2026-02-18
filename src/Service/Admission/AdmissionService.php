@@ -2,6 +2,7 @@
 
 namespace App\Service\Admission;
 
+use App\Entity\Tenant\AdmissionStatus;
 use App\Entity\Tenant\AdmissionRecord;
 use App\Entity\Tenant\Agreement;
 use App\Entity\Tenant\Bed;
@@ -14,6 +15,15 @@ use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 
 class AdmissionService
 {
+    private const DRAFT_STATUS_CANDIDATES = [
+        'pre-admisión',
+        'preadmisión',
+        'pre admisión',
+        'pre-admision',
+        'preadmision',
+        'draft',
+    ];
+    private const ADMITTED_STATUS_CANDIDATES = ['admitido'];
     private const BLOCKING_ADMISSION_STATUSES = [
         'admitido',
         'hospitalizado',
@@ -31,7 +41,7 @@ class AdmissionService
         $record = new AdmissionRecord();
         $record->setPatient($patient);
         $record->setAdmissionType($admissionType);
-        $record->setStatus('draft');
+        $record->setAdmissionStatus($this->resolveAdmissionStatusByPreferredNames(self::DRAFT_STATUS_CANDIDATES));
 
         $this->entityManager->persist($record);
         $this->entityManager->flush();
@@ -159,7 +169,7 @@ class AdmissionService
         $record = new AdmissionRecord();
         $record->setPatient($patient);
         $record->setAdmissionType($admissionType);
-        $record->setStatus('draft');
+        $record->setAdmissionStatus($this->resolveAdmissionStatusByPreferredNames(self::DRAFT_STATUS_CANDIDATES));
         $record->setPayer($payer);
         $record->setAgreement($agreement);
         $record->setService($service);
@@ -217,7 +227,7 @@ class AdmissionService
 
     public function finalizeAdmission(AdmissionRecord $record): void
     {
-        $record->setStatus('admitido');
+        $record->setAdmissionStatus($this->resolveAdmissionStatusByPreferredNames(self::ADMITTED_STATUS_CANDIDATES));
         $this->entityManager->flush();
     }
 
@@ -248,10 +258,11 @@ class AdmissionService
 
         /** @var list<AdmissionRecord> $records */
         $records = $this->entityManager->createQueryBuilder()
-            ->select('ar', 'pat', 'per')
+            ->select('ar', 'pat', 'per', 'admissionStatus')
             ->from(AdmissionRecord::class, 'ar')
             ->join('ar.patient', 'pat')
             ->join('pat.person', 'per')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
             ->where('per.id = :personId')
             ->setParameter('personId', $personId)
             ->orderBy('ar.createdAt', 'DESC')
@@ -259,7 +270,7 @@ class AdmissionService
             ->getResult();
 
         foreach ($records as $record) {
-            if ($this->isBlockingAdmissionStatus($record->getStatus())) {
+            if ($this->isBlockingAdmissionStatus($record->getAdmissionStatus()?->getName())) {
                 return $record;
             }
         }
@@ -304,12 +315,13 @@ class AdmissionService
 
         /** @var list<AdmissionRecord> $records */
         $records = $this->entityManager->createQueryBuilder()
-            ->select('ar', 'pat', 'per', 'payer', 'agreement')
+            ->select('ar', 'pat', 'per', 'payer', 'agreement', 'admissionStatus')
             ->from(AdmissionRecord::class, 'ar')
             ->join('ar.patient', 'pat')
             ->join('pat.person', 'per')
             ->leftJoin('ar.payer', 'payer')
             ->leftJoin('ar.agreement', 'agreement')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
             ->where('per.id IN (:personIds)')
             ->setParameter('personIds', $personIds)
             ->orderBy('ar.createdAt', 'DESC')
@@ -329,5 +341,37 @@ class AdmissionService
         }
 
         return $grouped;
+    }
+
+    public function resolveAdmissionStatusByPreferredNames(array $preferredNames): ?AdmissionStatus
+    {
+        if ($preferredNames === []) {
+            return null;
+        }
+
+        /** @var list<AdmissionStatus> $statuses */
+        $statuses = $this->entityManager->createQueryBuilder()
+            ->select('status')
+            ->from(AdmissionStatus::class, 'status')
+            ->getQuery()
+            ->getResult();
+
+        if ($statuses === []) {
+            return null;
+        }
+
+        $indexedByNormalizedName = [];
+        foreach ($statuses as $status) {
+            $indexedByNormalizedName[$this->normalizeAdmissionStatus($status->getName())] = $status;
+        }
+
+        foreach ($preferredNames as $preferredName) {
+            $normalized = $this->normalizeAdmissionStatus((string) $preferredName);
+            if (isset($indexedByNormalizedName[$normalized])) {
+                return $indexedByNormalizedName[$normalized];
+            }
+        }
+
+        return null;
     }
 }

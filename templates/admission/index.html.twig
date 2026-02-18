@@ -168,8 +168,9 @@
                                                     </thead>
                                                     <tbody>
                                                     {% for admission in previousAdmissions %}
-                                                        {% set normalized_status = admission.status|lower|replace({'á':'a','é':'e','í':'i','ó':'o','ú':'u','-':'','_':'',' ':''}) %}
-                                                        {% set status_label = normalized_status == 'completed' ? 'Admitido' : (admission.status|capitalize) %}
+                                                        {% set raw_status = admission.admissionStatus ? admission.admissionStatus.name : '' %}
+                                                        {% set normalized_status = raw_status|lower|replace({'á':'a','é':'e','í':'i','ó':'o','ú':'u','-':'','_':'',' ':''}) %}
+                                                        {% set status_label = normalized_status == 'completed' ? 'Admitido' : (raw_status != '' ? raw_status : '-') %}
                                                         <tr>
                                                             <td>{{ admission.id }}</td>
                                                             <td>{{ admission.createdAt|date('d-m-Y') }}</td>

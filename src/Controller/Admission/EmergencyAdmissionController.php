@@ -61,7 +61,9 @@ class EmergencyAdmissionController extends AbstractTenantAwareController
             $record = new AdmissionRecord();
             $record->setPatient($patient);
             $record->setAdmissionType('urgencia');
-            $record->setStatus('admitido');
+            $record->setAdmissionStatus(
+                $this->admissionService->resolveAdmissionStatusByPreferredNames(['admitido'])
+            );
             $record->setTriage(trim((string) ($data['triage'] ?? '')));
             $record->setConsultationReason(trim((string) ($data['reason'] ?? '')));
 

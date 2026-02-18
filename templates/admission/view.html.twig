@@ -35,7 +35,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted">Estado</label>
-                            <div class="form-control bg-light">{{ admission_record.status|capitalize }}</div>
+                            <div class="form-control bg-light">{{ admission_record.admissionStatus ? admission_record.admissionStatus.name : '-' }}</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted">Financiador / Convenio</label>

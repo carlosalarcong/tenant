@@ -174,7 +174,7 @@
             <div class="info-grid">
                 <div class="info-item">
                     <strong>Estado</strong>
-                    <span>{{ admission_record.status|capitalize }}</span>
+                    <span>{{ admission_record.admissionStatus ? admission_record.admissionStatus.name : '-' }}</span>
                 </div>
                 <div class="info-item">
                     <strong>Tipo</strong>
