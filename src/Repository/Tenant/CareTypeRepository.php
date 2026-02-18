@@ -25,4 +25,29 @@ class CareTypeRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findFirstActive(): ?CareType
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('c.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function hasAnyActive(): bool
+    {
+        /** @var array{id:int}|null $row */
+        $row = $this->createQueryBuilder('c')
+            ->select('c.id AS id')
+            ->where('c.isActive = :active')
+            ->setParameter('active', true)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $row !== null;
+    }
 }

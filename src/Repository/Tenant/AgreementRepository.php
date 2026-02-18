@@ -34,5 +34,26 @@ class AgreementRepository extends ServiceEntityRepository
 
         return $rows;
     }
-}
 
+    public function isActiveForPayer(int $agreementId, int $payerId): bool
+    {
+        if ($agreementId <= 0 || $payerId <= 0) {
+            return false;
+        }
+
+        /** @var array{id:int}|null $row */
+        $row = $this->createQueryBuilder('a')
+            ->select('a.id AS id')
+            ->where('a.id = :agreementId')
+            ->andWhere('a.isActive = :active')
+            ->andWhere('a.payer = :payerId')
+            ->setParameter('agreementId', $agreementId)
+            ->setParameter('active', true)
+            ->setParameter('payerId', $payerId)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $row !== null;
+    }
+}

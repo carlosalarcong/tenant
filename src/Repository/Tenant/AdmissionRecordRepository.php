@@ -31,8 +31,9 @@ class AdmissionRecordRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('ar')
             ->leftJoin('ar.bed', 'bed')
-            ->leftJoin('ar.person', 'person')
-            ->addSelect('bed', 'person')
+            ->leftJoin('ar.patient', 'patient')
+            ->leftJoin('patient.person', 'person')
+            ->addSelect('bed', 'patient', 'person')
             ->where('ar.service = :serviceId')
             ->andWhere('LOWER(ar.status) = :status')
             ->setParameter('serviceId', $serviceId)
@@ -71,8 +72,9 @@ class AdmissionRecordRepository extends ServiceEntityRepository
     public function findPendingListByService(int $serviceId): array
     {
         return $this->createQueryBuilder('ar')
-            ->leftJoin('ar.person', 'person')
-            ->addSelect('person')
+            ->leftJoin('ar.patient', 'patient')
+            ->leftJoin('patient.person', 'person')
+            ->addSelect('patient', 'person')
             ->where('ar.service = :serviceId')
             ->andWhere('ar.bed IS NULL')
             ->andWhere('LOWER(ar.status) IN (:statuses)')
@@ -81,5 +83,56 @@ class AdmissionRecordRepository extends ServiceEntityRepository
             ->orderBy('ar.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
+
+    /**
+     * @return list<AdmissionRecord>
+     */
+    public function findRecentByPersonId(int $personId): array
+    {
+        if ($personId <= 0) {
+            return [];
+        }
+
+        /** @var list<AdmissionRecord> $records */
+        $records = $this->createQueryBuilder('ar')
+            ->select('ar', 'pat', 'per', 'admissionStatus')
+            ->join('ar.patient', 'pat')
+            ->join('pat.person', 'per')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
+            ->where('per.id = :personId')
+            ->setParameter('personId', $personId)
+            ->orderBy('ar.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $records;
+    }
+
+    /**
+     * @param list<int> $personIds
+     * @return list<AdmissionRecord>
+     */
+    public function findRecentByPersonIds(array $personIds): array
+    {
+        $personIds = array_values(array_unique(array_map('intval', $personIds)));
+        if ($personIds === []) {
+            return [];
+        }
+
+        /** @var list<AdmissionRecord> $records */
+        $records = $this->createQueryBuilder('ar')
+            ->select('ar', 'pat', 'per', 'payer', 'agreement', 'admissionStatus')
+            ->join('ar.patient', 'pat')
+            ->join('pat.person', 'per')
+            ->leftJoin('ar.payer', 'payer')
+            ->leftJoin('ar.agreement', 'agreement')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
+            ->where('per.id IN (:personIds)')
+            ->setParameter('personIds', $personIds)
+            ->orderBy('ar.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $records;
     }
 }
