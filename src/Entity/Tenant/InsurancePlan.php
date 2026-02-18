@@ -30,6 +30,33 @@ class InsurancePlan
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $isPackage = false;
 
+    /** Legacy: ES_INHABIL */
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isDisabled = false;
+
+    /** Legacy: ES_PLAN_TELECONSULTA */
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $isTelemedicine = null;
+
+    /** Legacy: FECHA_ANULACION */
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $cancellationDate = null;
+
+    /** Legacy: ID_USUARIO_ANULACION */
+    #[ORM\ManyToOne(targetEntity: Member::class)]
+    #[ORM\JoinColumn(name: 'cancellation_user_id', referencedColumnName: 'id', nullable: true)]
+    private ?Member $cancellationUser = null;
+
+    /** Legacy: ID_PR_PLAN_PAQUETE_PRESTACION (auto-referencia) */
+    #[ORM\ManyToOne(targetEntity: self::class)]
+    #[ORM\JoinColumn(name: 'parent_plan_id', referencedColumnName: 'id', nullable: true)]
+    private ?InsurancePlan $parentPlan = null;
+
+    /** Legacy: ID_REL_SUCURSAL_PREVISION */
+    #[ORM\ManyToOne(targetEntity: BranchPayer::class)]
+    #[ORM\JoinColumn(name: 'branch_payer_id', referencedColumnName: 'id', nullable: true)]
+    private ?BranchPayer $branchPayer = null;
+
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $isActive = true;
 
@@ -96,6 +123,72 @@ class InsurancePlan
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->isDisabled;
+    }
+
+    public function setIsDisabled(bool $isDisabled): self
+    {
+        $this->isDisabled = $isDisabled;
+        return $this;
+    }
+
+    public function getIsTelemedicine(): ?bool
+    {
+        return $this->isTelemedicine;
+    }
+
+    public function setIsTelemedicine(?bool $isTelemedicine): self
+    {
+        $this->isTelemedicine = $isTelemedicine;
+        return $this;
+    }
+
+    public function getCancellationDate(): ?\DateTimeInterface
+    {
+        return $this->cancellationDate;
+    }
+
+    public function setCancellationDate(?\DateTimeInterface $cancellationDate): self
+    {
+        $this->cancellationDate = $cancellationDate;
+        return $this;
+    }
+
+    public function getCancellationUser(): ?Member
+    {
+        return $this->cancellationUser;
+    }
+
+    public function setCancellationUser(?Member $cancellationUser): self
+    {
+        $this->cancellationUser = $cancellationUser;
+        return $this;
+    }
+
+    public function getParentPlan(): ?InsurancePlan
+    {
+        return $this->parentPlan;
+    }
+
+    public function setParentPlan(?InsurancePlan $parentPlan): self
+    {
+        $this->parentPlan = $parentPlan;
+        return $this;
+    }
+
+    public function getBranchPayer(): ?BranchPayer
+    {
+        return $this->branchPayer;
+    }
+
+    public function setBranchPayer(?BranchPayer $branchPayer): self
+    {
+        $this->branchPayer = $branchPayer;
+        return $this;
     }
 
     public function __toString(): string
