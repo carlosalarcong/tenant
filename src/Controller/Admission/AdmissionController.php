@@ -138,13 +138,14 @@ class AdmissionController extends AbstractTenantAwareController
         $admissionLocksByPerson = [];
         foreach ($admissionsByPerson as $personId => $admissions) {
             foreach ($admissions as $admission) {
-                if (!$this->admissionService->isBlockingAdmissionStatus($admission->getStatus())) {
+                $statusName = $admission->getAdmissionStatus()?->getName();
+                if (!$this->admissionService->isBlockingAdmissionStatus($statusName)) {
                     continue;
                 }
 
                 $admissionLocksByPerson[(int) $personId] = [
                     'id' => (int) $admission->getId(),
-                    'status' => (string) $admission->getStatus(),
+                    'status' => (string) ($statusName ?? ''),
                 ];
                 break;
             }
