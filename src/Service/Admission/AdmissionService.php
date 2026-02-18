@@ -15,21 +15,12 @@ use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 
 class AdmissionService
 {
-    private const DRAFT_STATUS_CANDIDATES = [
-        'pre-admisión',
-        'preadmisión',
-        'pre admisión',
-        'pre-admision',
-        'preadmision',
-        'draft',
-    ];
+    private const DRAFT_STATUS_CANDIDATES = ['pre-admisión'];
     private const ADMITTED_STATUS_CANDIDATES = ['admitido'];
     private const BLOCKING_ADMISSION_STATUSES = [
         'admitido',
         'hospitalizado',
         'preadmision',
-        'draft',
-        'completed',
     ];
 
     public function __construct(
