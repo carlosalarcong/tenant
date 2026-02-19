@@ -9,6 +9,7 @@ use App\Repository\Tenant\BranchRepository;
 use App\Repository\Tenant\CareTypeRepository;
 use App\Repository\Tenant\InsurancePlanRepository;
 use App\Repository\Tenant\PayerRepository;
+use App\Repository\Tenant\PersonRepository;
 use App\Repository\Tenant\ProfessionalRepository;
 use App\Repository\Tenant\ServiceRepository;
 use App\Repository\Tenant\ServicePackageRepository;
@@ -32,7 +33,8 @@ class AdmissionApiController extends AbstractTenantAwareController
         private SpecialtyRepository $specialtyRepository,
         private CareTypeRepository $careTypeRepository,
         private InsurancePlanRepository $insurancePlanRepository,
-        private ServicePackageRepository $servicePackageRepository
+        private ServicePackageRepository $servicePackageRepository,
+        private PersonRepository $personRepository
     ) {}
 
     #[Route('/branches', name: 'branches', methods: ['GET'])]
@@ -190,6 +192,31 @@ class AdmissionApiController extends AbstractTenantAwareController
         } catch (\Throwable) {
             return $this->json(
                 ['error' => 'Error al cargar paquetes'],
+                500
+            );
+        }
+    }
+
+    #[Route('/tutor-search', name: 'tutor_search', methods: ['GET'])]
+    public function tutorSearch(Request $request): JsonResponse
+    {
+        $document = trim((string) $request->query->get('document', ''));
+        if ($document === '') {
+            return $this->json(
+                ['error' => 'Parámetro "document" requerido'],
+                400
+            );
+        }
+
+        try {
+            $name = $this->personRepository->findTutorFullNameByDocument($document);
+
+            return $this->json([
+                'name' => $name,
+            ]);
+        } catch (\Throwable) {
+            return $this->json(
+                ['error' => 'Error al buscar tutor'],
                 500
             );
         }
