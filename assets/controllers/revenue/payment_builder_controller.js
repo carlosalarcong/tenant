@@ -1,130 +1,189 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-    // Muestra el monto total ingresado en todos los métodos activos.
-    static targets = ['total'];
-    // URL base para pedir fragmentos HTML de filas por método.
-    static values = {
-        fragmentUrlTemplate: String,
-    };
+    static targets = ['total', 'statusAlert', 'statusAlertText'];
 
     connect() {
-        // Inicializa estado visual y disabled según switches al cargar.
-        this.element.querySelectorAll('[data-payment-method-switch]').forEach((switchElement) => {
-            this.syncMethodState(switchElement);
+        // Inicializar estado visual de cada switch al cargar.
+        this.element.querySelectorAll('[data-payment-method-switch]').forEach((sw) => {
+            this.syncMethodState(sw, false);
         });
 
-        // Inicializa el total al cargar el bloque.
-        this.recalculateTotal();
-    }
-
-    async addRow(event) {
-        // Lee el methodCode del botón "Agregar fila".
-        const methodCode = event.currentTarget.dataset.methodCode;
-        if (!methodCode) {
-            return;
-        }
-
-        // Contenedor donde se insertan las filas de ese método.
-        const rowsContainer = this.rowsContainerFor(methodCode);
-        if (!rowsContainer) {
-            return;
-        }
-
-        // nextIndex evita colisión en nombres: payment_batch[rows][method][index][field]
-        const index = Number(rowsContainer.dataset.nextIndex || '0');
-        const url = this.buildFragmentUrl(methodCode, index);
-
-        try {
-            // Solicita al backend un fragmento HTML de una fila ya renderizada por Symfony Form.
-            const response = await fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`No se pudo obtener la fila (${response.status})`);
+        // Formatear montos al perder el foco (delegación con focusout, que sí burbujea).
+        this._handleFocusOut = (event) => {
+            if (event.target.dataset.paymentAmountInput !== undefined) {
+                this.formatAmountOnFocusOut(event.target);
             }
-
-            const html = await response.text();
-            rowsContainer.insertAdjacentHTML('beforeend', html);
-            // Incrementa el índice para la próxima fila dinámica.
-            rowsContainer.dataset.nextIndex = String(index + 1);
-            this.recalculateTotal();
-        } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error(error);
-        }
-    }
-
-    removeRow(event) {
-        // Elimina únicamente la fila donde se hizo click en "Quitar".
-        const row = event.currentTarget.closest('[data-payment-row]');
-        if (row) {
-            row.remove();
-        }
+        };
+        this.element.addEventListener('focusout', this._handleFocusOut);
 
         this.recalculateTotal();
+        this.validateContinueButton();
     }
+
+    disconnect() {
+        this.element.removeEventListener('focusout', this._handleFocusOut);
+    }
+
+    // ── Handlers de eventos ────────────────────────────────────────────────
 
     toggleMethod(event) {
-        // Activa/desactiva el panel completo del método (switch por método).
-        this.syncMethodState(event.currentTarget);
+        this.syncMethodState(event.currentTarget, true);
         this.recalculateTotal();
+        this.validateContinueButton();
     }
 
+    // ── Cálculo del total ──────────────────────────────────────────────────
+
     recalculateTotal() {
-        // Suma todos los campos marcados como monto y que no estén deshabilitados.
         let total = 0;
 
         this.element.querySelectorAll('[data-payment-amount-input]').forEach((input) => {
-            if (input.disabled) {
-                return;
-            }
-
-            const value = parseFloat(input.value || '0');
+            if (input.disabled) return;
+            const value = this.parseAmount(input.value);
             if (!Number.isNaN(value) && value > 0) {
                 total += value;
             }
         });
 
         if (this.hasTotalTarget) {
-            this.totalTarget.textContent = total.toFixed(2);
+            this.totalTarget.textContent = total > 0
+                ? '$ ' + this.formatChilean(total)
+                : '$ 0';
+            this.totalTarget.classList.toggle('has-value', total > 0);
+        }
+
+        this.validateContinueButton();
+    }
+
+    // ── Validación del botón Continuar ─────────────────────────────────────
+
+    validateContinueButton() {
+        let anyActive       = false;
+        let allHaveAmount   = true;
+
+        this.element.querySelectorAll('[data-payment-method-switch]').forEach((sw) => {
+            if (!sw.checked) return;
+            anyActive = true;
+
+            const panel = this.element.querySelector(`[data-method-panel="${sw.dataset.paymentMethodSwitch}"]`);
+            if (!panel) return;
+
+            panel.querySelectorAll('[data-payment-amount-input]').forEach((input) => {
+                if (!input.disabled) {
+                    const val = this.parseAmount(input.value);
+                    if (Number.isNaN(val) || val <= 0) {
+                        allHaveAmount = false;
+                    }
+                }
+            });
+        });
+
+        // Regla:
+        //   sin activos          → permitir continuar
+        //   activos + con monto  → permitir continuar
+        //   activos + sin monto  → bloquear
+        const canContinue = !anyActive || (anyActive && allHaveAmount);
+
+        const btn = this.getContinueButton();
+        if (btn) {
+            btn.disabled = !canContinue;
+            btn.title    = canContinue ? '' : 'Ingrese el monto en todos los medios de pago activos';
+        }
+
+        this.updateStatusAlert(anyActive, allHaveAmount);
+    }
+
+    // ── Alerta de estado ───────────────────────────────────────────────────
+
+    updateStatusAlert(anyActive, allHaveAmount) {
+        if (!this.hasStatusAlertTarget) return;
+
+        const alert  = this.statusAlertTarget;
+        const textEl = this.hasStatusAlertTextTarget ? this.statusAlertTextTarget : null;
+
+        if (!anyActive) {
+            alert.classList.remove('d-none', 'pgm-alert-warning');
+            alert.classList.add('pgm-alert-info');
+            if (textEl) textEl.textContent = 'Puede continuar sin resguardo, o active un medio de pago.';
+        } else if (!allHaveAmount) {
+            alert.classList.remove('d-none', 'pgm-alert-info');
+            alert.classList.add('pgm-alert-warning');
+            if (textEl) textEl.textContent = 'Complete el monto en todos los medios de pago activos para continuar.';
+        } else {
+            // Todos activos tienen monto — ocultar alerta
+            alert.classList.add('d-none');
         }
     }
 
-    rowsContainerFor(methodCode) {
-        // Busca el bloque de filas de un método específico (cash, credit_card, check).
-        return this.element.querySelector(`[data-method-rows="${methodCode}"]`);
-    }
+    // ── Estado visual y funcional de la card ──────────────────────────────
 
-    buildFragmentUrl(methodCode, index) {
-        // Reemplaza el placeholder de método y agrega el índice de fila.
-        return `${this.fragmentUrlTemplateValue.replace('__METHOD__', methodCode)}?index=${index}`;
-    }
-
-    syncMethodState(switchElement) {
+    syncMethodState(switchElement, clearOnDisable) {
         const methodCode = switchElement.dataset.paymentMethodSwitch;
-        if (!methodCode) {
-            return;
-        }
+        if (!methodCode) return;
 
+        const card  = switchElement.closest('[data-method-card]');
         const panel = this.element.querySelector(`[data-method-panel="${methodCode}"]`);
-        if (!panel) {
-            return;
-        }
+        if (!panel) return;
 
         const enabled = switchElement.checked;
-        panel.classList.toggle('d-none', !enabled);
 
-        // Si está desactivado, deshabilita inputs para que no se envíen en el POST.
+        // Activar/desactivar la card (controla el slide-down via CSS)
+        if (card) {
+            card.classList.toggle('is-active', enabled);
+        }
+
+        // Habilitar/deshabilitar campos del panel
         panel.querySelectorAll('input, select, textarea').forEach((field) => {
             field.disabled = !enabled;
 
-            if (!enabled && ['checkbox', 'radio'].includes(field.type)) {
-                field.checked = false;
+            if (!enabled) {
+                if (['checkbox', 'radio'].includes(field.type)) {
+                    field.checked = false;
+                } else if (clearOnDisable && field.type !== 'hidden') {
+                    field.value = '';
+                }
             }
         });
+    }
+
+    // ── Formato chileno de montos ──────────────────────────────────────────
+
+    formatAmountOnFocusOut(input) {
+        const value = this.parseAmount(input.value);
+        if (!Number.isNaN(value) && value > 0) {
+            input.value = this.formatChilean(value);
+        }
+        this.recalculateTotal();
+    }
+
+    /**
+     * Parsea un monto que puede tener puntos de miles chilenos.
+     * Ejemplos: "150.000" → 150000,  "150000" → 150000,  "1.250.000" → 1250000
+     */
+    parseAmount(raw) {
+        if (!raw) return 0;
+        const cleaned = String(raw).replace(/\./g, '').replace(',', '.');
+        return parseFloat(cleaned);
+    }
+
+    /**
+     * Formatea entero con separador de miles chileno (punto).
+     * Ejemplo: 1250000 → "1.250.000"
+     */
+    formatChilean(value) {
+        return Math.round(value).toLocaleString('es-CL');
+    }
+
+    // ── Utilidades ────────────────────────────────────────────────────────
+
+    /**
+     * Busca el botón Continuar que está en el form padre (step3.html.twig).
+     * Usa data-payment-continue-btn en lugar de un Stimulus target porque
+     * el botón vive fuera del elemento del controlador.
+     */
+    getContinueButton() {
+        const form = this.element.closest('form');
+        return form ? form.querySelector('[data-payment-continue-btn]') : null;
     }
 }
