@@ -7,20 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ServiceType
- * 
- * Legacy table: tipo_prestacion
- * Spanish name: Tipo Prestación
- * 
- * Represents the types of medical services/procedures offered:
- * - Consultation
- * - Hospitalization
- * - Surgery
- * - Emergency
- * - Laboratory
- * - Imaging
- * - Therapy
- * - etc.
+ * ServiceType (TipoServicio)
+ *
+ * Tabla legacy: tipo_servicio
+ *
+ * Representa los tipos de servicio o atención médica ofrecidos por la clínica.
  */
 #[ORM\Entity(repositoryClass: ServiceTypeRepository::class)]
 #[ORM\Table(name: 'service_type')]

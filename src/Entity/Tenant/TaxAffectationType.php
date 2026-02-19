@@ -7,6 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * TaxAffectationType (TipoAfectacionTributaria)
+ *
+ * Tabla legacy: tipo_afectacion_tributaria
+ *
+ * Catálogo de tipos de afectación tributaria aplicables a artículos o servicios (ej. Afecto, Exento).
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`tax_affectation_type`')]
 class TaxAffectationType

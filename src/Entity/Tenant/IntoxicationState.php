@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * IntoxicationState (Estado de Ebriedad)
- * 
- * Mantenedor de estados de ebriedad/intoxicación
+ * IntoxicationState (EstadoIntoxicacion)
+ *
+ * Tabla legacy: estado_intoxicacion
+ *
+ * Catálogo de estados de intoxicación o ebriedad registrados en urgencias.
  */
 #[ORM\Entity(repositoryClass: IntoxicationStateRepository::class)]
 #[ORM\Table(name: 'intoxication_state')]

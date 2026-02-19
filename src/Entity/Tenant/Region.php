@@ -7,6 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Region (Region)
+ *
+ * Tabla legacy: region
+ *
+ * Catálogo de regiones administrativas pertenecientes a un país, con códigos HL7 para interoperabilidad.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`region`')]
 class Region

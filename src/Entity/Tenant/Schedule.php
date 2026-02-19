@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Schedule
  * 
- * Legacy table: agenda
+ * Tabla legacy: agenda
  * Spanish name: Agenda
  * 
  * Represents professional schedules and availability:

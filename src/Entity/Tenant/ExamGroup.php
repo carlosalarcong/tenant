@@ -4,6 +4,13 @@ use App\Repository\Tenant\ExamGroupRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * ExamGroup (GrupoExamen)
+ *
+ * Tabla legacy: grupo_examen
+ *
+ * Agrupación de exámenes médicos o de laboratorio para su organización y presentación en solicitudes.
+ */
 #[ORM\Entity(repositoryClass: ExamGroupRepository::class)]
 #[ORM\Table(name: 'exam_group')]
 class ExamGroup

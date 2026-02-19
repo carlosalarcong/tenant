@@ -7,6 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Province (Provincia)
+ *
+ * Tabla legacy: provincia
+ *
+ * Catálogo de provincias pertenecientes a una región, con código HL7 para interoperabilidad.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`province`')]
 class Province

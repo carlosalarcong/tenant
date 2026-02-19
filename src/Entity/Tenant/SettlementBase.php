@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * SettlementBase (BaseLiquidaciones)
- * 
- * Mantenedor de bases de liquidación
+ * SettlementBase (BaseLiquidacion)
+ *
+ * Tabla legacy: base_liquidacion
+ *
+ * Representa las bases o conceptos utilizados en el proceso de liquidación de cuentas.
  */
 #[ORM\Entity(repositoryClass: SettlementBaseRepository::class)]
 #[ORM\Table(name: 'settlement_base')]

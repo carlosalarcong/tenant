@@ -8,8 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * CompanyAgreement (ConvenioEmpresa)
- * 
- * Mantenedor de convenios de empresa del sistema
+ *
+ * Tabla legacy: convenio_empresa
+ *
+ * Mantenedor de convenios de empresa del sistema.
  */
 #[ORM\Entity(repositoryClass: CompanyAgreementRepository::class)]
 #[ORM\Table(name: 'company_agreement')]

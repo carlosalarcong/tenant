@@ -6,6 +6,13 @@ use App\Repository\Tenant\DocumentTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * DocumentType (TipoDocumento)
+ *
+ * Tabla legacy: tipo_documento
+ *
+ * Catálogo de tipos de documento tributario o logístico (boleta, factura, guía, etc.) con código SII.
+ */
 #[ORM\Entity(repositoryClass: DocumentTypeRepository::class)]
 #[ORM\Table(name: 'document_type')]
 #[ORM\HasLifecycleCallbacks]

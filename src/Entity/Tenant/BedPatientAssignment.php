@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * BedPatientAssignment (RelCamaPaciente)
  *
- * Legacy table: rel_cama_paciente
+ * Tabla legacy: rel_cama_paciente
  * Spanish name: Relación Cama-Paciente
  *
  * Tracks bed occupancy over time, linking a patient to a specific bed

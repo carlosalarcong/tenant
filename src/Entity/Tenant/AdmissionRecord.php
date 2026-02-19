@@ -5,6 +5,13 @@ namespace App\Entity\Tenant;
 use App\Repository\Tenant\AdmissionRecordRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * AdmissionRecord (DatoIngreso)
+ *
+ * Tabla legacy: dato_ingreso
+ *
+ * Representa el registro de admisión o ingreso de un paciente a la clínica.
+ */
 #[ORM\Entity(repositoryClass: AdmissionRecordRepository::class)]
 #[ORM\Table(name: 'admission_record')]
 #[ORM\HasLifecycleCallbacks]
@@ -19,8 +26,8 @@ class AdmissionRecord
      * The patient visit record this admission is linked to.
      * Legacy: idPaciente → Paciente
      */
-    #[ORM\ManyToOne(targetEntity: Patient::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(targetEntity: Patient::class)]
+    #[ORM\JoinColumn(nullable: false, unique: true)]
     private ?Patient $patient = null;
 
     #[ORM\Column(length: 30)]
@@ -86,6 +93,15 @@ class AdmissionRecord
     #[ORM\ManyToOne(targetEntity: BedPatientAssignment::class)]
     #[ORM\JoinColumn(name: 'bed_patient_assignment_id', referencedColumnName: 'id', nullable: true)]
     private ?BedPatientAssignment $bedAssignment = null;
+
+    /**
+     * Cuenta maestra de facturación de este ingreso.
+     * Se crea al confirmar el ingreso y permanece abierta mientras haya pagos pendientes.
+     * Legacy: sin FK directa — CuentaPaciente.idPaciente vinculada vía Paciente
+     */
+    #[ORM\OneToOne(targetEntity: PatientAccount::class)]
+    #[ORM\JoinColumn(name: 'patient_account_id', referencedColumnName: 'id', nullable: true)]
+    private ?PatientAccount $patientAccount = null;
 
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $triage = null;
@@ -534,6 +550,17 @@ class AdmissionRecord
     public function setBedAssignment(?BedPatientAssignment $bedAssignment): self
     {
         $this->bedAssignment = $bedAssignment;
+        return $this;
+    }
+
+    public function getPatientAccount(): ?PatientAccount
+    {
+        return $this->patientAccount;
+    }
+
+    public function setPatientAccount(?PatientAccount $patientAccount): self
+    {
+        $this->patientAccount = $patientAccount;
         return $this;
     }
 }

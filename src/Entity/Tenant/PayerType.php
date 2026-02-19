@@ -9,17 +9,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * PayerType (HL7 standard)
- * 
- * Legacy table: tipo_prevision
- * Spanish name: Tipo Prestador / Tipo Previsión / Tipo Financiador
- * 
- * Represents the types of healthcare payers in the system:
- * - FONASA
- * - ISAPRE
- * - Private
- * - Insurance companies
- * - Other agreements
+ * PayerType (TipoFinanciador)
+ *
+ * Tabla legacy: tipo_financiador
+ *
+ * Representa el tipo de financiador de salud, como FONASA, ISAPRE, particular, compañía de seguros u otros convenios.
  */
 #[ORM\Entity(repositoryClass: PayerTypeRepository::class)]
 #[ORM\Table(name: 'payer_type')]

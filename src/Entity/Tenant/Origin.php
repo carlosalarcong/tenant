@@ -7,8 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Origin (Origen)
- * 
- * Origen específico del paciente o situación
+ *
+ * Tabla legacy: origen
+ *
+ * Mantenedor de orígenes de derivación o procedencia del paciente al momento de la admisión.
  */
 #[ORM\Entity(repositoryClass: OriginRepository::class)]
 #[ORM\Table(name: 'maintainer_origin')]

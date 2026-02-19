@@ -6,9 +6,11 @@ use App\Repository\Tenant\GroupPermissionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Permisos por grupo (MemberGroup).
- * 
- * Permite asignar permisos a todos los miembros de un grupo.
+ * GroupPermission (PermisoGrupo)
+ *
+ * Tabla legacy: (nueva entidad)
+ *
+ * Permisos asignados a grupos de miembros para el control de acceso.
  */
 #[ORM\Entity(repositoryClass: GroupPermissionRepository::class)]
 #[ORM\Table(name: 'group_permission')]

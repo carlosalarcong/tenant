@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * DailyUF (UFDiarias)
- * 
- * Mantenedor de valores de UF diarios
+ * DailyUF (UF Diaria)
+ *
+ * Tabla legacy: uf_diaria
+ *
+ * Registro del valor diario de la Unidad de Fomento (UF) utilizado en cálculos financieros.
  */
 #[ORM\Entity(repositoryClass: DailyUFRepository::class)]
 #[ORM\Table(name: 'daily_uf')]

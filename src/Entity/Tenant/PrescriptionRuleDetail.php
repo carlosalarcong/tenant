@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * PrescriptionRuleDetail
- * 
- * Detalle de reglas de prescripción médica
+ * PrescriptionRuleDetail (Detalle de Regla de Receta)
+ *
+ * Tabla legacy: detalle_regla_receta
+ *
+ * Mantenedor de detalles de reglas de prescripción médica con intervalos y cantidades diarias.
  */
 #[ORM\Entity(repositoryClass: PrescriptionRuleDetailRepository::class)]
 #[ORM\Table(name: 'prescription_rule_detail')]

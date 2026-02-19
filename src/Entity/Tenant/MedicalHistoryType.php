@@ -6,6 +6,13 @@ use App\Repository\Tenant\MedicalHistoryTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * MedicalHistoryType (TipoAntecedenteMedico)
+ *
+ * Tabla legacy: tipo_antecedente_medico
+ *
+ * Tipo o categoría de antecedente médico del paciente.
+ */
 #[ORM\Entity(repositoryClass: MedicalHistoryTypeRepository::class)]
 #[ORM\Table(name: 'medical_history_type')]
 class MedicalHistoryType

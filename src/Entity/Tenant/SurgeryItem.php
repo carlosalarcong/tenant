@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * SurgeryItem
  * 
- * Legacy table: item_cirugia
+ * Tabla legacy: item_cirugia
  * Spanish name: Item Cirugía
  * 
  * Represents surgical procedure items:

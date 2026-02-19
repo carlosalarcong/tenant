@@ -6,6 +6,13 @@ use App\Repository\Tenant\BloodTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * BloodType (TipoSangre)
+ *
+ * Tabla legacy: tipo_sangre
+ *
+ * Catálogo de grupos sanguíneos (tipos de sangre) asignables a pacientes.
+ */
 #[ORM\Entity(repositoryClass: BloodTypeRepository::class)]
 #[ORM\Table(name: 'blood_type')]
 class BloodType

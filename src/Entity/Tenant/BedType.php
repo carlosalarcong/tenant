@@ -7,20 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * BedType
- * 
- * Legacy table: tipo_cama
- * Spanish name: Tipo Cama
- * 
- * Represents the types of hospital beds:
- * - Basic/Common
- * - Intermediate care
- * - Intensive care (ICU)
- * - Private room
- * - Semi-private
- * - Pediatric
- * - Maternity
- * - etc.
+ * BedType (TipoCama)
+ *
+ * Tabla legacy: tipo_cama
+ *
+ * Representa los tipos de cama hospitalaria disponibles en la clínica.
  */
 #[ORM\Entity(repositoryClass: BedTypeRepository::class)]
 #[ORM\Table(name: 'bed_type')]

@@ -7,9 +7,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * MenuItem: Representa un item del menú configurable por tenant.
- * 
- * Permite almacenar la estructura del menú en BD para configuración dinámica.
+ * MenuItem (ItemMenu)
+ *
+ * Tabla legacy: item_menu
+ *
+ * Representa un ítem del menú de navegación configurable por tenant, almacenado en base de datos para configuración dinámica.
  */
 #[ORM\Entity(repositoryClass: 'App\Repository\Tenant\MenuItemRepository')]
 #[ORM\Table(name: 'menu_items')]

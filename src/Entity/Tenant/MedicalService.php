@@ -6,10 +6,11 @@ use App\Repository\Tenant\MedicalServiceRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * MedicalService - Medical services and clinical procedures
- * Legacy table: accion_clinica
- * 
- * Represents medical services, procedures, and clinical actions that can be provided
+ * MedicalService (ServicioMedico)
+ *
+ * Tabla legacy: servicio_medico
+ *
+ * Catálogo de servicios médicos y procedimientos clínicos disponibles en el establecimiento.
  */
 #[ORM\Entity(repositoryClass: MedicalServiceRepository::class)]
 #[ORM\Table(name: 'medical_service')]

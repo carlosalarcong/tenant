@@ -8,8 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Article (Articulo)
- * 
- * Entidad central de logística que representa artículos del inventario
+ *
+ * Tabla legacy: articulo
+ *
+ * Entidad central de logística que representa artículos del inventario.
  */
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
 #[ORM\Table(name: 'article')]

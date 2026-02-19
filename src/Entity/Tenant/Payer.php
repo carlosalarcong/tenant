@@ -7,17 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Payer (HL7 standard)
- * 
- * Legacy table: prevision
- * Spanish name: Prestador / Previsión
- * 
- * Represents a specific healthcare payer or insurance provider:
- * - Individual ISAPREs (Cruz Blanca, Consalud, Banmédica, etc.)
- * - FONASA as an entity
- * - Insurance companies
- * - Mutual de Seguridad
- * - Other healthcare providers
+ * Payer (Financiador / Prevision)
+ *
+ * Tabla legacy: prevision
+ *
+ * Representa un financiador o previsión de salud del paciente, como FONASA, ISAPREs individuales, compañías de seguros y otros convenios.
  */
 #[ORM\Entity(repositoryClass: PayerRepository::class)]
 #[ORM\Table(name: 'payer')]

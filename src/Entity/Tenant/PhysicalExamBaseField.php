@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * PhysicalExamBaseField
- * 
- * Campos base para examen físico
+ * PhysicalExamBaseField (Campo Base de Examen Físico)
+ *
+ * Tabla legacy: campo_base_examen_fisico
+ *
+ * Mantenedor de campos base que conforman las plantillas de examen físico del paciente.
  */
 #[ORM\Entity(repositoryClass: PhysicalExamBaseFieldRepository::class)]
 #[ORM\Table(name: 'physical_exam_base_field')]

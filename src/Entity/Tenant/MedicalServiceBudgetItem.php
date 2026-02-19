@@ -6,10 +6,11 @@ use App\Repository\Tenant\MedicalServiceBudgetItemRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * MedicalServiceBudgetItem - Relation between medical services and budget items
- * Legacy table: rel_accion_clinica_item
- * 
- * Links medical services with budget items
+ * MedicalServiceBudgetItem (ItemPresupuestoServicioMedico)
+ *
+ * Tabla legacy: item_presupuesto_servicio_medico
+ *
+ * Relación entre servicios médicos e ítems de presupuesto asociados.
  */
 #[ORM\Entity(repositoryClass: MedicalServiceBudgetItemRepository::class)]
 #[ORM\Table(name: 'medical_service_budget_item')]

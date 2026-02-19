@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * TriageCategory (Categorizacion)
  *
- * Legacy table: categorizacion
+ * Tabla legacy: categorizacion
  * Spanish name: Categorización / Nivel de Triage
  *
  * Catalog of triage levels used in emergency admissions

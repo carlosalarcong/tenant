@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * SurgicalTeamRole (Rol de Equipo Quirúrgico)
- * 
- * Represents a role in the surgical team
+ * SurgicalTeamRole (RolEquipoQuirurgico)
+ *
+ * Tabla legacy: rol_equipo_quirurgico
+ *
+ * Catálogo de roles que puede desempeñar un profesional dentro del equipo quirúrgico.
  */
 #[ORM\Entity(repositoryClass: SurgicalTeamRoleRepository::class)]
 #[ORM\Table(name: 'surgical_team_role')]

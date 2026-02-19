@@ -7,16 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Agreement
- * 
- * Legacy table: convenio
- * Spanish name: Convenio
- * 
- * Represents commercial agreements with entities:
- * - Corporate healthcare agreements
- * - Insurance company contracts
- * - Service level agreements
- * - Pricing and discount terms
+ * Agreement (Convenio)
+ *
+ * Tabla legacy: prevision
+ *
+ * Representa los convenios o previsiones de salud pactados con aseguradoras y entidades financiadoras.
  */
 #[ORM\Entity(repositoryClass: AgreementRepository::class)]
 #[ORM\Table(name: 'agreement')]

@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * PrescriptionFrequency
- * 
- * Mantenedor de frecuencias de prescripción
+ * PrescriptionFrequency (Frecuencia de Receta)
+ *
+ * Tabla legacy: frecuencia_receta
+ *
+ * Mantenedor de frecuencias de administración de medicamentos en recetas médicas.
  */
 #[ORM\Entity(repositoryClass: PrescriptionFrequencyRepository::class)]
 #[ORM\Table(name: 'prescription_frequency')]

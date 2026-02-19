@@ -7,6 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Occupation (Ocupacion)
+ *
+ * Tabla legacy: ocupacion
+ *
+ * Catálogo de ocupaciones o profesiones asignables a personas para fines estadísticos y clínicos.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`occupation`')]
 class Occupation

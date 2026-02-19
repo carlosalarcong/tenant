@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * PrescriptionFormat
- * 
- * Mantenedor de formatos de prescripción
+ * PrescriptionFormat (Formato de Receta)
+ *
+ * Tabla legacy: formato_receta
+ *
+ * Mantenedor de formatos de impresión y presentación de recetas médicas del sistema.
  */
 #[ORM\Entity(repositoryClass: PrescriptionFormatRepository::class)]
 #[ORM\Table(name: 'prescription_format')]

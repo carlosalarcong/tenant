@@ -7,6 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * EducationLevel (NivelEducacional)
+ *
+ * Tabla legacy: nivel_educacional
+ *
+ * Catálogo de niveles de educación formal (básica, media, universitaria, etc.) asignables a personas.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`education_level`')]
 class EducationLevel

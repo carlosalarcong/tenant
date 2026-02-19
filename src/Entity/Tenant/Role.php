@@ -6,19 +6,11 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\Tenant\RoleRepository;
 
 /**
- * Entidad para gestionar roles del sistema de forma dinámica
- * 
- * Esta tabla centraliza todos los roles disponibles en el sistema,
- * permitiendo administrarlos desde la UI y usarlos en dropdowns.
- * 
- * BENEFICIOS:
- * - Roles configurables sin modificar código
- * - Nombres traducibles/personalizables por tenant
- * - Control de activación/desactivación de roles
- * - Ordenamiento personalizable
- * 
- * @author Melisa Development Team
- * @since Sprint 2 - Dynamic Role Management (Feb 2026)
+ * Role (Rol)
+ *
+ * Tabla legacy: (nueva entidad)
+ *
+ * Representa un rol del sistema gestionado de forma dinámica, permitiendo administrar permisos y accesos desde la interfaz de usuario.
  */
 #[ORM\Entity(repositoryClass: RoleRepository::class)]
 #[ORM\Table(name: 'role')]

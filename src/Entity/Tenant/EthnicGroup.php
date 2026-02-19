@@ -7,6 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * EthnicGroup (PuebloOriginario)
+ *
+ * Tabla legacy: pueblo_originario
+ *
+ * Catálogo de pueblos originarios o grupos étnicos, asignables a personas para fines estadísticos y de salud.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`ethnic_group`')]
 class EthnicGroup

@@ -7,6 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Municipality (Comuna)
+ *
+ * Tabla legacy: comuna
+ *
+ * Catálogo de comunas (municipios) pertenecientes a una provincia, con código HL7 para interoperabilidad.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`municipality`')]
 class Municipality

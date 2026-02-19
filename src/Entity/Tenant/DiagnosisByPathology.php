@@ -6,6 +6,13 @@ use App\Repository\Tenant\DiagnosisByPathologyRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * DiagnosisByPathology (DiagnosticoPorPatologia)
+ *
+ * Tabla legacy: diagnostico_por_patologia
+ *
+ * Agrupación de diagnósticos por patología, usado para clasificación clínica en admisiones.
+ */
 #[ORM\Entity(repositoryClass: DiagnosisByPathologyRepository::class)]
 #[ORM\Table(name: 'diagnosis_by_pathology')]
 class DiagnosisByPathology

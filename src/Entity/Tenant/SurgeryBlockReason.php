@@ -6,6 +6,13 @@ use App\Repository\Tenant\SurgeryBlockReasonRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * SurgeryBlockReason (MotivoBloqueoQuirofano)
+ *
+ * Tabla legacy: motivo_bloqueo_quirofano
+ *
+ * Motivo por el cual se bloquea un pabellón quirúrgico en el sistema.
+ */
 #[ORM\Entity(repositoryClass: SurgeryBlockReasonRepository::class)]
 #[ORM\Table(name: 'surgery_block_reason')]
 class SurgeryBlockReason

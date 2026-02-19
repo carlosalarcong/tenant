@@ -8,9 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Gender (Sexo)
- * 
- * Mantenedor de géneros/sexos del sistema
- * Datos compartidos por todos los tenants
+ *
+ * Tabla legacy: sexo
+ *
+ * Mantenedor de géneros/sexos biológicos utilizados en el registro de pacientes y personal.
  */
 #[ORM\Entity(repositoryClass: GenderRepository::class)]
 #[ORM\Table(name: 'gender')]

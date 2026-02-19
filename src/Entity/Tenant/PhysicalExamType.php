@@ -4,6 +4,13 @@ use App\Repository\Tenant\PhysicalExamTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * PhysicalExamType (TipoExamenFisico)
+ *
+ * Tabla legacy: tipo_examen_fisico
+ *
+ * Tipo de examen físico disponible para registro clínico del paciente.
+ */
 #[ORM\Entity(repositoryClass: PhysicalExamTypeRepository::class)]
 #[ORM\Table(name: 'physical_exam_type')]
 class PhysicalExamType

@@ -6,10 +6,11 @@ use App\Repository\Tenant\BranchServiceTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * BranchServiceType - Relation between branches and service types
- * Legacy table: rel_sucursal_tipo_atencion
- * 
- * Links branches with service types they provide
+ * BranchServiceType (RelSucursalTipoAtencion)
+ *
+ * Tabla legacy: rel_sucursal_tipo_atencion
+ *
+ * Relación entre sucursales y los tipos de atención que cada sucursal ofrece.
  */
 #[ORM\Entity(repositoryClass: BranchServiceTypeRepository::class)]
 #[ORM\Table(name: 'branch_service_type')]

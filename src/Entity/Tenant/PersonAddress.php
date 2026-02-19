@@ -5,6 +5,13 @@ namespace App\Entity\Tenant;
 //use App\Repository\PersonAddressRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * PersonAddress (DireccionPersona)
+ *
+ * Tabla legacy: direccion_persona
+ *
+ * Dirección domiciliaria de una persona, con calle, número, detalles, comuna y país.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: "person_address")]
 class PersonAddress

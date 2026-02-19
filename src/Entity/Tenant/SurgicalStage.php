@@ -6,6 +6,13 @@ use App\Repository\Tenant\SurgicalStageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * SurgicalStage (EtapaQuirurgica)
+ *
+ * Tabla legacy: etapa_quirurgica
+ *
+ * Etapa o fase del proceso quirúrgico que debe completar el paciente.
+ */
 #[ORM\Entity(repositoryClass: SurgicalStageRepository::class)]
 #[ORM\Table(name: 'surgical_stage')]
 #[ORM\HasLifecycleCallbacks]
