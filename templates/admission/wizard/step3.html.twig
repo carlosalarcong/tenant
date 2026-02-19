@@ -1,22 +1,25 @@
 <turbo-frame id="maintainer-content">
     <turbo-frame id="admission-wizard-content">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-body p-4">
-            {{ include('admission/wizard/_timeline.html.twig', { current_step: 2 }) }}
-            <h4 class="mb-3">Paso 2 de 3: Resguardo Financiero</h4>
+        <div class="admission-step2 mt-4">
 
-            <div class="alert alert-success" role="alert">
-                <strong><i class="bx bx-info-circle"></i> Si selecciona un medio de pago de garantía, debe ingresar el monto y completar sus datos.</strong>
+            {{ include('admission/wizard/_timeline.html.twig', { current_step: 2 }) }}
+
+            <div class="mb-4">
+                <h2 class="admission-step-title">Paso 2 de 3: Resguardo Financiero</h2>
+                <p class="admission-step-subtitle">Seleccione los medios de pago de garantía e ingrese los montos correspondientes.</p>
             </div>
 
             {% for message in app.flashes('danger') %}
-                <div class="alert alert-danger" role="alert">{{ message }}</div>
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <i class="bx bx-error-circle me-1"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
             {% endfor %}
             {% for message in app.flashes('warning') %}
-                <div class="alert alert-warning" role="alert">{{ message }}</div>
-            {% endfor %}
-            {% for message in app.flashes('success') %}
-                <div class="alert alert-success" role="alert">{{ message }}</div>
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <i class="bx bx-error me-1"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
             {% endfor %}
 
             <form method="post"
@@ -30,16 +33,19 @@
                     initial_rows: initial_rows
                 }) }}
 
-                <div class="d-flex gap-2 justify-content-end mt-4">
-                    <a href="{{ path('app_admission_wizard_step2') }}" class="btn btn-outline-secondary">
+                <div class="admission-nav-bar">
+                    <a href="{{ path('app_admission_wizard_step2') }}"
+                       class="btn btn-outline-secondary admission-btn-back">
                         <i class="bx bx-chevron-left"></i> Volver
                     </a>
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit"
+                            class="btn btn-primary admission-btn-next admission-btn-continue"
+                            data-payment-continue-btn>
                         Continuar <i class="bx bx-chevron-right"></i>
                     </button>
                 </div>
             </form>
-            </div>
+
         </div>
     </turbo-frame>
 </turbo-frame>

@@ -249,3 +249,161 @@ textarea.admission-input {
 }
 
 /* === FIN ADMISION FORM === */
+
+/* === RESGUARDO FINANCIERO === */
+
+/* Card de método de pago — inactivo por defecto */
+.pgm-card {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-left: 3px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 0.875rem;
+    transition: border-left-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.pgm-card.is-active {
+    background: #fff;
+    border-left-color: var(--adm-primary);
+    box-shadow: var(--adm-card-shadow);
+}
+
+/* Header de la card */
+.pgm-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem 1rem;
+    user-select: none;
+}
+.pgm-card-icon {
+    font-size: 1.1rem;
+    color: #adb5bd;
+    flex-shrink: 0;
+    transition: color 0.2s;
+}
+.pgm-card.is-active .pgm-card-icon {
+    color: var(--adm-primary);
+}
+.pgm-card-name {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.9rem;
+    flex-grow: 1;
+    transition: color 0.2s;
+}
+.pgm-card.is-active .pgm-card-name {
+    color: #1e3b68;
+}
+.pgm-card-switch {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* Panel de contenido — animación max-height */
+.pgm-card-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+    border-top: 1px solid transparent;
+}
+.pgm-card.is-active .pgm-card-body {
+    max-height: 480px;
+    border-top-color: #e9ecef;
+}
+.pgm-card-body-inner {
+    padding: 1rem 1.25rem 1.25rem;
+}
+
+/* Labels y campos dentro del panel */
+.pgm-card-body .form-label {
+    font-size: var(--adm-label-size);
+    font-weight: 500;
+    color: var(--adm-label-color);
+    margin-bottom: 0.3rem;
+    display: block;
+}
+.pgm-card-body .form-control,
+.pgm-card-body .form-select {
+    height: var(--adm-field-height);
+    border: 1px solid var(--adm-border);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.pgm-card-body .form-control:focus,
+.pgm-card-body .form-select:focus {
+    border-color: var(--adm-primary);
+    box-shadow: 0 0 0 3px var(--adm-primary-alpha);
+    outline: none;
+}
+.pgm-card-body input[type="date"].form-control {
+    height: var(--adm-field-height);
+}
+
+/* Barra de total */
+.pgm-total-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 0 0.25rem;
+    border-top: 2px solid #dee2e6;
+    margin-top: 0.25rem;
+}
+.pgm-total-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #495057;
+}
+.pgm-total-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #6c757d;
+    min-width: 110px;
+    text-align: right;
+    transition: color 0.25s ease;
+    font-variant-numeric: tabular-nums;
+}
+.pgm-total-value.has-value {
+    color: #198754;
+}
+
+/* Alerta de estado — gestionada por Stimulus */
+.pgm-status-alert {
+    border-radius: 8px;
+    font-size: 0.875rem;
+    padding: 0.625rem 0.875rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    transition: opacity 0.3s ease;
+}
+.pgm-status-alert i {
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+.pgm-status-alert.pgm-alert-info {
+    background: rgba(13, 202, 240, 0.08);
+    border: 1px solid rgba(13, 202, 240, 0.25);
+    color: #055160;
+}
+.pgm-status-alert.pgm-alert-warning {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.35);
+    color: #664d03;
+}
+
+/* Botón Continuar con transición de estado */
+.admission-btn-continue {
+    transition: opacity 0.25s ease;
+}
+.admission-btn-continue:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: all;
+}
+
+/* === FIN RESGUARDO FINANCIERO === */

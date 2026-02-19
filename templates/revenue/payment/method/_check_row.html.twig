@@ -1,77 +1,81 @@
-<div class="payment-row card border-0 bg-light-subtle mb-2"
+<div class="payment-row"
      data-payment-row
      data-method-code="{{ method_code }}"
      data-row-index="{{ index }}"
      data-controller="admission--rut-validator"
      data-admission--rut-validator-target="form">
-    <div class="card-body p-3">
-        <select class="d-none"
-                data-admission--rut-validator-target="typeSelect"
-                data-action="change->admission--rut-validator#onTypeChange">
-            <option selected>RUT</option>
-        </select>
 
-        <div class="row g-2 align-items-end">
-            <div class="col-md-2">
-                {{ form_label(row_form.check_number, 'N° Cheque', { label_attr: { class: 'form-label mb-1' } }) }}
-                {{ form_widget(row_form.check_number, {
-                    full_name: row_name_prefix ~ '[check_number]',
-                    attr: { class: 'form-control' }
-                }) }}
-            </div>
-            <div class="col-md-3">
-                {{ form_label(row_form.bank_id, 'Banco', { label_attr: { class: 'form-label mb-1' } }) }}
-                {{ form_widget(row_form.bank_id, {
-                    full_name: row_name_prefix ~ '[bank_id]',
-                    attr: { class: 'form-select' }
-                }) }}
-            </div>
-            <div class="col-md-2">
-                {{ form_label(row_form.amount, 'Monto', { label_attr: { class: 'form-label mb-1' } }) }}
-                {{ form_widget(row_form.amount, {
-                    full_name: row_name_prefix ~ '[amount]',
-                    attr: { class: 'form-control' }
-                }) }}
-            </div>
-            <div class="col-md-2">
-                {{ form_label(row_form.rut, 'RUT', { label_attr: { class: 'form-label mb-1' } }) }}
-                {{ form_widget(row_form.rut, {
-                    full_name: row_name_prefix ~ '[rut]',
-                    attr: {
-                        class: 'form-control',
-                        'data-admission--rut-validator-target': 'queryInput',
-                        'data-action': 'input->admission--rut-validator#onQueryInput blur->admission--rut-validator#validateRutIfNeeded'
-                    }
-                }) }}
-            </div>
-            <div class="col-md-3">
-                {{ form_label(row_form.name, 'Nombre', { label_attr: { class: 'form-label mb-1' } }) }}
-                {{ form_widget(row_form.name, {
-                    full_name: row_name_prefix ~ '[name]',
-                    attr: { class: 'form-control' }
-                }) }}
-            </div>
-            <div class="col-md-3">
-                {{ form_label(row_form.condition_id, 'Condición', { label_attr: { class: 'form-label mb-1' } }) }}
-                {{ form_widget(row_form.condition_id, {
-                    full_name: row_name_prefix ~ '[condition_id]',
-                    attr: { class: 'form-select' }
-                }) }}
-            </div>
-            <div class="col-md-3">
-                {{ form_label(row_form.check_date, 'Fecha Cheque', { label_attr: { class: 'form-label mb-1' } }) }}
-                {{ form_widget(row_form.check_date, {
-                    full_name: row_name_prefix ~ '[check_date]',
-                    attr: { class: 'form-control' }
-                }) }}
-            </div>
-            <div class="col-md-2 d-grid">
-                <button type="button"
-                        class="btn btn-outline-danger"
-                        data-action="click->revenue--payment-builder#removeRow">
-                    Quitar
-                </button>
-            </div>
+    {# Selector de tipo de documento — oculto, siempre RUT #}
+    <select class="d-none"
+            data-admission--rut-validator-target="typeSelect"
+            data-action="change->admission--rut-validator#onTypeChange">
+        <option selected>RUT</option>
+    </select>
+
+    {# Fila 1: N° Cheque | Banco | Monto | RUT | Nombre #}
+    <div class="row g-2 mb-2">
+        <div class="col-12 col-md-2">
+            <label class="form-label">N° Cheque <span class="text-danger ms-1">*</span></label>
+            {{ form_widget(row_form.check_number, {
+                full_name: row_name_prefix ~ '[check_number]',
+                attr: { class: 'form-control', placeholder: 'N° cheque' }
+            }) }}
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label">Banco <span class="text-danger ms-1">*</span></label>
+            {{ form_widget(row_form.bank_id, {
+                full_name: row_name_prefix ~ '[bank_id]',
+                attr: { class: 'form-select' }
+            }) }}
+        </div>
+        <div class="col-12 col-md-2">
+            <label class="form-label">Monto <span class="text-danger ms-1">*</span></label>
+            {{ form_widget(row_form.amount, {
+                full_name: row_name_prefix ~ '[amount]',
+                attr: {
+                    class: 'form-control',
+                    'data-payment-amount-input': '1',
+                    placeholder: 'Ej: 150000'
+                }
+            }) }}
+        </div>
+        <div class="col-12 col-md-2">
+            <label class="form-label">RUT <span class="text-danger ms-1">*</span></label>
+            {{ form_widget(row_form.rut, {
+                full_name: row_name_prefix ~ '[rut]',
+                attr: {
+                    class: 'form-control',
+                    'data-admission--rut-validator-target': 'queryInput',
+                    'data-action': 'input->admission--rut-validator#onQueryInput blur->admission--rut-validator#validateRutIfNeeded',
+                    placeholder: '12.345.678-9'
+                }
+            }) }}
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label">Nombre <span class="text-danger ms-1">*</span></label>
+            {{ form_widget(row_form.name, {
+                full_name: row_name_prefix ~ '[name]',
+                attr: { class: 'form-control', placeholder: 'Nombre del girador' }
+            }) }}
         </div>
     </div>
+
+    {# Fila 2: Condición | Fecha Cheque #}
+    <div class="row g-2">
+        <div class="col-12 col-md-5">
+            <label class="form-label">Condición</label>
+            {{ form_widget(row_form.condition_id, {
+                full_name: row_name_prefix ~ '[condition_id]',
+                attr: { class: 'form-select' }
+            }) }}
+        </div>
+        <div class="col-12 col-md-4">
+            <label class="form-label">Fecha cheque</label>
+            {{ form_widget(row_form.check_date, {
+                full_name: row_name_prefix ~ '[check_date]',
+                attr: { class: 'form-control' }
+            }) }}
+        </div>
+    </div>
+
 </div>

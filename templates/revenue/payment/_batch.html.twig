@@ -1,44 +1,64 @@
+{% set methodIcons = {
+    'cash':        'bx bx-money',
+    'credit_card': 'bx bx-credit-card',
+    'check':       'bx bx-file',
+} %}
+
 <div data-controller="revenue--payment-builder"
-     data-revenue--payment-builder-fragment-url-template-value="{{ path('app_revenue_payment_row', { methodCode: '__METHOD__' }) }}"
      data-action="input->revenue--payment-builder#recalculateTotal change->revenue--payment-builder#recalculateTotal"
-     class="d-grid gap-3">
+     class="d-grid gap-0">
+
+    {# Alerta de estado — texto y estilo gestionados por Stimulus #}
+    <div class="pgm-status-alert pgm-alert-info"
+         data-revenue--payment-builder-target="statusAlert">
+        <i class="bx bx-info-circle" aria-hidden="true"></i>
+        <span data-revenue--payment-builder-target="statusAlertText">
+            Puede continuar sin resguardo, o active un medio de pago.
+        </span>
+    </div>
 
     {% for method_code, method in payment_methods %}
-        <div class="card border">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <div class="form-check form-switch mb-0">
+        {% set icon = methodIcons[method_code] ?? 'bx bx-wallet' %}
+        <div class="pgm-card" data-method-card="{{ method_code }}">
+
+            {# Header: ícono + nombre + toggle #}
+            <div class="pgm-card-header">
+                <i class="{{ icon }} pgm-card-icon" aria-hidden="true"></i>
+                <span class="pgm-card-name">{{ method.label }}</span>
+                <div class="form-check form-switch pgm-card-switch mb-0">
                     <input class="form-check-input"
                            type="checkbox"
                            id="payment-method-switch-{{ method_code }}"
                            data-payment-method-switch="{{ method_code }}"
-                           data-action="change->revenue--payment-builder#toggleMethod">
-                    <label class="form-check-label" for="payment-method-switch-{{ method_code }}">
-                        {{ method.label }}
-                    </label>
-                </div>
-                <button type="button"
-                        class="btn btn-sm btn-outline-primary"
-                        data-method-code="{{ method_code }}"
-                        data-action="click->revenue--payment-builder#addRow">
-                    Agregar fila
-                </button>
-            </div>
-            <div class="card-body d-none" data-method-panel="{{ method_code }}">
-                <div data-method-rows="{{ method_code }}" data-next-index="1">
-                    {% if initial_rows[method_code] is defined %}
-                        {{ include(method.row_template, {
-                            row_form: initial_rows[method_code],
-                            method_code: method_code,
-                            index: 0,
-                            row_name_prefix: 'payment_batch[rows][' ~ method_code ~ '][0]'
-                        }) }}
-                    {% endif %}
+                           data-action="change->revenue--payment-builder#toggleMethod"
+                           role="switch"
+                           aria-label="Activar {{ method.label }}">
                 </div>
             </div>
+
+            {# Panel de contenido — animado por CSS + Stimulus #}
+            <div class="pgm-card-body" data-method-panel="{{ method_code }}">
+                <div class="pgm-card-body-inner">
+                    <div data-method-rows="{{ method_code }}">
+                        {% if initial_rows[method_code] is defined %}
+                            {{ include(method.row_template, {
+                                row_form: initial_rows[method_code],
+                                method_code: method_code,
+                                index: 0,
+                                row_name_prefix: 'payment_batch[rows][' ~ method_code ~ '][0]'
+                            }) }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
         </div>
     {% endfor %}
 
-    <div class="d-flex justify-content-end">
-        <h5 class="mb-0">Total ingresado: <span class="text-primary" data-revenue--payment-builder-target="total">0.00</span></h5>
+    {# Barra de total #}
+    <div class="pgm-total-bar">
+        <span class="pgm-total-label">Total ingresado:</span>
+        <span class="pgm-total-value" data-revenue--payment-builder-target="total">$ 0</span>
     </div>
+
 </div>
