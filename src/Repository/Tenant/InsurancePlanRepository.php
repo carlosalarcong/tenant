@@ -25,4 +25,21 @@ class InsurancePlanRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return array<int, array{id:int,name:string}>
+     */
+    public function findActiveChoices(): array
+    {
+        /** @var array<int, array{id:int,name:string}> $rows */
+        $rows = $this->createQueryBuilder('p')
+            ->select('p.id AS id', 'p.name AS name')
+            ->where('p.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('p.name', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return $rows;
+    }
 }

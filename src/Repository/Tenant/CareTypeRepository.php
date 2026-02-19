@@ -50,4 +50,21 @@ class CareTypeRepository extends ServiceEntityRepository
 
         return $row !== null;
     }
+
+    /**
+     * @return array<int, array{id:int,name:string}>
+     */
+    public function findActiveChoices(): array
+    {
+        /** @var array<int, array{id:int,name:string}> $rows */
+        $rows = $this->createQueryBuilder('c')
+            ->select('c.id AS id', 'c.name AS name')
+            ->where('c.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('c.name', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return $rows;
+    }
 }

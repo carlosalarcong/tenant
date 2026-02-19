@@ -136,12 +136,13 @@ class BedRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array<int, array{id:int,name:string}>
+     * @return array<int, array{id:int,name:string,bedTypeName:string|null}>
      */
     public function findActiveChoicesByService(?int $serviceId = null): array
     {
         $qb = $this->createQueryBuilder('b')
-            ->select('b.id AS id', "CONCAT('Cama ', b.bedNumber) AS name")
+            ->select('b.id AS id', "CONCAT('Cama ', b.bedNumber) AS name", 'bt.name AS bedTypeName')
+            ->leftJoin('b.bedType', 'bt')
             ->where('b.isActive = :active')
             ->setParameter('active', true)
             ->orderBy('b.bedNumber', 'ASC');
@@ -152,7 +153,7 @@ class BedRepository extends ServiceEntityRepository
                 ->setParameter('serviceId', $serviceId);
         }
 
-        /** @var array<int, array{id:int,name:string}> $rows */
+        /** @var array<int, array{id:int,name:string,bedTypeName:string|null}> $rows */
         $rows = $qb->getQuery()->getArrayResult();
 
         return $rows;

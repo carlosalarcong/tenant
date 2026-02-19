@@ -63,4 +63,21 @@ class ServicePackageRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    /**
+     * @return array<int, array{id:int,name:string}>
+     */
+    public function findActiveChoices(): array
+    {
+        /** @var array<int, array{id:int,name:string}> $rows */
+        $rows = $this->createQueryBuilder('sp')
+            ->select('sp.id AS id', 'sp.name AS name')
+            ->where('sp.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('sp.name', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return $rows;
+    }
 }

@@ -5,12 +5,17 @@ namespace App\Service\Admission;
 use App\Entity\Tenant\AdmissionStatus;
 use App\Entity\Tenant\AdmissionRecord;
 use App\Entity\Tenant\Agreement;
+use App\Entity\Tenant\Branch;
 use App\Entity\Tenant\Bed;
 use App\Entity\Tenant\CareType;
+use App\Entity\Tenant\InsurancePlan;
+use App\Entity\Tenant\Origin;
 use App\Entity\Tenant\Payer;
 use App\Entity\Tenant\Patient;
 use App\Entity\Tenant\Person;
+use App\Entity\Tenant\Professional;
 use App\Entity\Tenant\Service;
+use App\Entity\Tenant\Specialty;
 use App\Repository\Tenant\AdmissionRecordRepository;
 use App\Repository\Tenant\AdmissionStatusRepository;
 use App\Repository\Tenant\AgreementRepository;
@@ -118,14 +123,21 @@ class AdmissionService
         int $payerId,
         int $agreementId,
         int $serviceId,
-        int $bedId
+        int $bedId,
+        array $wizardData = []
     ): ?AdmissionRecord {
         if ($this->findBlockingAdmissionForPerson($personId) instanceof AdmissionRecord) {
             return null;
         }
 
+        $careTypeId = (int) ($wizardData['careType'] ?? 0);
+
         if (
-            !$this->validateFinancialData($payerId, $agreementId)
+            $careTypeId <= 0
+            || !$this->isValidCareType($careTypeId)
+            || !$this->entityManager->find(CareType::class, $careTypeId) instanceof CareType
+            || !$this->entityManager->find(Branch::class, (int) ($wizardData['branch'] ?? 0)) instanceof Branch
+            || !$this->validateFinancialData($payerId, $agreementId)
             || !$this->validateLocationData($serviceId, $bedId)
         ) {
             return null;
@@ -136,7 +148,12 @@ class AdmissionService
         $agreement = $this->entityManager->find(Agreement::class, $agreementId);
         $service = $this->entityManager->find(Service::class, $serviceId);
         $bed = $this->entityManager->find(Bed::class, $bedId);
-        $careType = $this->careTypeRepository->findFirstActive();
+        $careType = $this->entityManager->find(CareType::class, $careTypeId);
+        $branch = $this->entityManager->find(Branch::class, (int) ($wizardData['branch'] ?? 0));
+        $professional = $this->entityManager->find(Professional::class, (int) ($wizardData['professional'] ?? 0));
+        $specialty = $this->entityManager->find(Specialty::class, (int) ($wizardData['specialty'] ?? 0));
+        $origin = $this->entityManager->find(Origin::class, (int) ($wizardData['origin'] ?? 0));
+        $insurancePlan = $this->entityManager->find(InsurancePlan::class, (int) ($wizardData['insurancePlan'] ?? 0));
 
         if (
             !$person instanceof Person
@@ -145,6 +162,7 @@ class AdmissionService
             || !$service instanceof Service
             || !$bed instanceof Bed
             || !$careType instanceof CareType
+            || !$branch instanceof Branch
         ) {
             return null;
         }
@@ -154,6 +172,10 @@ class AdmissionService
         $patient->setPayer($payer);
         $patient->setAgreement($agreement);
         $patient->setCareType($careType);
+        $patient->setInsurancePlan($insurancePlan instanceof InsurancePlan ? $insurancePlan : null);
+        $patient->setOrigin($origin instanceof Origin ? $origin : null);
+        $patient->setProfessional($professional instanceof Professional ? $professional : null);
+        $person->setNumberOfChildren($this->normalizeNullablePositiveInt($wizardData['childrenCount'] ?? null));
 
         $record = new AdmissionRecord();
         $record->setPatient($patient);
@@ -163,8 +185,24 @@ class AdmissionService
         $record->setAgreement($agreement);
         $record->setService($service);
         $record->setBed($bed);
+        $record->setBranch($branch);
+        $record->setProfessional($professional instanceof Professional ? $professional : null);
+        $record->setSpecialty($specialty instanceof Specialty ? $specialty : null);
+        $record->setOrigin($origin instanceof Origin ? $origin : null);
+        $record->setInsurancePlan($insurancePlan instanceof InsurancePlan ? $insurancePlan : null);
+        $record->setReferringDoctor($this->truncate((string) ($wizardData['referralDoctor'] ?? ''), 255));
+        $record->setEmergencyNotice($this->truncate((string) ($wizardData['emergencyContact'] ?? ''), 100));
+        $record->setEmergencyPhone($this->truncate((string) ($wizardData['emergencyPhone'] ?? ''), 10));
+        $record->setNotes($this->truncate((string) ($wizardData['observations'] ?? ''), 240));
+        $record->setHasMedicalOrder(filter_var($wizardData['medicalOrder'] ?? false, FILTER_VALIDATE_BOOL));
+        $record->setOtherOrigin(
+            filter_var($wizardData['otherOriginEnabled'] ?? false, FILTER_VALIDATE_BOOL)
+                ? $this->truncate((string) ($wizardData['otherOrigin'] ?? ''), 255)
+                : null
+        );
 
         $this->entityManager->persist($patient);
+        $this->entityManager->persist($person);
         $this->entityManager->persist($record);
         $this->entityManager->flush();
 
@@ -176,7 +214,8 @@ class AdmissionService
         int $payerId,
         int $agreementId,
         int $serviceId,
-        int $bedId
+        int $bedId,
+        int $careTypeId
     ): ?string {
         $person = $this->entityManager->find(Person::class, $personId);
         if (!$person instanceof Person) {
@@ -199,10 +238,8 @@ class AdmissionService
             return 'El servicio o la cama no son válidos o no están activos.';
         }
 
-        $hasActiveCareType = $this->careTypeRepository->hasAnyActive();
-
-        if (!$hasActiveCareType) {
-            return 'No hay Tipo de Atención activo (tabla care_type). Debes crear al menos uno para continuar.';
+        if (!$this->isValidCareType($careTypeId)) {
+            return 'El tipo de atención no es válido o está inactivo.';
         }
 
         return null;
@@ -343,5 +380,36 @@ class AdmissionService
         }
 
         return null;
+    }
+
+    private function isValidCareType(int $careTypeId): bool
+    {
+        if ($careTypeId <= 0) {
+            return false;
+        }
+
+        $careType = $this->entityManager->find(CareType::class, $careTypeId);
+
+        return $careType instanceof CareType && $careType->isActive();
+    }
+
+    private function normalizeNullablePositiveInt(mixed $value): ?int
+    {
+        $intValue = (int) $value;
+        return $intValue >= 0 ? $intValue : null;
+    }
+
+    private function truncate(string $value, int $maxLength): ?string
+    {
+        $normalized = trim($value);
+        if ($normalized === '') {
+            return null;
+        }
+
+        if (mb_strlen($normalized) <= $maxLength) {
+            return $normalized;
+        }
+
+        return mb_substr($normalized, 0, $maxLength);
     }
 }
