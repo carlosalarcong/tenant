@@ -34,4 +34,33 @@ class ServicePackageRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function searchActiveByTerm(string $term, int $limit = 20): array
+    {
+        $qb = $this->createQueryBuilder('sp')
+            ->where('sp.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('sp.name', 'ASC')
+            ->setMaxResults($limit);
+
+        if ($term !== '') {
+            $qb
+                ->andWhere('LOWER(sp.name) LIKE :term OR LOWER(sp.code) LIKE :term')
+                ->setParameter('term', '%' . mb_strtolower($term) . '%');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findWithDetails(int $id): ?ServicePackage
+    {
+        return $this->createQueryBuilder('sp')
+            ->leftJoin('sp.details', 'd')
+            ->addSelect('d', 'ms')
+            ->leftJoin('d.medicalService', 'ms')
+            ->andWhere('sp.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

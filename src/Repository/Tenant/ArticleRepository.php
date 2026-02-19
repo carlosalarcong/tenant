@@ -85,4 +85,21 @@ class ArticleRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function searchActiveByTerm(string $term, int $limit = 20): array
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->andWhere('a.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('a.name', 'ASC')
+            ->setMaxResults($limit);
+
+        if ($term !== '') {
+            $qb
+                ->andWhere('LOWER(a.name) LIKE :term OR LOWER(a.code) LIKE :term')
+                ->setParameter('term', '%' . mb_strtolower($term) . '%');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

@@ -1,0 +1,21 @@
+<turbo-frame id="nursing-patient-tab">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Indicaciones</h6>
+            <a href="{{ path('app_nursing_patient_order_create', { id: admission_record.id }) }}" class="btn btn-sm btn-primary" data-turbo-frame="nursing-patient-tab">Nueva indicación</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0"><thead><tr><th>Fecha</th><th>Tipo</th><th>Estado</th><th>Descripción</th><th>Acciones</th></tr></thead><tbody>
+                {% for o in orders %}
+                    <tr>
+                        <td>{{ o.orderedAt|date('d-m-Y H:i') }}</td><td>{{ o.orderType }}</td><td>{{ o.status }}</td><td>{{ o.description }}</td>
+                        <td class="d-flex gap-1">
+                            <a href="{{ path('app_nursing_patient_order_edit', { id: admission_record.id, oid: o.id }) }}" class="btn btn-sm btn-outline-secondary" data-turbo-frame="nursing-patient-tab">Editar</a>
+                            <form method="post" action="{{ path('app_nursing_patient_order_cancel', { id: admission_record.id, oid: o.id }) }}"><input type="hidden" name="_token" value="{{ csrf_token('nursing_order_cancel') }}"><button class="btn btn-sm btn-outline-danger">Anular</button></form>
+                        </td>
+                    </tr>
+                {% else %}<tr><td colspan="5" class="text-muted text-center">Sin indicaciones</td></tr>{% endfor %}
+            </tbody></table>
+        </div>
+    </div>
+</turbo-frame>

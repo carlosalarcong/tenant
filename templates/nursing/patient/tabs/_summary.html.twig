@@ -1,0 +1,13 @@
+<turbo-frame id="nursing-patient-tab">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><h6 class="mb-0">Resumen clínico y administrativo</h6></div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3"><small class="text-muted d-block">Paciente</small><strong>{{ admission_record.person ? admission_record.person.name ~ ' ' ~ admission_record.person.lastName : '-' }}</strong></div>
+                <div class="col-md-3"><small class="text-muted d-block">Estado</small><strong>{{ admission_record.status|title }}</strong></div>
+                <div class="col-md-3"><small class="text-muted d-block">Servicio</small><strong>{{ admission_record.service ? admission_record.service.name : '-' }}</strong></div>
+                <div class="col-md-3"><small class="text-muted d-block">Cama</small><strong>{{ admission_record.bed ? admission_record.bed.bedNumber : '-' }}</strong></div>
+            </div>
+        </div>
+    </div>
+</turbo-frame>

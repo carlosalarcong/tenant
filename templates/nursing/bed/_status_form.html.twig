@@ -1,0 +1,49 @@
+<turbo-frame id="nursing-board">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0">Cambiar estado de cama</h5>
+                <small class="text-muted">Cama {{ bed.bedNumber }}</small>
+            </div>
+            {% if service_id %}
+                <a href="{{ path('app_nursing_service_board', { serviceId: service_id }) }}"
+                   class="btn btn-outline-secondary btn-sm"
+                   data-turbo-frame="nursing-board">
+                    Volver al tablero
+                </a>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {{ form_start(status_form, {
+                attr: {
+                    'data-turbo-frame': 'nursing-board'
+                }
+            }) }}
+                <input type="hidden" name="serviceId" value="{{ service_id }}">
+
+                <div class="mb-3">
+                    {{ form_label(status_form.status) }}
+                    {{ form_widget(status_form.status) }}
+                    {{ form_errors(status_form.status) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(status_form.observations) }}
+                    {{ form_widget(status_form.observations) }}
+                    {{ form_errors(status_form.observations) }}
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    {% if service_id %}
+                        <a href="{{ path('app_nursing_service_board', { serviceId: service_id }) }}"
+                           class="btn btn-outline-secondary"
+                           data-turbo-frame="nursing-board">
+                            Cancelar
+                        </a>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary">Guardar estado</button>
+                </div>
+            {{ form_end(status_form) }}
+        </div>
+    </div>
+</turbo-frame>

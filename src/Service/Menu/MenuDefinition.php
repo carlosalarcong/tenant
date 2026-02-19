@@ -38,7 +38,7 @@ class MenuDefinition
         $cacheKey = 'menu_structure_tenant_' . $tenantId;
 
         try {
-            return $this->cache->get($cacheKey, function (ItemInterface $item) {
+            $menuStructure = $this->cache->get($cacheKey, function (ItemInterface $item) {
                 // Caché por 1 hora (3600 segundos)
                 $item->expiresAfter(3600);
 
@@ -65,6 +65,8 @@ class MenuDefinition
                 $this->logger?->info('Usando estructura de menú por defecto (hardcoded)');
                 return $this->getDefaultMenuStructure();
             });
+
+            return $this->mergeWithDefaultMenu($menuStructure, $this->getDefaultMenuStructure());
         } catch (\Exception $e) {
             // Si incluso el caché falla, usar directamente el hardcoded
             $this->logger?->error('Error en caché de menú, usando hardcoded', [
@@ -93,6 +95,44 @@ class MenuDefinition
     private function convertEntitiesToArray(array $menuItems): array
     {
         return array_map(fn($item) => $item->toArray(), $menuItems);
+    }
+
+    /**
+     * Sincroniza menú desde BD con la estructura default, agregando sólo faltantes por "name".
+     * No reemplaza ni reordena ítems existentes en BD.
+     */
+    private function mergeWithDefaultMenu(array $menuStructure, array $defaultStructure): array
+    {
+        $indexedCurrent = [];
+        foreach ($menuStructure as $index => $item) {
+            if (!isset($item['name'])) {
+                continue;
+            }
+
+            $indexedCurrent[$item['name']] = $index;
+        }
+
+        foreach ($defaultStructure as $defaultItem) {
+            if (!isset($defaultItem['name'])) {
+                continue;
+            }
+
+            $name = $defaultItem['name'];
+            if (!isset($indexedCurrent[$name])) {
+                $menuStructure[] = $defaultItem;
+                continue;
+            }
+
+            $currentIndex = $indexedCurrent[$name];
+            $currentChildren = $menuStructure[$currentIndex]['children'] ?? [];
+            $defaultChildren = $defaultItem['children'] ?? [];
+
+            if (!empty($defaultChildren)) {
+                $menuStructure[$currentIndex]['children'] = $this->mergeWithDefaultMenu($currentChildren, $defaultChildren);
+            }
+        }
+
+        return $menuStructure;
     }
 
     /**
@@ -179,6 +219,22 @@ class MenuDefinition
                                 'children' => []
                             ],
                         ]
+                    ],
+                ]
+            ],
+            [
+                'name' => 'enfermeria',
+                'label' => 'Enfermería',
+                'icon' => 'bx bx-heart',
+                'module' => null,
+                'children' => [
+                    [
+                        'name' => 'nursing_board',
+                        'label' => 'Tablero de Camas',
+                        'icon' => 'bx bx-grid-alt',
+                        'route' => 'app_nursing_index',
+                        'module' => 'nursing',
+                        'children' => []
                     ],
                 ]
             ],

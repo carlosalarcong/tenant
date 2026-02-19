@@ -1,0 +1,55 @@
+{% extends 'app_layout.html.twig' %}
+
+{% block title %}Paciente Enfermería{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4" data-controller="nursing--patient" data-nursing--patient-admission-id-value="{{ admission_record.id }}">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h1 class="mb-1">Paciente hospitalizado</h1>
+            <p class="text-muted mb-0">Admisión #{{ admission_record.id }} | Estado: {{ admission_record.status|title }}</p>
+        </div>
+        <a href="{{ path('app_nursing_print_discharge', { id: admission_record.id }) }}" class="btn btn-outline-secondary" data-turbo="false" target="_blank">Imprimir egreso</a>
+    </div>
+
+    {% if not lock_acquired %}
+        <div class="alert alert-warning">Este paciente está siendo editado por otro usuario.</div>
+    {% endif %}
+
+    {% include 'nursing/patient/_info.html.twig' %}
+
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white"><h6 class="mb-0">Acciones de paciente</h6></div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <form method="post" action="{{ path('app_nursing_patient_bed_change', { id: admission_record.id }) }}" class="d-flex gap-2">
+                        <input type="hidden" name="_token" value="{{ csrf_token('nursing_bed_change') }}">
+                        <input type="number" name="bedId" class="form-control form-control-sm" min="1" placeholder="ID nueva cama" required>
+                        <button class="btn btn-sm btn-outline-primary">Cambiar cama</button>
+                    </form>
+                </div>
+                <div class="col-md-4">
+                    <form method="post" action="{{ path('app_nursing_patient_transfer_create', { id: admission_record.id }) }}" class="d-flex gap-2">
+                        <input type="hidden" name="_token" value="{{ csrf_token('nursing_transfer_create') }}">
+                        <input type="number" name="destinationServiceId" class="form-control form-control-sm" min="1" placeholder="ID servicio destino" required>
+                        <button class="btn btn-sm btn-outline-primary">Solicitar traslado</button>
+                    </form>
+                </div>
+                <div class="col-md-4">
+                    <form method="post" action="{{ path('app_nursing_patient_discharge_create', { id: admission_record.id }) }}" class="d-flex gap-2">
+                        <input type="hidden" name="_token" value="{{ csrf_token('nursing_discharge_create') }}">
+                        <input type="hidden" name="dischargeType" value="alta">
+                        <input type="hidden" name="conditionStatus" value="bueno">
+                        <button class="btn btn-sm btn-outline-danger">Dar alta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'nursing/patient/_tabs.html.twig' with { admission_id: admission_record.id } %}
+
+    <turbo-frame id="nursing-patient-tab" src="{{ path('app_nursing_patient_summary', { id: admission_record.id }) }}"></turbo-frame>
+</div>
+{% endblock %}

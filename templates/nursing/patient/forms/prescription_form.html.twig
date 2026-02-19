@@ -1,0 +1,15 @@
+<turbo-frame id="nursing-patient-tab">
+<div class="card border-0 shadow-sm"><div class="card-body">
+<h6>Nueva receta</h6>
+<form method="post" action="{{ path('app_nursing_patient_prescription_create', { id: admission_id }) }}" class="row g-2">
+    <input type="hidden" name="_token" value="{{ csrf_token('nursing_prescription_create') }}">
+    <div class="col-md-6"><label class="form-label">Código artículo</label><input name="articleCode" class="form-control" required></div>
+    <div class="col-md-6"><label class="form-label">Nombre artículo</label><input name="articleName" class="form-control" required></div>
+    <div class="col-md-4"><label class="form-label">Dosis</label><input name="dose" class="form-control" value="1"></div>
+    <div class="col-md-4"><label class="form-label">Vía</label><input name="route" class="form-control" value="oral"></div>
+    <div class="col-md-4"><label class="form-label">Frecuencia</label><input name="frequency" class="form-control" value="cada 8h"></div>
+    <div class="col-md-4"><label class="form-label">Cantidad</label><input type="number" name="quantity" class="form-control" value="1" min="1"></div>
+    <div class="col-12 d-flex gap-2 justify-content-end"><a class="btn btn-outline-secondary" data-turbo-frame="nursing-patient-tab" href="{{ path('app_nursing_patient_prescriptions', { id: admission_id }) }}">Cancelar</a><button class="btn btn-primary">Guardar</button></div>
+</form>
+</div></div>
+</turbo-frame>

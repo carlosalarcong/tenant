@@ -1,0 +1,9 @@
+<turbo-frame id="nursing-patient-tab"><div class="card border-0 shadow-sm"><div class="card-body">
+<h6>Nueva indicación</h6>
+<form method="post" action="{{ path('app_nursing_patient_order_create', { id: admission_id }) }}" class="row g-2">
+<input type="hidden" name="_token" value="{{ csrf_token('nursing_order_create') }}">
+<div class="col-md-4"><label class="form-label">Tipo</label><select name="orderType" class="form-select"><option value="farmacologica">Farmacológica</option><option value="procedimiento">Procedimiento</option></select></div>
+<div class="col-md-8"><label class="form-label">Descripción</label><input name="description" class="form-control" required></div>
+<div class="col-12 d-flex gap-2 justify-content-end"><a class="btn btn-outline-secondary" data-turbo-frame="nursing-patient-tab" href="{{ path('app_nursing_patient_orders', { id: admission_id }) }}">Cancelar</a><button class="btn btn-primary">Guardar</button></div>
+</form>
+</div></div></turbo-frame>

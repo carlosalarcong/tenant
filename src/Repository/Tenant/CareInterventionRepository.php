@@ -40,4 +40,21 @@ class CareInterventionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function searchActiveByTerm(string $term, int $limit = 20): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->andWhere('c.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('c.description', 'ASC')
+            ->setMaxResults($limit);
+
+        if ($term !== '') {
+            $qb
+                ->andWhere('LOWER(c.description) LIKE :term')
+                ->setParameter('term', '%' . mb_strtolower($term) . '%');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

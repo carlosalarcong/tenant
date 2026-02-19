@@ -1,0 +1,12 @@
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body p-2">
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-sm btn-outline-primary" data-turbo-frame="nursing-patient-tab" href="{{ path('app_nursing_patient_summary', { id: admission_id }) }}">Resumen</a>
+            <a class="btn btn-sm btn-outline-primary" data-turbo-frame="nursing-patient-tab" href="{{ path('app_nursing_patient_prescriptions', { id: admission_id }) }}">Recetas</a>
+            <a class="btn btn-sm btn-outline-primary" data-turbo-frame="nursing-patient-tab" href="{{ path('app_nursing_patient_orders', { id: admission_id }) }}">Indicaciones</a>
+            <a class="btn btn-sm btn-outline-primary" data-turbo-frame="nursing-patient-tab" href="{{ path('app_nursing_patient_charges', { id: admission_id }) }}">Cargos</a>
+            <a class="btn btn-sm btn-outline-primary" data-turbo-frame="nursing-patient-tab" href="{{ path('app_nursing_patient_returns', { id: admission_id }) }}">Devoluciones</a>
+            <a class="btn btn-sm btn-outline-primary" data-turbo-frame="nursing-patient-tab" href="{{ path('app_nursing_patient_forms', { id: admission_id }) }}">Formularios</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><title>Egreso #{{ admission_record.id }}</title>
+<style>body{font-family:Arial,sans-serif;padding:20px;color:#1f2937}h1{margin-bottom:6px}.box{border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-top:12px}</style>
+</head><body>
+<h1>Comprobante de Egreso</h1>
+<p>Admisión #{{ admission_record.id }} - Paciente: {{ admission_record.person ? admission_record.person.name ~ ' ' ~ admission_record.person.lastName : '-' }}</p>
+<div class="box">
+<p><strong>Estado admisión:</strong> {{ admission_record.status }}</p>
+<p><strong>Tipo alta:</strong> {{ discharge ? discharge.dischargeType : '-' }}</p>
+<p><strong>Condición:</strong> {{ discharge ? discharge.conditionStatus : '-' }}</p>
+<p><strong>Fecha egreso:</strong> {{ discharge ? discharge.dischargedAt|date('d-m-Y H:i') : '-' }}</p>
+<p><strong>Observaciones:</strong> {{ discharge ? discharge.notes|default('-') : '-' }}</p>
+</div>
+</body></html>

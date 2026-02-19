@@ -46,4 +46,15 @@ class MedicalServiceRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findOneActiveById(int $id): ?MedicalService
+    {
+        return $this->createQueryBuilder('ms')
+            ->where('ms.id = :id')
+            ->andWhere('ms.isActive = :active')
+            ->setParameter('id', $id)
+            ->setParameter('active', true)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

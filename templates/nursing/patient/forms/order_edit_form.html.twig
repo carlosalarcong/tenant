@@ -1,0 +1,10 @@
+<turbo-frame id="nursing-patient-tab"><div class="card border-0 shadow-sm"><div class="card-body">
+<h6>Editar indicación #{{ order.id }}</h6>
+<form method="post" action="{{ path('app_nursing_patient_order_edit', { id: admission_id, oid: order.id }) }}" class="row g-2">
+<input type="hidden" name="_token" value="{{ csrf_token('nursing_order_edit') }}">
+<div class="col-md-4"><label class="form-label">Tipo</label><select name="orderType" class="form-select"><option value="farmacologica" {{ order.orderType == 'farmacologica' ? 'selected' : '' }}>Farmacológica</option><option value="procedimiento" {{ order.orderType == 'procedimiento' ? 'selected' : '' }}>Procedimiento</option></select></div>
+<div class="col-md-8"><label class="form-label">Descripción</label><input name="description" class="form-control" value="{{ order.description }}" required></div>
+<div class="col-md-4"><label class="form-label">Estado</label><select name="status" class="form-select"><option value="active" {{ order.status == 'active' ? 'selected' : '' }}>Activo</option><option value="completed" {{ order.status == 'completed' ? 'selected' : '' }}>Completado</option><option value="cancelled" {{ order.status == 'cancelled' ? 'selected' : '' }}>Anulado</option></select></div>
+<div class="col-12 d-flex gap-2 justify-content-end"><a class="btn btn-outline-secondary" data-turbo-frame="nursing-patient-tab" href="{{ path('app_nursing_patient_orders', { id: admission_id }) }}">Cancelar</a><button class="btn btn-primary">Guardar</button></div>
+</form>
+</div></div></turbo-frame>

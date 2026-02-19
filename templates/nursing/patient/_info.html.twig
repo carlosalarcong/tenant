@@ -1,0 +1,10 @@
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-3"><small class="text-muted d-block">Paciente</small><strong>{{ admission_record.person ? admission_record.person.name ~ ' ' ~ admission_record.person.lastName : '-' }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Servicio</small><strong>{{ admission_record.service ? admission_record.service.name : '-' }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Cama</small><strong>{{ admission_record.bed ? admission_record.bed.bedNumber : '-' }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Tipo</small><strong>{{ admission_record.admissionType|title }}</strong></div>
+        </div>
+    </div>
+</div>

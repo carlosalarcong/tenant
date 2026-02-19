@@ -3,6 +3,7 @@
 namespace App\Repository\Tenant;
 
 use App\Entity\Tenant\Bed;
+use App\Entity\Tenant\MedicalServiceBedType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -93,5 +94,54 @@ class BedRepository extends ServiceEntityRepository
             ->orderBy('b.bedNumber', 'ASC')
             ->getQuery()
             ->getResult();
+    }
+
+    public function findActiveBedsForMedicalService(int $medicalServiceId): array
+    {
+        return $this->createQueryBuilder('b')
+            ->leftJoin('b.room', 'r')
+            ->innerJoin(
+                MedicalServiceBedType::class,
+                'msbt',
+                'WITH',
+                'msbt.bedType = b.bedType AND msbt.medicalService = :medicalServiceId AND msbt.isActive = :active'
+            )
+            ->where('b.isActive = :active')
+            ->setParameter('medicalServiceId', $medicalServiceId)
+            ->setParameter('active', true)
+            ->addOrderBy('r.roomNumber', 'ASC')
+            ->addOrderBy('b.bedNumber', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countAvailableBedsForMedicalService(int $medicalServiceId): int
+    {
+        return (int) $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->innerJoin(
+                MedicalServiceBedType::class,
+                'msbt',
+                'WITH',
+                'msbt.bedType = b.bedType AND msbt.medicalService = :medicalServiceId AND msbt.isActive = :active'
+            )
+            ->where('b.isActive = :active')
+            ->andWhere('b.status = :status')
+            ->setParameter('medicalServiceId', $medicalServiceId)
+            ->setParameter('active', true)
+            ->setParameter('status', 'available')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function findOneActiveById(int $bedId): ?Bed
+    {
+        return $this->createQueryBuilder('b')
+            ->where('b.id = :bedId')
+            ->andWhere('b.isActive = :active')
+            ->setParameter('bedId', $bedId)
+            ->setParameter('active', true)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

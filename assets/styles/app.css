@@ -18,3 +18,70 @@ body {
 
 /* Importar estilos específicos de mantenedores */
 @import './mantenedores.css';
+
+/* === ENFERMERIA === */
+:root {
+    --nur-available: #28a745;
+    --nur-occupied: #dc3545;
+    --nur-maintenance: #fd7e14;
+    --nur-reserved: #6c757d;
+    --nur-cleaning: #0dcaf0;
+    --nur-card-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.nur-board-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.nur-bed-card {
+    border-radius: 8px;
+    border: 2px solid transparent;
+    padding: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: var(--nur-card-shadow);
+}
+
+.nur-bed-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.nur-bed-card--available { background: #f0fff4; border-color: var(--nur-available); }
+.nur-bed-card--occupied { background: #fff5f5; border-color: var(--nur-occupied); }
+.nur-bed-card--maintenance { background: #fff8f0; border-color: var(--nur-maintenance); }
+.nur-bed-card--reserved { background: #f8f9fa; border-color: var(--nur-reserved); }
+.nur-bed-card--cleaning { background: #f0fbff; border-color: var(--nur-cleaning); }
+
+.nur-bed-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+    background-color: var(--nur-reserved);
+}
+
+.nur-bed-status-dot--available { background-color: var(--nur-available); }
+.nur-bed-status-dot--occupied { background-color: var(--nur-occupied); }
+.nur-bed-status-dot--maintenance { background-color: var(--nur-maintenance); }
+.nur-bed-status-dot--reserved { background-color: var(--nur-reserved); }
+.nur-bed-status-dot--cleaning { background-color: var(--nur-cleaning); }
+
+.nur-service-card {
+    cursor: pointer;
+    transition: border-color 0.15s;
+    border: 2px solid transparent;
+}
+
+.nur-service-card:hover,
+.nur-service-card.active {
+    border-color: var(--adm-primary, #2a7de1);
+}
+
+.nur-service-card.active { background: #eef4fd; }
+
+.nur-assign-input { width: 120px; }

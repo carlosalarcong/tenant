@@ -1,0 +1,21 @@
+<turbo-frame id="nursing-patient-tab">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Recetas</h6>
+            <a href="{{ path('app_nursing_patient_prescription_create', { id: admission_record.id }) }}" class="btn btn-sm btn-primary" data-turbo-frame="nursing-patient-tab">Nueva receta</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0"><thead><tr><th>Fecha</th><th>Estado</th><th>Complemento</th><th>Acciones</th></tr></thead><tbody>
+                {% for p in prescriptions %}
+                    <tr>
+                        <td>{{ p.prescribedAt|date('d-m-Y H:i') }}</td><td>{{ p.status }}</td><td>{{ p.complement|default('-') }}</td>
+                        <td class="d-flex gap-1">
+                            <a href="{{ path('app_nursing_patient_prescription_edit', { id: admission_record.id, pid: p.id }) }}" class="btn btn-sm btn-outline-secondary" data-turbo-frame="nursing-patient-tab">Editar</a>
+                            <form method="post" action="{{ path('app_nursing_patient_prescription_cancel', { id: admission_record.id, pid: p.id }) }}"><input type="hidden" name="_token" value="{{ csrf_token('nursing_prescription_cancel') }}"><button class="btn btn-sm btn-outline-danger">Anular</button></form>
+                        </td>
+                    </tr>
+                {% else %}<tr><td colspan="4" class="text-muted text-center">Sin recetas</td></tr>{% endfor %}
+            </tbody></table>
+        </div>
+    </div>
+</turbo-frame>

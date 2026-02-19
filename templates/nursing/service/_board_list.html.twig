@@ -1,0 +1,94 @@
+<turbo-frame id="nursing-board" data-nursing--board-target="board">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h5 class="mb-0">{{ service.name }}</h5>
+                <small class="text-muted">Solicitudes pendientes: {{ pending_requests }}</small>
+            </div>
+            <a href="{{ path('app_nursing_service_board', { serviceId: service.id }) }}"
+               class="btn btn-outline-primary btn-sm"
+               data-turbo-frame="nursing-board">
+                Vista Tablero
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                <tr>
+                    <th>Sala</th>
+                    <th>N° Cama</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Paciente</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for room_group in rooms_with_beds %}
+                    {% set room = room_group.room %}
+                    {% for bed in room_group.beds %}
+                        {% set admission = admissions_by_bed[bed.id]|default(null) %}
+                        <tr>
+                            <td>
+                                {% if room %}
+                                    Sala {{ room.roomNumber }} - {{ room.name }}
+                                {% else %}
+                                    Sin sala
+                                {% endif %}
+                            </td>
+                            <td>{{ bed.bedNumber }}</td>
+                            <td>{{ bed.bedType ? bed.bedType.name : '-' }}</td>
+                            <td>{{ bed.status|default('-')|title }}</td>
+                            <td>
+                                {% if admission and admission.person %}
+                                    {{ admission.person.name }} {{ admission.person.lastName }} {{ admission.person.middleName|default('') }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                    <a href="{{ path('app_nursing_bed_status', { id: bed.id, serviceId: service.id }) }}"
+                                       class="btn btn-sm btn-outline-secondary"
+                                       data-turbo-frame="nursing-board">
+                                        Estado
+                                    </a>
+
+                                    {% if bed.status == 'available' %}
+                                        <form method="post"
+                                              action="{{ path('app_nursing_bed_assign', { id: bed.id }) }}"
+                                              data-turbo-frame="nursing-board"
+                                              class="d-flex gap-1">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('nursing_bed_assign') }}">
+                                            <input type="hidden" name="serviceId" value="{{ service.id }}">
+                                            <input type="number"
+                                                   name="admissionRecordId"
+                                                   min="1"
+                                                   class="form-control form-control-sm nur-assign-input"
+                                                   placeholder="# admisión"
+                                                   required>
+                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                Asignar
+                                            </button>
+                                        </form>
+                                    {% elseif admission %}
+                                        <a href="{{ path('app_nursing_patient_show', { id: admission.id }) }}"
+                                           class="btn btn-sm btn-outline-primary"
+                                           data-turbo-frame="maintainer-content">
+                                            Ver paciente
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No hay camas para este servicio.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</turbo-frame>

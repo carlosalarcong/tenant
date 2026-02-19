@@ -46,7 +46,8 @@
                {% if item.module|default(false) and (
                    'maintenance_' in item.module or
                    item.module == 'admission' or
-                   item.module == 'maintenance_admission'
+                   item.module == 'maintenance_admission' or
+                   item.module == 'nursing'
                ) %}
                    data-turbo-frame="maintainer-content"
                    data-turbo-action="advance"

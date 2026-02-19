@@ -1,0 +1,10 @@
+<turbo-frame id="nursing-patient-tab"><div class="card border-0 shadow-sm"><div class="card-body">
+<h6>Nueva devolución</h6>
+<form method="post" action="{{ path('app_nursing_patient_return_create', { id: admission_id }) }}" class="row g-2">
+<input type="hidden" name="_token" value="{{ csrf_token('nursing_return_create') }}">
+<div class="col-md-8"><label class="form-label">Item</label><input name="itemName" class="form-control" required></div>
+<div class="col-md-4"><label class="form-label">Cantidad</label><input type="number" name="quantity" class="form-control" min="1" value="1"></div>
+<div class="col-12"><label class="form-label">Motivo</label><textarea name="reason" class="form-control" rows="3"></textarea></div>
+<div class="col-12 d-flex justify-content-end"><button class="btn btn-primary">Guardar</button></div>
+</form>
+</div></div></turbo-frame>

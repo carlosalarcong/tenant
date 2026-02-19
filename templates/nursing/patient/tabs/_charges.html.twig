@@ -1,0 +1,20 @@
+<turbo-frame id="nursing-patient-tab">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Cargos</h6>
+            <div class="d-flex gap-1">
+                <a href="{{ path('app_nursing_patient_charge_articles', { id: admission_record.id }) }}" class="btn btn-sm btn-outline-primary" data-turbo-frame="nursing-patient-tab">Artículos</a>
+                <a href="{{ path('app_nursing_patient_charge_interventions', { id: admission_record.id }) }}" class="btn btn-sm btn-outline-primary" data-turbo-frame="nursing-patient-tab">Prestaciones</a>
+                <a href="{{ path('app_nursing_patient_charge_packages', { id: admission_record.id }) }}" class="btn btn-sm btn-outline-primary" data-turbo-frame="nursing-patient-tab">Paquetes</a>
+            </div>
+        </div>
+        <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Fecha</th><th>Tipo</th><th>Estado</th><th>Referencia</th><th>Acciones</th></tr></thead><tbody>
+            {% for c in charges %}
+                <tr>
+                    <td>{{ c.createdAt|date('d-m-Y H:i') }}</td><td>{{ c.chargeType }}</td><td>{{ c.status }}</td><td>{{ c.referenceId|default('-') }}</td>
+                    <td>{% if c.status == 'active' %}<form method="post" action="{{ path('app_nursing_patient_charge_cancel', { id: admission_record.id, cid: c.id }) }}"><input type="hidden" name="_token" value="{{ csrf_token('nursing_charge_cancel') }}"><input type="hidden" name="type" value="{{ c.chargeType }}"><button class="btn btn-sm btn-outline-danger">Anular</button></form>{% endif %}</td>
+                </tr>
+            {% else %}<tr><td colspan="5" class="text-muted text-center">Sin cargos</td></tr>{% endfor %}
+        </tbody></table></div>
+    </div>
+</turbo-frame>

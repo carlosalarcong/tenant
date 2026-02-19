@@ -1,0 +1,7 @@
+<turbo-frame id="nursing-patient-tab"><div class="card border-0 shadow-sm"><div class="card-body">
+<h6>Cargar artículos</h6><p class="text-muted">Ingresa JSON con items (id, cantidad, notas).</p>
+<form method="post" action="{{ path('app_nursing_patient_charge_articles', { id: admission_id }) }}">
+<input type="hidden" name="_token" value="{{ csrf_token('nursing_charge_articles') }}">
+<textarea name="items" class="form-control" rows="6">[{"id":1,"quantity":1}]</textarea>
+<div class="d-flex justify-content-end mt-2"><button class="btn btn-primary">Cargar</button></div>
+</form></div></div></turbo-frame>

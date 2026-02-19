@@ -1,0 +1,11 @@
+<turbo-frame id="nursing-patient-tab">
+<div class="card border-0 shadow-sm"><div class="card-body">
+<h6>Editar receta #{{ prescription.id }}</h6>
+<form method="post" action="{{ path('app_nursing_patient_prescription_edit', { id: admission_id, pid: prescription.id }) }}" class="row g-2">
+    <input type="hidden" name="_token" value="{{ csrf_token('nursing_prescription_edit') }}">
+    <div class="col-md-6"><label class="form-label">Estado</label><select name="status" class="form-select"><option value="active" {{ prescription.status == 'active' ? 'selected' : '' }}>Activa</option><option value="completed" {{ prescription.status == 'completed' ? 'selected' : '' }}>Completada</option><option value="cancelled" {{ prescription.status == 'cancelled' ? 'selected' : '' }}>Anulada</option></select></div>
+    <div class="col-12"><label class="form-label">Complemento</label><textarea name="complement" class="form-control" rows="3">{{ prescription.complement }}</textarea></div>
+    <div class="col-12 d-flex gap-2 justify-content-end"><a class="btn btn-outline-secondary" data-turbo-frame="nursing-patient-tab" href="{{ path('app_nursing_patient_prescriptions', { id: admission_id }) }}">Cancelar</a><button class="btn btn-primary">Guardar</button></div>
+</form>
+</div></div>
+</turbo-frame>
