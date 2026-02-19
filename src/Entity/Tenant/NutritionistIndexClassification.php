@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * NutritionistIndexClassification (Clasificación Índice Nutricionista)
- * 
- * Mantenedor de clasificaciones de índices nutricionales
+ * NutritionistIndexClassification (ClasificacionIndiceNutricionista)
+ *
+ * Tabla legacy: clasificacion_indice_nutricionista
+ *
+ * Representa una clasificación de índices nutricionales utilizada por nutricionistas para categorizar el estado nutricional.
  */
 #[ORM\Entity(repositoryClass: NutritionistIndexClassificationRepository::class)]
 #[ORM\Table(name: 'nutritionist_index_classification')]

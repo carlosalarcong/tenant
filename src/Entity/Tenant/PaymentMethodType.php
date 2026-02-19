@@ -6,6 +6,13 @@ use App\Repository\Tenant\PaymentMethodTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * PaymentMethodType (TipoMedioPago)
+ *
+ * Tabla legacy: tipo_medio_pago
+ *
+ * Tipo de medio de pago utilizado en transacciones del sistema.
+ */
 #[ORM\Entity(repositoryClass: PaymentMethodTypeRepository::class)]
 #[ORM\Table(name: 'payment_method_type')]
 #[ORM\HasLifecycleCallbacks]

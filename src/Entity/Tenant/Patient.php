@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Patient (Paciente)
  *
- * Legacy table: paciente
+ * Tabla legacy: paciente
  * Spanish name: Paciente / Registro de Atención
  *
  * Represents a patient visit/admission event linking a Person to

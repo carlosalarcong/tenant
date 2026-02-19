@@ -6,10 +6,11 @@ use App\Repository\Tenant\SpecialtyBranchRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * SpecialtyBranch - Relation between specialties and branches
- * Legacy table: rel_especialidad_sucursal
- * 
- * Links specialties with branches where they are available
+ * SpecialtyBranch (EspecialidadSucursal)
+ *
+ * Tabla legacy: especialidad_sucursal
+ *
+ * Representa la relación entre especialidades médicas y las sucursales donde están disponibles.
  */
 #[ORM\Entity(repositoryClass: SpecialtyBranchRepository::class)]
 #[ORM\Table(name: 'specialty_branch')]

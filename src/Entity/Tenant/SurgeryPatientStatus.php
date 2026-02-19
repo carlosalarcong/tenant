@@ -6,6 +6,13 @@ use App\Repository\Tenant\SurgeryPatientStatusRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * SurgeryPatientStatus (EstadoPacienteCirugia)
+ *
+ * Tabla legacy: estado_paciente_cirugia
+ *
+ * Estado del paciente durante el proceso quirúrgico.
+ */
 #[ORM\Entity(repositoryClass: SurgeryPatientStatusRepository::class)]
 #[ORM\Table(name: 'surgery_patient_status')]
 class SurgeryPatientStatus

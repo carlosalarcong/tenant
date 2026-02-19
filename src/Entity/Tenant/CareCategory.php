@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * CareCategory (Categoría de Cuidados RCH)
- * 
- * Mantenedor de categorías de cuidados de enfermería
+ * CareCategory (RchCategoriaCuidados)
+ *
+ * Tabla legacy: rch_categoria_cuidados
+ *
+ * Catálogo de categorías de cuidados de enfermería.
  */
 #[ORM\Entity(repositoryClass: CareCategoryRepository::class)]
 #[ORM\Table(name: 'care_category')]

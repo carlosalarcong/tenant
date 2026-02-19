@@ -6,9 +6,11 @@ use App\Repository\Tenant\DoctorTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * DoctorType (Tipo Médico)
- * 
- * Clasificación de tipos de médico (general, especialista, etc.)
+ * DoctorType (TipoMedico)
+ *
+ * Tabla legacy: tipo_medico
+ *
+ * Catálogo de tipos de médico (general, especialista, etc.).
  */
 #[ORM\Entity(repositoryClass: DoctorTypeRepository::class)]
 #[ORM\Table(name: 'maintainer_doctor_type')]

@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * AccountType (TipoCuenta)
  *
- * Legacy table: tipo_cuenta
+ * Tabla legacy: tipo_cuenta
  * Spanish name: Tipo de Cuenta
  *
  * Catalog of hospitalization account types used in admission records

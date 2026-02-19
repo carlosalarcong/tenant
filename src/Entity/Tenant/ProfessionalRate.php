@@ -7,16 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ProfessionalRate
- * 
- * Legacy table: valor_profesional
- * Spanish name: Valor Profesional
- * 
- * Represents professional service rates:
- * - Doctor consultation fees
- * - Specialist rates
- * - Professional service pricing
- * - Variable pricing by financier or service
+ * ProfessionalRate (ArancelProfesional)
+ *
+ * Tabla legacy: arancel_profesional
+ *
+ * Representa los aranceles o tarifas de un profesional médico por servicio o financiador.
  */
 #[ORM\Entity(repositoryClass: ProfessionalRateRepository::class)]
 #[ORM\Table(name: 'professional_rate')]

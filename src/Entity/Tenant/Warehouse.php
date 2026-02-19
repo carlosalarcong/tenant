@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Warehouse - Inventory storage location
- * Legacy table: bodega
+ * Tabla legacy: bodega
  * 
  * Represents warehouse or inventory storage locations
  */

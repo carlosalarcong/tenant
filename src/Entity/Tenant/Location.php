@@ -7,8 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Location (Ubicación)
- * 
- * Ubicaciones físicas dentro del establecimiento
+ *
+ * Tabla legacy: ubicacion
+ *
+ * Mantenedor de ubicaciones físicas dentro del establecimiento de salud (pisos, edificios, sectores).
  */
 #[ORM\Entity(repositoryClass: LocationRepository::class)]
 #[ORM\Table(name: 'maintainer_location')]

@@ -7,6 +7,13 @@ use Doctrine\ORM\Mapping as ORM;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
 
+/**
+ * ResetPasswordRequest (SolicitudRestablecimientoContrasena)
+ *
+ * Tabla legacy: (nueva entidad)
+ *
+ * Solicitud de restablecimiento de contraseña generada por un usuario del sistema.
+ */
 #[ORM\Entity(repositoryClass: ResetPasswordRequestRepository::class)]
 class ResetPasswordRequest implements ResetPasswordRequestInterface
 {

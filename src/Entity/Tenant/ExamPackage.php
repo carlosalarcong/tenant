@@ -8,10 +8,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ExamPackage - Package of medical exams/tests
- * Legacy table: paquete_examen
- * 
- * Represents a bundle of medical exams offered as a package
+ * ExamPackage (PaqueteExamen)
+ *
+ * Tabla legacy: paquete_examen
+ *
+ * Catálogo de paquetes de exámenes médicos ofrecidos como conjunto.
  */
 #[ORM\Entity(repositoryClass: ExamPackageRepository::class)]
 #[ORM\Table(name: 'exam_package')]

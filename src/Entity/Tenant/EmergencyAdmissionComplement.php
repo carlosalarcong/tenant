@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * EmergencyAdmissionComplement (DatoIngresoComplementoUrgencia)
  *
- * Legacy table: dato_ingreso_complemento_urgencia
+ * Tabla legacy: dato_ingreso_complemento_urgencia
  * Spanish name: Dato Ingreso Complemento Urgencia
  *
  * Stores emergency-specific data associated with an admission record.

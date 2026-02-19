@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * CareIntervention
- * 
- * Intervenciones de cuidado relacionadas con categorías de cuidado
+ * CareIntervention (RchCuidados)
+ *
+ * Tabla legacy: rch_cuidados
+ *
+ * Registro de intervenciones/cuidados de enfermería.
  */
 #[ORM\Entity(repositoryClass: CareInterventionRepository::class)]
 #[ORM\Table(name: 'care_intervention')]

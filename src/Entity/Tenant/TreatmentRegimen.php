@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * TreatmentRegimen (Régimen de Tratamiento)
- * 
- * Represents a treatment regimen associated with a branch
+ * TreatmentRegimen (RegimenTratamiento)
+ *
+ * Tabla legacy: regimen_tratamiento
+ *
+ * Régimen de tratamiento médico asociado a una sucursal (ej. ambulatorio, hospitalizado).
  */
 #[ORM\Entity(repositoryClass: TreatmentRegimenRepository::class)]
 #[ORM\Table(name: 'treatment_regimen')]

@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * PhysicalExamGrouping
- * 
- * Mantenedor de agrupaciones de examen físico
+ * PhysicalExamGrouping (Agrupación de Examen Físico)
+ *
+ * Tabla legacy: agrupacion_examen_fisico
+ *
+ * Mantenedor de agrupaciones de campos del examen físico para organizar la presentación clínica.
  */
 #[ORM\Entity(repositoryClass: PhysicalExamGroupingRepository::class)]
 #[ORM\Table(name: 'physical_exam_grouping')]

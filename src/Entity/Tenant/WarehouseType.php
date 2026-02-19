@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * WarehouseType (TipoBodega)
  *
- * Legacy table: tipo_bodega
+ * Tabla legacy: tipo_bodega
  * Spanish name: Tipo de Bodega
  *
  * Catalog of warehouse types (e.g. central, secondary, pharmacy).

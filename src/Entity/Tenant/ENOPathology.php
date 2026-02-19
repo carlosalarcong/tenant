@@ -7,15 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ENOPathology
- * 
- * Legacy table: patologia_eno
- * Spanish name: Patología ENO
- * 
- * Represents ENO (Enfermedad No Oncológica) pathologies:
- * - Non-oncological diseases
- * - Chronic conditions requiring specialized care
- * - Distinct from GES pathologies
+ * ENOPathology (PatologiaENO)
+ *
+ * Tabla legacy: patologia_eno
+ *
+ * Catálogo de patologías ENO (Enfermedades No Oncológicas) para el sistema de salud.
  */
 #[ORM\Entity(repositoryClass: ENOPathologyRepository::class)]
 #[ORM\Table(name: 'eno_pathology')]

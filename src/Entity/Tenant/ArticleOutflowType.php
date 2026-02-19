@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * ArticleOutflowType (TipoEgreso)
- * 
- * Mantenedor de tipos de egreso de artículos del sistema logístico
+ * ArticleOutflowType (TipoSalidaArticulo)
+ *
+ * Tabla legacy: tipo_salida_articulo
+ *
+ * Mantenedor de tipos de egreso de artículos del sistema logístico.
  */
 #[ORM\Entity(repositoryClass: ArticleOutflowTypeRepository::class)]
 #[ORM\Table(name: 'article_outflow_type')]

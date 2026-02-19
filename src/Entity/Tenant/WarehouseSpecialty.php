@@ -6,9 +6,11 @@ use App\Repository\Tenant\WarehouseSpecialtyRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * WarehouseSpecialty (RelEspecialidadBodega)
- * 
- * Relación entre bodegas y especialidades médicas
+ * WarehouseSpecialty (BodegaEspecialidad)
+ *
+ * Tabla legacy: bodega_especialidad
+ *
+ * Representa la relación entre bodegas de insumos y las especialidades médicas que las utilizan.
  */
 #[ORM\Entity(repositoryClass: WarehouseSpecialtyRepository::class)]
 #[ORM\Table(name: 'warehouse_specialty')]

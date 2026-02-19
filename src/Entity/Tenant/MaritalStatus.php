@@ -7,6 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * MaritalStatus (EstadoCivil)
+ *
+ * Tabla legacy: estado_civil
+ *
+ * Catálogo de estados civiles (soltero, casado, divorciado, etc.) con código HL7 para interoperabilidad.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`marital_status`')]
 class MaritalStatus

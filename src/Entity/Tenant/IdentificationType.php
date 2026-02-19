@@ -7,6 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * IdentificationType (TipoIdentificacion)
+ *
+ * Tabla legacy: tipo_identificacion
+ *
+ * Catálogo de tipos de identificación de personas (RUT, pasaporte, DNI, etc.).
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`identification_type`')]
 class IdentificationType

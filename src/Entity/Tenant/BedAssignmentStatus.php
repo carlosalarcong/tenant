@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * BedAssignmentStatus (EstadoRelCamaPaciente)
  *
- * Legacy table: estado_rel_cama_paciente
+ * Tabla legacy: estado_rel_cama_paciente
  * Spanish name: Estado de Relación Cama-Paciente
  *
  * Catalog of statuses for bed-patient assignments

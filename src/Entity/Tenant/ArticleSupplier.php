@@ -7,8 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * ArticleSupplier (ProveedorArticulo)
- * 
- * Relación entre artículos y proveedores con precio
+ *
+ * Tabla legacy: proveedor_articulo
+ *
+ * Relación entre artículos y proveedores con precio.
  */
 #[ORM\Entity(repositoryClass: ArticleSupplierRepository::class)]
 #[ORM\Table(name: 'article_supplier')]

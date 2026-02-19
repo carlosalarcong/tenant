@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * GratuityReason (MotivoGratuidad)
- * 
- * Mantenedor de motivos de gratuidad del sistema
+ * GratuityReason (Motivo de Gratuidad)
+ *
+ * Tabla legacy: motivo_gratuidad
+ *
+ * Mantenedor de motivos por los cuales se otorga gratuidad en la atención de pacientes.
  */
 #[ORM\Entity(repositoryClass: GratuityReasonRepository::class)]
 #[ORM\Table(name: 'gratuity_reason')]

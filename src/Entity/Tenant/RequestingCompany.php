@@ -7,16 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * RequestingCompany
- * 
- * Legacy table: empresa_solicitante
- * Spanish name: Empresa Solicitante
- * 
- * Represents companies that request medical services:
- * - Corporate clients
- * - Organizations with health agreements
- * - Companies with employee healthcare plans
- * - Business partners
+ * RequestingCompany (EmpresaSolicitante)
+ *
+ * Tabla legacy: empresa_solicitante
+ *
+ * Representa una empresa solicitante de servicios médicos, como clientes corporativos u organizaciones con convenios de salud para sus empleados.
  */
 #[ORM\Entity(repositoryClass: RequestingCompanyRepository::class)]
 #[ORM\Table(name: 'requesting_company')]

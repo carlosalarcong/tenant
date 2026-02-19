@@ -6,6 +6,13 @@ use App\Repository\Tenant\CashRegisterLocationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * CashRegisterLocation (Caja)
+ *
+ * Tabla legacy: caja
+ *
+ * Representa una caja o punto de cobro físico dentro de una sucursal del tenant.
+ */
 #[ORM\Entity(repositoryClass: CashRegisterLocationRepository::class)]
 #[ORM\Table(name: 'cash_register_location')]
 #[ORM\HasLifecycleCallbacks]

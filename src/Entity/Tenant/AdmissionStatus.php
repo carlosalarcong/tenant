@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * AdmissionStatus (EstadoIngreso)
  *
- * Legacy table: estado_ingreso
+ * Tabla legacy: estado_ingreso
  * Spanish name: Estado de Ingreso
  *
  * Catalog of admission record statuses

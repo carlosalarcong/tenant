@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * CostCenter (Centro de Costo)
- * 
- * Represents a cost center for financial tracking
+ * CostCenter (CentroCosto)
+ *
+ * Tabla legacy: centro_costo
+ *
+ * Catálogo de centros de costo para el seguimiento financiero de la organización.
  */
 #[ORM\Entity(repositoryClass: CostCenterRepository::class)]
 #[ORM\Table(name: 'cost_center')]

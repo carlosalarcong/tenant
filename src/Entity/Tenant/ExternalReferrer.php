@@ -7,18 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ExternalReferrer
- * 
- * Legacy table: derivador_externo
- * Spanish name: Derivador Externo
- * 
- * Represents external entities that refer patients:
- * - External hospitals
- * - Clinics
- * - Private practices
- * - Health centers
- * - Insurance providers
- * - Government agencies
+ * ExternalReferrer (DerivadorExterno)
+ *
+ * Tabla legacy: derivador_externo
+ *
+ * Catálogo de entidades externas que derivan pacientes al establecimiento.
  */
 #[ORM\Entity(repositoryClass: ExternalReferrerRepository::class)]
 #[ORM\Table(name: 'external_referrer')]

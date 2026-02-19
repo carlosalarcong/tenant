@@ -9,6 +9,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
+/**
+ * Member (UsuariosRebsol)
+ *
+ * Tabla legacy: usuarios_rebsol
+ *
+ * Entidad de usuario del sistema tenant, implementa UserInterface de Symfony. Reemplaza a UsuariosRebsol
+ * del legacy con una arquitectura multi-tenant moderna que incluye grupos de permisos via MemberGroup.
+ */
 #[ORM\Entity(repositoryClass: MemberRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 class Member implements UserInterface, PasswordAuthenticatedUserInterface

@@ -6,6 +6,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Country (Pais)
+ *
+ * Tabla legacy: pais
+ *
+ * Catálogo de países, utilizado para nacionalidad de personas y direcciones.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: 'country')]
 class Country

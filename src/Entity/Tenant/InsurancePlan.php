@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * InsurancePlan (PrPlan)
  *
- * Legacy table: pr_plan
+ * Tabla legacy: pr_plan
  * Spanish name: Plan de Previsión / Plan de Salud
  *
  * Represents a specific health insurance plan or package associated

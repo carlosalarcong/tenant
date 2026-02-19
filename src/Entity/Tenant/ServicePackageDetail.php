@@ -6,10 +6,11 @@ use App\Repository\Tenant\ServicePackageDetailRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ServicePackageDetail - Details of services in a package
- * Legacy table: paquete_prestacion_detalle
- * 
- * Represents individual clinical actions/services within a service package
+ * ServicePackageDetail (DetallePaqueteServicio)
+ *
+ * Tabla legacy: detalle_paquete_servicio
+ *
+ * Representa el detalle de servicios incluidos dentro de un paquete de servicios médicos.
  */
 #[ORM\Entity(repositoryClass: ServicePackageDetailRepository::class)]
 #[ORM\Table(name: 'service_package_detail')]

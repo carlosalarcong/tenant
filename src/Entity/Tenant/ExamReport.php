@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * ExamReport (InformeExamen)
- * 
- * Mantenedor de informes de examen del sistema
+ * ExamReport (Informe de Examen)
+ *
+ * Tabla legacy: informe_examen
+ *
+ * Mantenedor de tipos de informe de examen generados en el módulo de diagnóstico y laboratorio.
  */
 #[ORM\Entity(repositoryClass: ExamReportRepository::class)]
 #[ORM\Table(name: 'exam_report')]

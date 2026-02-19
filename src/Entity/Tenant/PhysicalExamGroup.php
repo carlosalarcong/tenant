@@ -4,6 +4,13 @@ use App\Repository\Tenant\PhysicalExamGroupRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * PhysicalExamGroup (GrupoExamenFisico)
+ *
+ * Tabla legacy: grupo_examen_fisico
+ *
+ * Grupo o sección que agrupa campos del examen físico del paciente.
+ */
 #[ORM\Entity(repositoryClass: PhysicalExamGroupRepository::class)]
 #[ORM\Table(name: 'physical_exam_group')]
 class PhysicalExamGroup

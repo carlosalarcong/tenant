@@ -5,6 +5,13 @@ namespace App\Entity\Tenant;
 //use App\Repository\BusinessActivityRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * BusinessActivity (RubroEmpresa)
+ *
+ * Tabla legacy: rubro_empresa
+ *
+ * Catálogo de rubros o actividades económicas de empresas, utilizado en convenios y facturación.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`business_activity`')]
 class BusinessActivity

@@ -7,16 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * GESPathology
- * 
- * Legacy table: patologia
- * Spanish name: Patología GES
- * 
- * Represents GES (Garantías Explícitas en Salud) pathologies:
- * - Government-guaranteed health conditions
- * - 85 priority health problems in Chile
- * - Specific age ranges and gender requirements
- * - Guaranteed coverage and treatment timelines
+ * GESPathology (PatologiaGES)
+ *
+ * Tabla legacy: patologia_ges
+ *
+ * Catálogo de patologías GES (Garantías Explícitas en Salud) del sistema de salud chileno.
  */
 #[ORM\Entity(repositoryClass: GESPathologyRepository::class)]
 #[ORM\Table(name: 'ges_pathology')]

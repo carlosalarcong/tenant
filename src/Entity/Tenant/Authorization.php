@@ -7,16 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Authorization
- * 
- * Legacy table: autorizacion
- * Spanish name: Autorización
- * 
- * Represents medical service authorizations:
- * - Insurance company approvals
- * - Pre-authorization for procedures
- * - Authorization codes and validity
- * - Status tracking
+ * Authorization (Autorizacion)
+ *
+ * Tabla legacy: autorizacion
+ *
+ * Representa las autorizaciones emitidas por financiadores para la prestación de servicios médicos.
  */
 #[ORM\Entity(repositoryClass: AuthorizationRepository::class)]
 #[ORM\Table(name: 'authorization')]

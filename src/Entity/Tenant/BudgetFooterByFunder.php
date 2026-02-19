@@ -6,6 +6,13 @@ use App\Repository\Tenant\BudgetFooterByFunderRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * BudgetFooterByFunder (PiePrespuestoFinanciador)
+ *
+ * Tabla legacy: pie_presupuesto_financiador
+ *
+ * Pie de presupuesto personalizado por financiador, asociado a un BudgetFooter base.
+ */
 #[ORM\Entity(repositoryClass: BudgetFooterByFunderRepository::class)]
 #[ORM\Table(name: 'budget_footer_by_funder')]
 class BudgetFooterByFunder

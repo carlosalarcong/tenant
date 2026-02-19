@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * TreatmentType
  * 
- * Legacy table: tipo_tratamiento
+ * Tabla legacy: tipo_tratamiento
  * Spanish name: Tipo Tratamiento
  * 
  * Represents the types of medical treatments:

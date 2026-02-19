@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * EmergencyAdmissionComplementDetail (DatoIngresoComplementoUrgenciaDetalle)
  *
- * Legacy table: dato_ingreso_complemento_urgencia_detalle
+ * Tabla legacy: dato_ingreso_complemento_urgencia_detalle
  * Spanish name: Detalle Complemento Urgencia
  *
  * Detail lines for emergency admission complement: articles, packages

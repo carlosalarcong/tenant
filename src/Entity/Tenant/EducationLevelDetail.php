@@ -6,9 +6,11 @@ use App\Repository\Tenant\EducationLevelDetailRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * EducationLevelDetail (Detalle Nivel Instrucción)
- * 
- * Detalle específico del nivel educacional
+ * EducationLevelDetail (DetalleNivelEducacional)
+ *
+ * Tabla legacy: detalle_nivel_educacional
+ *
+ * Catálogo de detalles específicos asociados a cada nivel educacional.
  */
 #[ORM\Entity(repositoryClass: EducationLevelDetailRepository::class)]
 #[ORM\Table(name: 'maintainer_education_level_detail')]

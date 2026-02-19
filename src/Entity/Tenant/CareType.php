@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * CareType (TipoAtencionFc)
  *
- * Legacy table: tipo_atencion_fc
+ * Tabla legacy: tipo_atencion_fc
  * Spanish name: Tipo de Atención de Facturación / Cuenta
  *
  * Catalog of care/billing account types used in admissions

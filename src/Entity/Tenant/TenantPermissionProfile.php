@@ -6,6 +6,10 @@ use App\Repository\Tenant\TenantPermissionProfileRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * TenantPermissionProfile (PerfilPermisoTenant)
+ *
+ * Tabla legacy: (nueva entidad)
+ *
  * Perfil de permisos del tenant.
  * 
  * Define el tipo de estrategia de permisos que usa el tenant:

@@ -6,6 +6,13 @@ use App\Repository\Tenant\DiagnosisRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Diagnosis (Diagnostico)
+ *
+ * Tabla legacy: diagnostico
+ *
+ * Catálogo de diagnósticos clínicos con código CIE y soporte de jerarquía padre-hijo.
+ */
 #[ORM\Entity(repositoryClass: DiagnosisRepository::class)]
 #[ORM\Table(name: 'diagnosis')]
 class Diagnosis
