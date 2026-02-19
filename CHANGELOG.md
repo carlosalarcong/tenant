@@ -5,6 +5,37 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-02-19
+
+### Agregado
+
+#### Admisión Hospitalaria V1
+
+- Asistente de admisión en 3 pasos con flujo completo de creación de ingreso.
+- Vista previa de impresión en modal para mantener foco en la pantalla de trabajo.
+- Nuevos catálogos y entidades para ciclo financiero de admisión:
+  - `AccountStatus`
+  - `PatientAccount`
+  - `PaymentStatus`
+  - `PaymentAccount`
+- Endpoint API `GET /api/admission/tutor-search` para autocompletar tutor por documento.
+
+### Modificado
+
+- Formulario de admisión (paso 1) con rediseño visual profesional y layout responsive.
+- Carga dinámica de selectores con Stimulus/Fetch para:
+  - sucursal, profesional, especialidad, origen
+  - tipo de atención, financiador, convenio
+  - servicio, cama, plan previsional, paquete
+- Persistencia extendida de datos clínicos/administrativos del paso 1 en `AdmissionRecord` y `Patient`.
+
+### Corregido
+
+- Bloqueo de re-admisión cuando la persona ya tiene un ingreso activo.
+- Resolución y visualización consistente de estado de ingreso en búsqueda/listado.
+- Preservación del contexto de búsqueda al volver desde “Detalle de Admisión”.
+- Refactor de consultas desde servicios a repositorios en módulo de admisión.
+
 ## [2.1.0] - 2026-01-23
 
 ### Agregado
