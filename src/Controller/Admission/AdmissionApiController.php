@@ -6,9 +6,12 @@ use App\Controller\AbstractTenantAwareController;
 use App\Repository\Tenant\AgreementRepository;
 use App\Repository\Tenant\BedRepository;
 use App\Repository\Tenant\BranchRepository;
+use App\Repository\Tenant\CareTypeRepository;
+use App\Repository\Tenant\InsurancePlanRepository;
 use App\Repository\Tenant\PayerRepository;
 use App\Repository\Tenant\ProfessionalRepository;
 use App\Repository\Tenant\ServiceRepository;
+use App\Repository\Tenant\ServicePackageRepository;
 use App\Repository\Tenant\OriginRepository;
 use App\Repository\Tenant\SpecialtyRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,7 +29,10 @@ class AdmissionApiController extends AbstractTenantAwareController
         private BedRepository $bedRepository,
         private ProfessionalRepository $professionalRepository,
         private OriginRepository $originRepository,
-        private SpecialtyRepository $specialtyRepository
+        private SpecialtyRepository $specialtyRepository,
+        private CareTypeRepository $careTypeRepository,
+        private InsurancePlanRepository $insurancePlanRepository,
+        private ServicePackageRepository $servicePackageRepository
     ) {}
 
     #[Route('/branches', name: 'branches', methods: ['GET'])]
@@ -145,6 +151,45 @@ class AdmissionApiController extends AbstractTenantAwareController
         } catch (\Throwable) {
             return $this->json(
                 ['error' => 'Error al cargar especialidades'],
+                500
+            );
+        }
+    }
+
+    #[Route('/care-types', name: 'care_types', methods: ['GET'])]
+    public function careTypes(): JsonResponse
+    {
+        try {
+            return $this->json($this->careTypeRepository->findActiveChoices());
+        } catch (\Throwable) {
+            return $this->json(
+                ['error' => 'Error al cargar tipos de atención'],
+                500
+            );
+        }
+    }
+
+    #[Route('/insurance-plans', name: 'insurance_plans', methods: ['GET'])]
+    public function insurancePlans(): JsonResponse
+    {
+        try {
+            return $this->json($this->insurancePlanRepository->findActiveChoices());
+        } catch (\Throwable) {
+            return $this->json(
+                ['error' => 'Error al cargar planes previsionales'],
+                500
+            );
+        }
+    }
+
+    #[Route('/service-packages', name: 'service_packages', methods: ['GET'])]
+    public function servicePackages(): JsonResponse
+    {
+        try {
+            return $this->json($this->servicePackageRepository->findActiveChoices());
+        } catch (\Throwable) {
+            return $this->json(
+                ['error' => 'Error al cargar paquetes'],
                 500
             );
         }

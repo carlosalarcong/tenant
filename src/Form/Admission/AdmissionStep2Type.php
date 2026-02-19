@@ -30,6 +30,19 @@ class AdmissionStep2Type extends AbstractType
             ->add('origin', IntegerType::class, [
                 'required' => false,
             ])
+            ->add('careType', IntegerType::class, [
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(message: 'Debes seleccionar tipo de atención.'),
+                    new Positive(message: 'Debes seleccionar tipo de atención.'),
+                ],
+            ])
+            ->add('insurancePlan', IntegerType::class, [
+                'required' => false,
+            ])
+            ->add('servicePackage', IntegerType::class, [
+                'required' => false,
+            ])
             ->add('payer', IntegerType::class, [
                 'required' => true,
                 'constraints' => [
@@ -87,6 +100,13 @@ class AdmissionStep2Type extends AbstractType
             ])
             ->add('medicalOrder', CheckboxType::class, [
                 'required' => false,
+            ])
+            ->add('otherOriginEnabled', CheckboxType::class, [
+                'required' => false,
+            ])
+            ->add('otherOrigin', TextType::class, [
+                'required' => false,
+                'empty_data' => '',
             ]);
     }
 

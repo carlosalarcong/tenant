@@ -87,6 +87,9 @@ class AdmissionWizardController extends AbstractTenantAwareController
             'professional' => isset($wizardData['professional']) ? (int) $wizardData['professional'] : null,
             'specialty' => isset($wizardData['specialty']) ? (int) $wizardData['specialty'] : null,
             'origin' => isset($wizardData['origin']) ? (int) $wizardData['origin'] : null,
+            'careType' => isset($wizardData['careType']) ? (int) $wizardData['careType'] : null,
+            'insurancePlan' => isset($wizardData['insurancePlan']) ? (int) $wizardData['insurancePlan'] : null,
+            'servicePackage' => isset($wizardData['servicePackage']) ? (int) $wizardData['servicePackage'] : null,
             'payer' => isset($wizardData['payer']) ? (int) $wizardData['payer'] : null,
             'agreement' => isset($wizardData['agreement']) ? (int) $wizardData['agreement'] : null,
             'service' => isset($wizardData['service']) ? (int) $wizardData['service'] : null,
@@ -99,6 +102,8 @@ class AdmissionWizardController extends AbstractTenantAwareController
             'tutorName' => (string) ($wizardData['tutorName'] ?? ''),
             'observations' => (string) ($wizardData['observations'] ?? ''),
             'medicalOrder' => filter_var($wizardData['medicalOrder'] ?? false, FILTER_VALIDATE_BOOL),
+            'otherOriginEnabled' => filter_var($wizardData['otherOriginEnabled'] ?? false, FILTER_VALIDATE_BOOL),
+            'otherOrigin' => (string) ($wizardData['otherOrigin'] ?? ''),
         ];
         $form = $this->createForm(AdmissionStep2Type::class, $step2Defaults);
         $form->handleRequest($request);
@@ -108,6 +113,7 @@ class AdmissionWizardController extends AbstractTenantAwareController
             $agreementId = (int) $form->get('agreement')->getData();
             $serviceId = (int) $form->get('service')->getData();
             $bedId = (int) $form->get('bed')->getData();
+            $careTypeId = (int) $form->get('careType')->getData();
 
             if (!$this->admissionService->validateFinancialData($payerId, $agreementId)) {
                 $this->addFlash('danger', 'El convenio seleccionado no existe o no corresponde al financiador.');
@@ -130,6 +136,9 @@ class AdmissionWizardController extends AbstractTenantAwareController
             $wizardData['professional'] = (string) ((int) ($form->get('professional')->getData() ?? 0));
             $wizardData['specialty'] = (string) ((int) ($form->get('specialty')->getData() ?? 0));
             $wizardData['origin'] = (string) ((int) ($form->get('origin')->getData() ?? 0));
+            $wizardData['careType'] = (string) $careTypeId;
+            $wizardData['insurancePlan'] = (string) ((int) ($form->get('insurancePlan')->getData() ?? 0));
+            $wizardData['servicePackage'] = (string) ((int) ($form->get('servicePackage')->getData() ?? 0));
             $wizardData['payer'] = (string) $payerId;
             $wizardData['agreement'] = (string) $agreementId;
             $wizardData['service'] = (string) $serviceId;
@@ -142,6 +151,8 @@ class AdmissionWizardController extends AbstractTenantAwareController
             $wizardData['tutorName'] = (string) ($form->get('tutorName')->getData() ?? '');
             $wizardData['observations'] = (string) ($form->get('observations')->getData() ?? '');
             $wizardData['medicalOrder'] = ($form->get('medicalOrder')->getData() ?? false) ? '1' : '0';
+            $wizardData['otherOriginEnabled'] = ($form->get('otherOriginEnabled')->getData() ?? false) ? '1' : '0';
+            $wizardData['otherOrigin'] = (string) ($form->get('otherOrigin')->getData() ?? '');
             $request->getSession()->set('admission_wizard', $wizardData);
 
             if ($this->isWizardFrameRequest($request)) {
@@ -156,7 +167,7 @@ class AdmissionWizardController extends AbstractTenantAwareController
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('danger', 'Debes completar financiador, convenio, servicio y cama.');
+            $this->addFlash('danger', 'Debes completar tipo de atención, financiador, convenio, servicio y cama.');
         }
 
         return $this->render('admission/wizard/step2.html.twig', [
@@ -216,6 +227,7 @@ class AdmissionWizardController extends AbstractTenantAwareController
                 (int) ($wizardData['agreement'] ?? 0),
                 (int) ($wizardData['service'] ?? 0),
                 (int) ($wizardData['bed'] ?? 0),
+                $wizardData,
             );
 
             if (!$record instanceof AdmissionRecord) {
@@ -225,6 +237,7 @@ class AdmissionWizardController extends AbstractTenantAwareController
                     (int) ($wizardData['agreement'] ?? 0),
                     (int) ($wizardData['service'] ?? 0),
                     (int) ($wizardData['bed'] ?? 0),
+                    (int) ($wizardData['careType'] ?? 0),
                 );
                 $this->addFlash('danger', $blockingReason ?? 'No fue posible crear el registro de paciente/admisión.');
                 return $this->render('admission/wizard/step3.html.twig', [
