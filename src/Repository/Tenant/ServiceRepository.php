@@ -70,4 +70,15 @@ class ServiceRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findOneActiveById(int $id): ?Service
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.id = :id')
+            ->andWhere('s.isActive = :active')
+            ->setParameter('id', $id)
+            ->setParameter('active', true)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

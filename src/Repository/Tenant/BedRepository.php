@@ -3,7 +3,6 @@
 namespace App\Repository\Tenant;
 
 use App\Entity\Tenant\Bed;
-use App\Entity\Tenant\MedicalServiceBedType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -96,18 +95,13 @@ class BedRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findActiveBedsForMedicalService(int $medicalServiceId): array
+    public function findActiveBedsForService(int $serviceId): array
     {
         return $this->createQueryBuilder('b')
-            ->leftJoin('b.room', 'r')
-            ->innerJoin(
-                MedicalServiceBedType::class,
-                'msbt',
-                'WITH',
-                'msbt.bedType = b.bedType AND msbt.medicalService = :medicalServiceId AND msbt.isActive = :active'
-            )
+            ->innerJoin('b.room', 'r')
             ->where('b.isActive = :active')
-            ->setParameter('medicalServiceId', $medicalServiceId)
+            ->andWhere('r.service = :serviceId')
+            ->setParameter('serviceId', $serviceId)
             ->setParameter('active', true)
             ->addOrderBy('r.roomNumber', 'ASC')
             ->addOrderBy('b.bedNumber', 'ASC')
@@ -115,19 +109,15 @@ class BedRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function countAvailableBedsForMedicalService(int $medicalServiceId): int
+    public function countAvailableBedsForService(int $serviceId): int
     {
         return (int) $this->createQueryBuilder('b')
             ->select('COUNT(b.id)')
-            ->innerJoin(
-                MedicalServiceBedType::class,
-                'msbt',
-                'WITH',
-                'msbt.bedType = b.bedType AND msbt.medicalService = :medicalServiceId AND msbt.isActive = :active'
-            )
+            ->innerJoin('b.room', 'r')
             ->where('b.isActive = :active')
             ->andWhere('b.status = :status')
-            ->setParameter('medicalServiceId', $medicalServiceId)
+            ->andWhere('r.service = :serviceId')
+            ->setParameter('serviceId', $serviceId)
             ->setParameter('active', true)
             ->setParameter('status', 'available')
             ->getQuery()

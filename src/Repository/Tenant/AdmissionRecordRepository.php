@@ -3,7 +3,6 @@
 namespace App\Repository\Tenant;
 
 use App\Entity\Tenant\AdmissionRecord;
-use App\Entity\Tenant\MedicalServiceService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -28,80 +27,56 @@ class AdmissionRecordRepository extends ServiceEntityRepository
         parent::__construct($registry, AdmissionRecord::class);
     }
 
-    public function findActiveByMedicalService(int $medicalServiceId): array
+    public function findActiveByService(int $serviceId): array
     {
         return $this->createQueryBuilder('ar')
-            ->innerJoin(
-                MedicalServiceService::class,
-                'mss',
-                'WITH',
-                'mss.service = ar.service AND mss.medicalService = :medicalServiceId AND mss.isActive = :active'
-            )
             ->leftJoin('ar.bed', 'bed')
             ->leftJoin('ar.person', 'person')
             ->addSelect('bed', 'person')
-            ->where('LOWER(ar.status) = :status')
-            ->setParameter('medicalServiceId', $medicalServiceId)
-            ->setParameter('active', true)
+            ->where('ar.service = :serviceId')
+            ->andWhere('LOWER(ar.status) = :status')
+            ->setParameter('serviceId', $serviceId)
             ->setParameter('status', 'admitted')
             ->getQuery()
             ->getResult();
     }
 
-    public function countPendingRequestsByMedicalService(int $medicalServiceId): int
+    public function countPendingRequestsByService(int $serviceId): int
     {
         return (int) $this->createQueryBuilder('ar')
             ->select('COUNT(ar.id)')
-            ->innerJoin(
-                MedicalServiceService::class,
-                'mss',
-                'WITH',
-                'mss.service = ar.service AND mss.medicalService = :medicalServiceId AND mss.isActive = :active'
-            )
+            ->where('ar.service = :serviceId')
             ->andWhere('ar.bed IS NULL')
             ->andWhere('LOWER(ar.status) IN (:statuses)')
-            ->setParameter('medicalServiceId', $medicalServiceId)
-            ->setParameter('active', true)
+            ->setParameter('serviceId', $serviceId)
             ->setParameter('statuses', self::PENDING_STATUS_CANDIDATES)
             ->getQuery()
             ->getSingleScalarResult();
     }
 
-    public function findPendingByIdAndMedicalService(int $admissionRecordId, int $medicalServiceId): ?AdmissionRecord
+    public function findPendingByIdAndService(int $admissionRecordId, int $serviceId): ?AdmissionRecord
     {
         return $this->createQueryBuilder('ar')
-            ->innerJoin(
-                MedicalServiceService::class,
-                'mss',
-                'WITH',
-                'mss.service = ar.service AND mss.medicalService = :medicalServiceId AND mss.isActive = :active'
-            )
-            ->andWhere('ar.id = :admissionRecordId')
+            ->where('ar.id = :admissionRecordId')
+            ->andWhere('ar.service = :serviceId')
             ->andWhere('ar.bed IS NULL')
             ->andWhere('LOWER(ar.status) IN (:statuses)')
-            ->setParameter('medicalServiceId', $medicalServiceId)
             ->setParameter('admissionRecordId', $admissionRecordId)
-            ->setParameter('active', true)
+            ->setParameter('serviceId', $serviceId)
             ->setParameter('statuses', self::PENDING_STATUS_CANDIDATES)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
-    public function findPendingListByMedicalService(int $medicalServiceId): array
+    public function findPendingListByService(int $serviceId): array
     {
         return $this->createQueryBuilder('ar')
-            ->innerJoin(
-                MedicalServiceService::class,
-                'mss',
-                'WITH',
-                'mss.service = ar.service AND mss.medicalService = :medicalServiceId AND mss.isActive = :active'
-            )
             ->leftJoin('ar.person', 'person')
             ->addSelect('person')
+            ->where('ar.service = :serviceId')
             ->andWhere('ar.bed IS NULL')
             ->andWhere('LOWER(ar.status) IN (:statuses)')
-            ->setParameter('medicalServiceId', $medicalServiceId)
-            ->setParameter('active', true)
+            ->setParameter('serviceId', $serviceId)
             ->setParameter('statuses', self::PENDING_STATUS_CANDIDATES)
             ->orderBy('ar.createdAt', 'DESC')
             ->getQuery()

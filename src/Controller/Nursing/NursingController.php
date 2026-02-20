@@ -4,10 +4,10 @@ namespace App\Controller\Nursing;
 
 use App\Controller\AbstractTenantAwareController;
 use App\Entity\Tenant\Bed;
-use App\Entity\Tenant\MedicalService;
+use App\Entity\Tenant\Service;
 use App\Repository\Tenant\AdmissionRecordRepository;
 use App\Repository\Tenant\BedRepository;
-use App\Repository\Tenant\MedicalServiceRepository;
+use App\Repository\Tenant\ServiceRepository;
 use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +18,7 @@ class NursingController extends AbstractTenantAwareController
 {
     public function __construct(
         private TenantEntityManager $entityManager,
-        private MedicalServiceRepository $medicalServiceRepository,
+        private ServiceRepository $serviceRepository,
         private BedRepository $bedRepository,
         private AdmissionRecordRepository $admissionRecordRepository
     ) {}
@@ -26,7 +26,7 @@ class NursingController extends AbstractTenantAwareController
     #[Route('', name: 'index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $services = $this->medicalServiceRepository->findAllActive();
+        $services = $this->serviceRepository->findAllActive();
         $selectedServiceId = $this->parseServiceId((string) $request->query->get('serviceId', ''));
         $selectedService = null;
         $roomsWithBeds = [];
@@ -34,9 +34,9 @@ class NursingController extends AbstractTenantAwareController
         $pendingRequests = 0;
 
         if (null !== $selectedServiceId) {
-            $selectedService = $this->medicalServiceRepository->findOneActiveById($selectedServiceId);
+            $selectedService = $this->serviceRepository->findOneActiveById($selectedServiceId);
 
-            if ($selectedService instanceof MedicalService) {
+            if ($selectedService instanceof Service) {
                 [
                     'rooms_with_beds' => $roomsWithBeds,
                     'admissions_by_bed' => $admissionsByBed,
@@ -59,8 +59,8 @@ class NursingController extends AbstractTenantAwareController
     #[Route('/service/{serviceId}/board', name: 'service_board', methods: ['GET'], requirements: ['serviceId' => '\d+'])]
     public function board(int $serviceId): Response
     {
-        $service = $this->medicalServiceRepository->findOneActiveById($serviceId);
-        if (!$service instanceof MedicalService) {
+        $service = $this->serviceRepository->findOneActiveById($serviceId);
+        if (!$service instanceof Service) {
             throw $this->createNotFoundException('Servicio no encontrado.');
         }
 
@@ -81,8 +81,8 @@ class NursingController extends AbstractTenantAwareController
     #[Route('/service/{serviceId}/board/list', name: 'service_board_list', methods: ['GET'], requirements: ['serviceId' => '\d+'])]
     public function boardList(int $serviceId): Response
     {
-        $service = $this->medicalServiceRepository->findOneActiveById($serviceId);
-        if (!$service instanceof MedicalService) {
+        $service = $this->serviceRepository->findOneActiveById($serviceId);
+        if (!$service instanceof Service) {
             throw $this->createNotFoundException('Servicio no encontrado.');
         }
 
@@ -113,11 +113,11 @@ class NursingController extends AbstractTenantAwareController
     {
         $summary = [];
         foreach ($services as $service) {
-            if (!$service instanceof MedicalService || null === $service->getId()) {
+            if (!$service instanceof Service || null === $service->getId()) {
                 continue;
             }
 
-            $summary[$service->getId()] = $this->bedRepository->countAvailableBedsForMedicalService($service->getId());
+            $summary[$service->getId()] = $this->bedRepository->countAvailableBedsForService($service->getId());
         }
 
         return $summary;
@@ -125,9 +125,9 @@ class NursingController extends AbstractTenantAwareController
 
     private function buildBoardData(int $serviceId): array
     {
-        $beds = $this->bedRepository->findActiveBedsForMedicalService($serviceId);
-        $admissions = $this->admissionRecordRepository->findActiveByMedicalService($serviceId);
-        $pendingRequests = $this->admissionRecordRepository->countPendingRequestsByMedicalService($serviceId);
+        $beds = $this->bedRepository->findActiveBedsForService($serviceId);
+        $admissions = $this->admissionRecordRepository->findActiveByService($serviceId);
+        $pendingRequests = $this->admissionRecordRepository->countPendingRequestsByService($serviceId);
 
         $admissionsByBed = [];
         foreach ($admissions as $admission) {

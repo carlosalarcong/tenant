@@ -80,7 +80,7 @@ class NursingApiController extends AbstractTenantAwareController
     {
         return $this->json([
             'serviceId' => $serviceId,
-            'availableBeds' => $this->bedRepository->countAvailableBedsForMedicalService($serviceId),
+            'availableBeds' => $this->bedRepository->countAvailableBedsForService($serviceId),
         ]);
     }
 }

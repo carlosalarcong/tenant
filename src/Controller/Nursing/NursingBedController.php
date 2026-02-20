@@ -79,7 +79,7 @@ class NursingBedController extends AbstractTenantAwareController
             return $this->redirectToBoard($serviceId);
         }
 
-        $admissionRecord = $this->admissionRecordRepository->findPendingByIdAndMedicalService($admissionRecordId, $serviceId);
+        $admissionRecord = $this->admissionRecordRepository->findPendingByIdAndService($admissionRecordId, $serviceId);
         if (null === $admissionRecord) {
             return $this->redirectToBoard($serviceId);
         }

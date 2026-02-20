@@ -31,7 +31,7 @@ class NursingRequestController extends AbstractTenantAwareController
     {
         return $this->render('nursing/request/admissions.html.twig', [
             'service_id' => $serviceId,
-            'requests' => $this->admissionRecordRepository->findPendingListByMedicalService($serviceId),
+            'requests' => $this->admissionRecordRepository->findPendingListByService($serviceId),
         ]);
     }
 

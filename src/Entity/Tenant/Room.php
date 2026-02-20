@@ -38,6 +38,10 @@ class Room
     #[ORM\JoinColumn(nullable: true)]
     private ?Clinic $clinic = null;
 
+    #[ORM\ManyToOne(targetEntity: Service::class)]
+    #[ORM\JoinColumn(name: 'service_id', referencedColumnName: 'id', nullable: true)]
+    private ?Service $service = null;
+
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $roomType = null; // patient, operating, emergency, icu, consultation
 
@@ -114,6 +118,17 @@ class Room
     public function setClinic(?Clinic $clinic): static
     {
         $this->clinic = $clinic;
+        return $this;
+    }
+
+    public function getService(): ?Service
+    {
+        return $this->service;
+    }
+
+    public function setService(?Service $service): static
+    {
+        $this->service = $service;
         return $this;
     }
 
