@@ -124,6 +124,35 @@ class BedRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    public function findActiveBedsForService(int $serviceId): array
+    {
+        return $this->createQueryBuilder('b')
+            ->innerJoin('b.room', 'r')
+            ->where('b.isActive = :active')
+            ->andWhere('r.service = :serviceId')
+            ->setParameter('serviceId', $serviceId)
+            ->setParameter('active', true)
+            ->addOrderBy('r.roomNumber', 'ASC')
+            ->addOrderBy('b.bedNumber', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countAvailableBedsForService(int $serviceId): int
+    {
+        return (int) $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->innerJoin('b.room', 'r')
+            ->where('b.isActive = :active')
+            ->andWhere('b.status = :status')
+            ->andWhere('r.service = :serviceId')
+            ->setParameter('serviceId', $serviceId)
+            ->setParameter('active', true)
+            ->setParameter('status', 'available')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function findOneActiveById(int $bedId): ?Bed
     {
         return $this->createQueryBuilder('b')

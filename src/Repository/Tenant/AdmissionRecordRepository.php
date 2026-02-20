@@ -83,6 +83,7 @@ class AdmissionRecordRepository extends ServiceEntityRepository
             ->orderBy('ar.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
+    }
 
     /**
      * @return list<AdmissionRecord>
