@@ -7,16 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Bed
- * 
- * Legacy table: cama
- * Spanish name: Cama
- * 
- * Represents individual hospital beds:
- * - Physical bed units
- * - Room and floor location
- * - Bed type and availability
- * - Current patient assignment
+ * Bed (Cama)
+ *
+ * Tabla legacy: cama
+ *
+ * Representa una cama hospitalaria individual con su ubicación, tipo y estado de disponibilidad.
  */
 #[ORM\Entity(repositoryClass: BedRepository::class)]
 #[ORM\Table(name: 'bed')]

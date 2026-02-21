@@ -7,20 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ConsultationType
- * 
- * Legacy table: tipo_consulta
- * Spanish name: Tipo Consulta
- * 
- * Represents the types of medical consultations:
- * - First consultation
- * - Follow-up
- * - Emergency
- * - Preventive
- * - Specialty consultation
- * - Home visit
- * - Telemedicine
- * - etc.
+ * ConsultationType (TipoConsulta)
+ *
+ * Tabla legacy: tipo_consulta
+ *
+ * Catálogo de tipos de consulta médica disponibles en el sistema.
  */
 #[ORM\Entity(repositoryClass: ConsultationTypeRepository::class)]
 #[ORM\Table(name: 'consultation_type')]

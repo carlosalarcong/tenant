@@ -7,15 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * CancellationType
- * 
- * Legacy table: tipo_anulacion
- * Spanish name: Tipo Anulación
- * 
- * Represents the types of cancellation reasons:
- * - Patient request
- * - Medical reasons
- * - Administrative error
+ * CancellationType (TipoAnulacion)
+ *
+ * Tabla legacy: tipo_anulacion
+ *
+ * Catálogo de tipos de anulación de ingresos (ej. solicitud del paciente, razones médicas, error administrativo).
  * - No show
  * - Insurance issues
  * - Rescheduling

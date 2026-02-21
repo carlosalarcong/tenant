@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * SurgicalBlock (Pabellón Quirúrgico)
- * 
- * Represents a surgical block or operating room
+ * SurgicalBlock (PabellonQuirurgico)
+ *
+ * Tabla legacy: pabellon_quirurgico
+ *
+ * Representa un pabellón o bloque de pabellones quirúrgicos de la clínica.
  */
 #[ORM\Entity(repositoryClass: SurgicalBlockRepository::class)]
 #[ORM\Table(name: 'surgical_block')]

@@ -4,6 +4,13 @@ use App\Repository\Tenant\PhysicalExamFieldRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * PhysicalExamField (CampoExamenFisico)
+ *
+ * Tabla legacy: campo_examen_fisico
+ *
+ * Campo de registro dentro de un examen físico del paciente.
+ */
 #[ORM\Entity(repositoryClass: PhysicalExamFieldRepository::class)]
 #[ORM\Table(name: 'physical_exam_field')]
 class PhysicalExamField

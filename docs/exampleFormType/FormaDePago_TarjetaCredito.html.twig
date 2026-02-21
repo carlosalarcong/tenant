@@ -1,0 +1,24 @@
+{% set claseForm = 'class_' ~ listadoMediosPago.id %}   
+    <table width="100%" class="table-bordered table-condensed">
+        <tr>
+            <td width="30%"> Tarjeta </td>
+            <td width="70%">
+               {% set nombreTarjetaCredito = 'TarjetaCredito_' ~ listadoMediosPago.id ~ '_0' %} 
+                {{ form_widget(mediospago_form[nombreTarjetaCredito] , {'attr': {'class': 'Input_select ' ~ claseForm }} ) }}
+            </td>
+        </tr>
+        <tr>
+            <td width="30%"> Voucher </td>
+            <td width="70%">
+                {% set nombreCampoVoucher = 'voucher_' ~ listadoMediosPago.id ~ '_0' %}
+                  {{ form_widget(mediospago_form[nombreCampoVoucher], {'attr': {'class': 'Input_text input_voucher obligatorioConsolidado ' ~  claseForm , 'MaxLength': 12}} ) }}
+              </td>
+          </tr>
+          <tr>
+            <td width="30%"> Monto </td>
+            <td width="70%">
+               {% set nombreCampoMonto = 'monto_' ~ listadoMediosPago.id ~ '_0' %}
+                  {{ form_widget(mediospago_form[nombreCampoMonto], {'attr': {'class': 'saldoMedio Input_num readOnlyConsolidado ' ~ claseForm , 'MaxLength': 12,  'onkeyup':'javascript:SumaSaldoVsMediosPago()'}} ) }}
+              </td>
+          </tr>
+      </table>

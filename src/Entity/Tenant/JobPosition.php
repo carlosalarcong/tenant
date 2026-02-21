@@ -7,8 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * JobPosition (Cargo)
- * 
- * Cargos o puestos de trabajo del personal
+ *
+ * Tabla legacy: cargo
+ *
+ * Mantenedor de cargos o puestos de trabajo del personal del establecimiento de salud.
  */
 #[ORM\Entity(repositoryClass: JobPositionRepository::class)]
 #[ORM\Table(name: 'maintainer_job_position')]

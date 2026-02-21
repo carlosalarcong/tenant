@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * WarehouseMedicalService - Relation between warehouses and medical services
- * Legacy table: rel_bodega_accion_clinica
+ * Tabla legacy: rel_bodega_accion_clinica
  * 
  * Links warehouses with medical services that use them
  */

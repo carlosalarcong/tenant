@@ -6,6 +6,13 @@ use App\Repository\Tenant\SettingRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Setting (Configuracion)
+ *
+ * Tabla legacy: (nueva entidad)
+ *
+ * Almacena configuraciones del sistema tenant en formato clave-valor tipado, con slug único y valores por defecto.
+ */
 #[ORM\Entity(repositoryClass: SettingRepository::class)]
 #[ORM\Table(name: '`setting`')]
 class Setting

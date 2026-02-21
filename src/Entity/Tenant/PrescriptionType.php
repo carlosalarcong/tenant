@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * PrescriptionType (Tipo de Receta Fármacos RCH)
- * 
- * Mantenedor de tipos de recetas farmacológicas
+ * PrescriptionType (Tipo de Receta)
+ *
+ * Tabla legacy: tipo_receta
+ *
+ * Mantenedor de tipos de receta médica (receta simple, retenida, magistral, etc.) del sistema farmacológico.
  */
 #[ORM\Entity(repositoryClass: PrescriptionTypeRepository::class)]
 #[ORM\Table(name: 'prescription_type')]

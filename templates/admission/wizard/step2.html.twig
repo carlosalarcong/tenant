@@ -1,79 +1,436 @@
-<turbo-frame id="admission-wizard-content">
-    <div class="card shadow-sm border-0 mt-4">
-        <div class="card-body p-4" data-controller="admission--wizard">
-            <h4 class="mb-3">Paso 2 de 3: Financiador y convenio</h4>
+<turbo-frame id="maintainer-content">
+    <turbo-frame id="admission-wizard-content">
+        <div class="admission-step2"
+             data-controller="admission--wizard">
 
-            {# Mensaje de error para fallos de fetch #}
-            <div class="alert alert-danger d-none"
+            {{ include('admission/wizard/_timeline.html.twig', { current_step: 1 }) }}
+
+            <div class="mb-4">
+                <h2 class="admission-step-title">Paso 1 de 3: Datos de la Admisión</h2>
+                <p class="admission-step-subtitle">Completa los antecedentes clínicos y administrativos del ingreso.</p>
+            </div>
+
+            {# Alerta de errores de API (Stimulus la maneja) #}
+            <div class="alert alert-danger alert-dismissible d-none mb-3"
                  data-admission--wizard-target="errorMessage"
                  role="alert">
+                <button type="button" class="btn-close" onclick="this.closest('.alert').classList.add('d-none')"></button>
             </div>
-            {% if form_errors(form.payer) or form_errors(form.agreement) %}
-                <div class="alert alert-danger" role="alert">
-                    {{ form_errors(form.payer) }}
-                    {{ form_errors(form.agreement) }}
-                </div>
-            {% endif %}
 
-            {{ form_start(form, {
-                action: path('app_admission_wizard_step2')
-            }) }}
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label for="branch" class="form-label">Sucursal</label>
-                        <select id="branch"
-                                name="{{ form.branch.vars.full_name }}"
-                                class="form-select"
-                                data-admission--wizard-target="branchSelect"
-                                data-action="change->admission--wizard#onBranchChange">
-                            <option value="1" selected>Sucursal principal</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="payer" class="form-label">
-                            Financiador <span class="text-danger">*</span>
-                        </label>
-                        <select id="payer"
-                                name="{{ form.payer.vars.full_name }}"
-                                class="form-select"
-                                data-admission--wizard-target="payerSelect"
-                                data-action="change->admission--wizard#onPayerChange"
-                                required>
-                            <option value="">-- Seleccionar financiador --</option>
-                            {% if form.payer.vars.value %}
-                                <option value="{{ form.payer.vars.value }}" selected>Cargando selección...</option>
-                            {% endif %}
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="agreement" class="form-label">
-                            Convenio <span class="text-danger">*</span>
-                        </label>
-                        <select id="agreement"
-                                name="{{ form.agreement.vars.full_name }}"
-                                class="form-select"
-                                data-admission--wizard-target="agreementSelect"
-                                required>
-                            <option value="">-- Seleccionar convenio --</option>
-                            {% if form.agreement.vars.value %}
-                                <option value="{{ form.agreement.vars.value }}" selected>Cargando selección...</option>
-                            {% endif %}
-                        </select>
-                        <small class="form-text text-muted">Seleccione primero un financiador</small>
-                    </div>
-                </div>
+            {{ form_start(form, { action: path('app_admission_wizard_step2') }) }}
 
-                <div class="d-flex gap-2 justify-content-end mt-4">
-                    <a href="{{ path('app_admission_wizard_step1', { patientId: wizard.patient_id }) }}"
-                       class="btn btn-outline-secondary">
+                {# ══════════════════════════════════════════════
+                   SECCIÓN 1 — Cobertura y origen
+                   ══════════════════════════════════════════════ #}
+                <div class="admission-section-card">
+                    <div class="admission-section-header">
+                        <i class="bx bx-shield admission-section-icon"></i>
+                        <span>Cobertura y origen</span>
+                    </div>
+                    <div class="admission-section-body">
+
+                        {# Fila 1: Sucursal | Tipo atención | Plan previsional #}
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label for="branch" class="form-label">Sucursal</label>
+                                <select id="branch"
+                                        name="{{ form.branch.vars.full_name }}"
+                                        class="form-select admission-select"
+                                        data-admission--wizard-target="branchSelect"
+                                        data-action="change->admission--wizard#onBranchChange">
+                                    {% for branch in branches %}
+                                        <option value="{{ branch.id }}"
+                                                {% if form.branch.vars.value == branch.id %}selected{% endif %}>
+                                            {{ branch.name }}
+                                        </option>
+                                    {% else %}
+                                        <option value="">Sin sucursales configuradas</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                {% set careTypeErrors = form.careType.vars.errors %}
+                                <label for="careType" class="form-label">
+                                    Tipo atención <span class="text-danger ms-1">*</span>
+                                </label>
+                                <select id="careType"
+                                        name="{{ form.careType.vars.full_name }}"
+                                        class="form-select admission-select {{ careTypeErrors is not empty ? 'is-invalid' : '' }}"
+                                        data-admission--wizard-target="careTypeSelect"
+                                        required>
+                                    <option value="">-- Seleccionar tipo de atención --</option>
+                                    {% if form.careType.vars.value %}
+                                        <option value="{{ form.careType.vars.value }}" selected>Cargando selección...</option>
+                                    {% endif %}
+                                </select>
+                                {% for error in careTypeErrors %}
+                                    <div class="invalid-feedback d-block">{{ error.message }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label for="insurancePlan" class="form-label">Plan previsional</label>
+                                <select id="insurancePlan"
+                                        name="{{ form.insurancePlan.vars.full_name }}"
+                                        class="form-select admission-select"
+                                        data-admission--wizard-target="insurancePlanSelect">
+                                    <option value="">-- Seleccionar plan --</option>
+                                    {% if form.insurancePlan.vars.value %}
+                                        <option value="{{ form.insurancePlan.vars.value }}" selected>Cargando selección...</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+
+                        {# Fila 2: Financiador | Convenio | Paquete #}
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6 col-lg-4">
+                                {% set payerErrors = form.payer.vars.errors %}
+                                <label for="payer" class="form-label">
+                                    Financiador <span class="text-danger ms-1">*</span>
+                                </label>
+                                <select id="payer"
+                                        name="{{ form.payer.vars.full_name }}"
+                                        class="form-select admission-select {{ payerErrors is not empty ? 'is-invalid' : '' }}"
+                                        data-admission--wizard-target="payerSelect"
+                                        data-action="change->admission--wizard#onPayerChange"
+                                        required>
+                                    <option value="">-- Seleccionar financiador --</option>
+                                    {% if form.payer.vars.value %}
+                                        <option value="{{ form.payer.vars.value }}" selected>Cargando selección...</option>
+                                    {% endif %}
+                                </select>
+                                {% for error in payerErrors %}
+                                    <div class="invalid-feedback d-block">{{ error.message }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                {% set agreementErrors = form.agreement.vars.errors %}
+                                <label for="agreement" class="form-label">
+                                    Convenio <span class="text-danger ms-1">*</span>
+                                </label>
+                                <select id="agreement"
+                                        name="{{ form.agreement.vars.full_name }}"
+                                        class="form-select admission-select {{ agreementErrors is not empty ? 'is-invalid' : '' }}"
+                                        data-admission--wizard-target="agreementSelect"
+                                        required>
+                                    <option value="">-- Seleccionar convenio --</option>
+                                    {% if form.agreement.vars.value %}
+                                        <option value="{{ form.agreement.vars.value }}" selected>Cargando selección...</option>
+                                    {% endif %}
+                                </select>
+                                <div class="form-text">Seleccione primero un financiador</div>
+                                {% for error in agreementErrors %}
+                                    <div class="invalid-feedback d-block">{{ error.message }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label for="servicePackage" class="form-label">Paquete</label>
+                                <select id="servicePackage"
+                                        name="{{ form.servicePackage.vars.full_name }}"
+                                        class="form-select admission-select"
+                                        data-admission--wizard-target="servicePackageSelect">
+                                    <option value="">-- Seleccionar paquete --</option>
+                                    {% if form.servicePackage.vars.value %}
+                                        <option value="{{ form.servicePackage.vars.value }}" selected>Cargando selección...</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+
+                        {# Fila 3: Origen | Toggle + Detalle otro origen #}
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label for="origin" class="form-label">Origen</label>
+                                <select id="origin"
+                                        name="{{ form.origin.vars.full_name }}"
+                                        class="form-select admission-select"
+                                        data-admission--wizard-target="originSelect">
+                                    <option value="">-- Seleccionar origen --</option>
+                                    {% if form.origin.vars.value %}
+                                        <option value="{{ form.origin.vars.value }}" selected>Cargando selección...</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-8">
+                                <div class="form-check form-switch mt-lg-4 pt-lg-1 mb-1">
+                                    <input id="otherOriginEnabled"
+                                           name="{{ form.otherOriginEnabled.vars.full_name }}"
+                                           class="form-check-input"
+                                           type="checkbox"
+                                           value="1"
+                                           data-admission--wizard-target="otherOriginToggle"
+                                           data-action="change->admission--wizard#onOtherOriginToggle"
+                                           {% if form.otherOriginEnabled.vars.checked %}checked{% endif %}>
+                                    <label class="form-check-label" for="otherOriginEnabled">Otro origen</label>
+                                </div>
+                                <div class="other-origin-detail {{ form.otherOriginEnabled.vars.checked ? 'is-visible' : '' }}"
+                                     data-admission--wizard-target="otherOriginContainer">
+                                    <label for="otherOrigin" class="form-label">Detalle otro origen</label>
+                                    <input id="otherOrigin"
+                                           name="{{ form.otherOrigin.vars.full_name }}"
+                                           value="{{ form.otherOrigin.vars.value|default('') }}"
+                                           class="form-control admission-input"
+                                           type="text"
+                                           data-admission--wizard-target="otherOriginInput"
+                                           placeholder="Ingrese origen alternativo"
+                                           {% if not form.otherOriginEnabled.vars.checked %}disabled{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>{# /admission-section-body #}
+                </div>{# /admission-section-card Cobertura #}
+
+                {# ══════════════════════════════════════════════
+                   SECCIÓN 2 — Asignación clínica
+                   ══════════════════════════════════════════════ #}
+                <div class="admission-section-card">
+                    <div class="admission-section-header">
+                        <i class="bx bx-bed admission-section-icon"></i>
+                        <span>Asignación clínica</span>
+                    </div>
+                    <div class="admission-section-body">
+
+                        {# Fila 1: Profesional | Especialidad | Médico derivador #}
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label for="professional" class="form-label">Profesional</label>
+                                <select id="professional"
+                                        name="{{ form.professional.vars.full_name }}"
+                                        class="form-select admission-select"
+                                        data-admission--wizard-target="professionalSelect">
+                                    <option value="">-- Seleccionar profesional --</option>
+                                    {% if form.professional.vars.value %}
+                                        <option value="{{ form.professional.vars.value }}" selected>Cargando selección...</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label for="specialty" class="form-label">Especialidad</label>
+                                <select id="specialty"
+                                        name="{{ form.specialty.vars.full_name }}"
+                                        class="form-select admission-select"
+                                        data-admission--wizard-target="specialtySelect">
+                                    <option value="">-- Seleccionar especialidad --</option>
+                                    {% if form.specialty.vars.value %}
+                                        <option value="{{ form.specialty.vars.value }}" selected>Cargando selección...</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label for="referralDoctor" class="form-label">Médico derivador</label>
+                                <input id="referralDoctor"
+                                       name="{{ form.referralDoctor.vars.full_name }}"
+                                       value="{{ form.referralDoctor.vars.value|default('') }}"
+                                       class="form-control admission-input"
+                                       type="text"
+                                       placeholder="Nombre médico derivador">
+                            </div>
+                        </div>
+
+                        {# Fila 2: Servicio | Cama | Tipo cama (readonly) #}
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6 col-lg-4">
+                                {% set serviceErrors = form.service.vars.errors %}
+                                <label for="service" class="form-label">
+                                    Servicio <span class="text-danger ms-1">*</span>
+                                </label>
+                                <select id="service"
+                                        name="{{ form.service.vars.full_name }}"
+                                        class="form-select admission-select {{ serviceErrors is not empty ? 'is-invalid' : '' }}"
+                                        data-admission--wizard-target="serviceSelect"
+                                        data-action="change->admission--wizard#onServiceChange"
+                                        required>
+                                    <option value="">-- Seleccionar servicio --</option>
+                                    {% if form.service.vars.value %}
+                                        <option value="{{ form.service.vars.value }}" selected>Cargando selección...</option>
+                                    {% endif %}
+                                </select>
+                                {% for error in serviceErrors %}
+                                    <div class="invalid-feedback d-block">{{ error.message }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                {% set bedErrors = form.bed.vars.errors %}
+                                <label for="bed" class="form-label">
+                                    Cama <span class="text-danger ms-1">*</span>
+                                </label>
+                                <select id="bed"
+                                        name="{{ form.bed.vars.full_name }}"
+                                        class="form-select admission-select {{ bedErrors is not empty ? 'is-invalid' : '' }}"
+                                        data-admission--wizard-target="bedSelect"
+                                        data-action="change->admission--wizard#onBedChange"
+                                        required>
+                                    <option value="">-- Seleccionar cama --</option>
+                                    {% if form.bed.vars.value %}
+                                        <option value="{{ form.bed.vars.value }}" selected>Cargando selección...</option>
+                                    {% endif %}
+                                </select>
+                                {% for error in bedErrors %}
+                                    <div class="invalid-feedback d-block">{{ error.message }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label for="bedType" class="form-label">Tipo cama</label>
+                                <input id="bedType"
+                                       class="form-control admission-input admission-readonly"
+                                       type="text"
+                                       data-admission--wizard-target="bedTypeInput"
+                                       value=""
+                                       placeholder="Se completa al elegir cama"
+                                       readonly
+                                       tabindex="-1">
+                            </div>
+                        </div>
+
+                    </div>{# /admission-section-body #}
+                </div>{# /admission-section-card Asignación #}
+
+                {# ══════════════════════════════════════════════
+                   SECCIÓN 3 — Contacto y observaciones
+                   ══════════════════════════════════════════════ #}
+                <div class="admission-section-card">
+                    <div class="admission-section-header">
+                        <i class="bx bx-phone admission-section-icon"></i>
+                        <span>Contacto y observaciones</span>
+                    </div>
+                    <div class="admission-section-body">
+
+                        {# Fila 1: Emergencia | Teléfono | Cantidad hijos #}
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label for="emergencyContact" class="form-label">¿Emergencia, avisar a?</label>
+                                <input id="emergencyContact"
+                                       name="{{ form.emergencyContact.vars.full_name }}"
+                                       value="{{ form.emergencyContact.vars.value|default('') }}"
+                                       class="form-control admission-input"
+                                       type="text"
+                                       placeholder="Ej: Papá - Juan Soto">
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label for="emergencyPhone" class="form-label">Teléfono de aviso</label>
+                                <input id="emergencyPhone"
+                                       name="{{ form.emergencyPhone.vars.full_name }}"
+                                       value="{{ form.emergencyPhone.vars.value|default('') }}"
+                                       class="form-control admission-input"
+                                       type="text"
+                                       placeholder="Ej: 6644950">
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label for="childrenCount" class="form-label">Cantidad de hijos</label>
+                                <input id="childrenCount"
+                                       name="{{ form.childrenCount.vars.full_name }}"
+                                       value="{{ form.childrenCount.vars.value|default('') }}"
+                                       class="form-control admission-input"
+                                       type="number"
+                                       min="0">
+                            </div>
+                        </div>
+
+                        {# Fila 2: N° Documento Tutor + Buscar | Nombre Tutor #}
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label for="tutorDocument" class="form-label">N° Documento tutor</label>
+                                <div class="input-group">
+                                    <input id="tutorDocument"
+                                           name="{{ form.tutorDocument.vars.full_name }}"
+                                           value="{{ form.tutorDocument.vars.value|default('') }}"
+                                           class="form-control admission-input"
+                                           type="text"
+                                           placeholder="RUT o N° documento"
+                                           data-admission--wizard-target="tutorDocumentInput">
+                                    <button class="btn btn-outline-secondary admission-btn-search"
+                                            type="button"
+                                            data-action="click->admission--wizard#searchTutor"
+                                            data-admission--wizard-target="tutorSearchBtn"
+                                            title="Buscar tutor por documento">
+                                        <span data-admission--wizard-target="tutorSearchBtnLabel">
+                                            <i class="bx bx-search-alt-2"></i> Buscar
+                                        </span>
+                                        <span class="d-none" data-admission--wizard-target="tutorSearchSpinner">
+                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            Buscando...
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="tutorName" class="form-label">Nombre tutor</label>
+                                <input id="tutorName"
+                                       name="{{ form.tutorName.vars.full_name }}"
+                                       value="{{ form.tutorName.vars.value|default('') }}"
+                                       class="form-control admission-input"
+                                       type="text"
+                                       data-admission--wizard-target="tutorNameInput">
+                            </div>
+                        </div>
+
+                        {# Fila 3: Observación #}
+                        <div class="row g-3 mb-3">
+                            <div class="col-12">
+                                <label for="observations" class="form-label">Observación</label>
+                                <textarea id="observations"
+                                          name="{{ form.observations.vars.full_name }}"
+                                          class="form-control admission-input"
+                                          rows="3"
+                                          placeholder="Escriba una observación">{{ form.observations.vars.value|default('') }}</textarea>
+                            </div>
+                        </div>
+
+                        {# Fila 4: Toggle Orden médica #}
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input id="medicalOrder"
+                                           name="{{ form.medicalOrder.vars.full_name }}"
+                                           class="form-check-input"
+                                           type="checkbox"
+                                           value="1"
+                                           {% if form.medicalOrder.vars.checked %}checked{% endif %}>
+                                    <label class="form-check-label" for="medicalOrder">¿Orden médica?</label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>{# /admission-section-body #}
+                </div>{# /admission-section-card Contacto #}
+
+                {# ══════════════════════════════════════════════
+                   Barra de navegación
+                   ══════════════════════════════════════════════ #}
+                <div class="admission-nav-bar">
+                    <a href="{{ path('app_admission_hospitalization_index') }}"
+                       class="btn btn-outline-secondary admission-btn-back">
                         <i class="bx bx-chevron-left"></i> Volver
                     </a>
-                    <button type="submit" class="btn btn-primary">
-                        Siguiente <i class="bx bx-chevron-right"></i>
+                    <button type="submit"
+                            class="btn btn-primary admission-btn-next"
+                            data-admission--wizard-target="submitBtn">
+                        <span data-admission--wizard-target="submitBtnLabel">
+                            Siguiente <i class="bx bx-chevron-right"></i>
+                        </span>
+                        <span class="d-none" data-admission--wizard-target="submitBtnSpinner">
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Procesando...
+                        </span>
                     </button>
                 </div>
+
                 {{ form_widget(form._token) }}
             {{ form_end(form, { render_rest: false }) }}
-        </div>
-    </div>
+
+        </div>{# /admission-step2 #}
+    </turbo-frame>
 </turbo-frame>

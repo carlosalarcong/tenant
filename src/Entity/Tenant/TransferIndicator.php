@@ -8,8 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * TransferIndicator (IndicadorTraslado)
- * 
- * Mantenedor de indicadores de traslado del sistema
+ *
+ * Tabla legacy: indicador_traslado
+ *
+ * Representa los indicadores de traslado utilizados en los procesos de admisión y derivación de pacientes.
  */
 #[ORM\Entity(repositoryClass: TransferIndicatorRepository::class)]
 #[ORM\Table(name: 'transfer_indicator')]

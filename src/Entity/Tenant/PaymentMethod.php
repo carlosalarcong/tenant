@@ -8,6 +8,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * PaymentMethod (MedioPago)
+ *
+ * Tabla legacy: medio_pago
+ *
+ * Catálogo de medios de pago (efectivo, tarjeta, cheque, etc.) con soporte jerárquico padre-hijo.
+ */
 #[ORM\Entity(repositoryClass: PaymentMethodRepository::class)]
 #[ORM\Table(name: 'payment_method')]
 #[ORM\HasLifecycleCallbacks]

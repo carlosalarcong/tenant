@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * BillingPaymentMethod (FormaPagoFacturacion)
- * 
- * Mantenedor de formas de pago para facturación
+ * BillingPaymentMethod (MedioPagoFacturacion)
+ *
+ * Tabla legacy: medio_pago_facturacion
+ *
+ * Mantenedor de medios de pago utilizados en la facturación del sistema.
  */
 #[ORM\Entity(repositoryClass: BillingPaymentMethodRepository::class)]
 #[ORM\Table(name: 'billing_payment_method')]

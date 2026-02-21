@@ -3,7 +3,18 @@
 namespace App\Controller\Admission;
 
 use App\Controller\AbstractTenantAwareController;
-use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
+use App\Repository\Tenant\AgreementRepository;
+use App\Repository\Tenant\BedRepository;
+use App\Repository\Tenant\BranchRepository;
+use App\Repository\Tenant\CareTypeRepository;
+use App\Repository\Tenant\InsurancePlanRepository;
+use App\Repository\Tenant\PayerRepository;
+use App\Repository\Tenant\PersonRepository;
+use App\Repository\Tenant\ProfessionalRepository;
+use App\Repository\Tenant\ServiceRepository;
+use App\Repository\Tenant\ServicePackageRepository;
+use App\Repository\Tenant\OriginRepository;
+use App\Repository\Tenant\SpecialtyRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,30 +23,41 @@ use Symfony\Component\Routing\Attribute\Route;
 class AdmissionApiController extends AbstractTenantAwareController
 {
     public function __construct(
-        private TenantEntityManager $entityManager
+        private BranchRepository $branchRepository,
+        private ServiceRepository $serviceRepository,
+        private PayerRepository $payerRepository,
+        private AgreementRepository $agreementRepository,
+        private BedRepository $bedRepository,
+        private ProfessionalRepository $professionalRepository,
+        private OriginRepository $originRepository,
+        private SpecialtyRepository $specialtyRepository,
+        private CareTypeRepository $careTypeRepository,
+        private InsurancePlanRepository $insurancePlanRepository,
+        private ServicePackageRepository $servicePackageRepository,
+        private PersonRepository $personRepository
     ) {}
+
+    #[Route('/branches', name: 'branches', methods: ['GET'])]
+    public function branches(): JsonResponse
+    {
+        try {
+            return $this->json($this->branchRepository->findActiveChoices());
+        } catch (\Throwable) {
+            return $this->json(
+                ['error' => 'Error al cargar sucursales'],
+                500
+            );
+        }
+    }
 
     #[Route('/services', name: 'services', methods: ['GET'])]
     public function services(Request $request): JsonResponse
     {
         try {
             $branchId = $request->query->getInt('branch', 0);
-            $connection = $this->entityManager->getConnection();
-            
-            // Fallback: no hay relación branch-service en esquema actual, traer todos activos
-            $sql = 'SELECT id, name FROM service WHERE is_active = true ORDER BY name ASC LIMIT 300';
-            $params = [];
-            
-            if ($branchId > 0) {
-                // TODO: agregar filtro por sucursal cuando exista relación service-branch
-                // $sql = 'SELECT s.id, s.name FROM service s ...';
-                // $params = ['branch' => $branchId];
-            }
-            
-            $rows = $connection->executeQuery($sql, $params)->fetchAllAssociative();
-            
-            return $this->json($rows);
-        } catch (\Exception $e) {
+
+            return $this->json($this->serviceRepository->findActiveChoicesByBranch($branchId > 0 ? $branchId : null));
+        } catch (\Throwable) {
             return $this->json(
                 ['error' => 'Error al cargar servicios'],
                 500
@@ -48,22 +70,9 @@ class AdmissionApiController extends AbstractTenantAwareController
     {
         try {
             $branchId = $request->query->getInt('branch', 0);
-            $connection = $this->entityManager->getConnection();
-            
-            // Fallback: no hay relación branch-payer en esquema actual, traer todos activos
-            $sql = 'SELECT id, name FROM payer WHERE is_active = true ORDER BY name ASC LIMIT 300';
-            $params = [];
-            
-            if ($branchId > 0) {
-                // TODO: agregar filtro por sucursal cuando exista relación payer-branch
-                // $sql = 'SELECT p.id, p.name FROM payer p ...';
-                // $params = ['branch' => $branchId];
-            }
-            
-            $rows = $connection->executeQuery($sql, $params)->fetchAllAssociative();
-            
-            return $this->json($rows);
-        } catch (\Exception $e) {
+
+            return $this->json($this->payerRepository->findActiveChoicesByBranch($branchId > 0 ? $branchId : null));
+        } catch (\Throwable) {
             return $this->json(
                 ['error' => 'Error al cargar financiadores'],
                 500
@@ -83,15 +92,9 @@ class AdmissionApiController extends AbstractTenantAwareController
                     400
                 );
             }
-            
-            $connection = $this->entityManager->getConnection();
-            $rows = $connection->executeQuery(
-                'SELECT id, name FROM agreement WHERE is_active = true AND payer_id = :payer ORDER BY name ASC LIMIT 300',
-                ['payer' => $payerId]
-            )->fetchAllAssociative();
-            
-            return $this->json($rows);
-        } catch (\Exception $e) {
+
+            return $this->json($this->agreementRepository->findActiveChoicesByPayer($payerId));
+        } catch (\Throwable) {
             return $this->json(
                 ['error' => 'Error al cargar convenios'],
                 500
@@ -104,25 +107,9 @@ class AdmissionApiController extends AbstractTenantAwareController
     {
         try {
             $serviceId = $request->query->getInt('service', 0);
-            $connection = $this->entityManager->getConnection();
-            
-            $sql = "SELECT id, CONCAT('Cama ', bed_number, ' (Piso ', COALESCE(CAST(floor AS TEXT), '-'), ')') AS name
-                    FROM bed
-                    WHERE is_active = true";
-            $params = [];
-            
-            if ($serviceId > 0) {
-                // TODO: agregar filtro por servicio cuando exista relación bed-service
-                // $sql .= ' AND service_id = :service';
-                // $params['service'] = $serviceId;
-            }
-            
-            $sql .= ' ORDER BY bed_number ASC LIMIT 300';
-            
-            $rows = $connection->executeQuery($sql, $params)->fetchAllAssociative();
-            
-            return $this->json($rows);
-        } catch (\Exception $e) {
+
+            return $this->json($this->bedRepository->findActiveChoicesByService($serviceId > 0 ? $serviceId : null));
+        } catch (\Throwable) {
             return $this->json(
                 ['error' => 'Error al cargar camas'],
                 500
@@ -135,30 +122,103 @@ class AdmissionApiController extends AbstractTenantAwareController
     {
         try {
             $branchId = $request->query->getInt('branch', 0);
-            $connection = $this->entityManager->getConnection();
-            
-            $sql = "SELECT id, CONCAT(first_name, ' ', last_name) AS name
-                    FROM professional
-                    WHERE is_active = true";
-            $params = [];
-            
-            if ($branchId > 0) {
-                // TODO: agregar filtro por sucursal cuando exista relación professional-branch
-                // $sql .= ' AND branch_id = :branch';
-                // $params['branch'] = $branchId;
-            }
-            
-            $sql .= ' ORDER BY first_name ASC, last_name ASC LIMIT 300';
-            
-            $rows = $connection->executeQuery($sql, $params)->fetchAllAssociative();
-            
-            return $this->json($rows);
-        } catch (\Exception $e) {
+
+            return $this->json($this->professionalRepository->findActiveChoicesByBranch($branchId > 0 ? $branchId : null));
+        } catch (\Throwable) {
             return $this->json(
                 ['error' => 'Error al cargar profesionales'],
                 500
             );
         }
     }
-}
 
+    #[Route('/origins', name: 'origins', methods: ['GET'])]
+    public function origins(): JsonResponse
+    {
+        try {
+            return $this->json($this->originRepository->findActiveChoices());
+        } catch (\Throwable) {
+            return $this->json(
+                ['error' => 'Error al cargar orígenes'],
+                500
+            );
+        }
+    }
+
+    #[Route('/specialties', name: 'specialties', methods: ['GET'])]
+    public function specialties(): JsonResponse
+    {
+        try {
+            return $this->json($this->specialtyRepository->findActiveChoices());
+        } catch (\Throwable) {
+            return $this->json(
+                ['error' => 'Error al cargar especialidades'],
+                500
+            );
+        }
+    }
+
+    #[Route('/care-types', name: 'care_types', methods: ['GET'])]
+    public function careTypes(): JsonResponse
+    {
+        try {
+            return $this->json($this->careTypeRepository->findActiveChoices());
+        } catch (\Throwable) {
+            return $this->json(
+                ['error' => 'Error al cargar tipos de atención'],
+                500
+            );
+        }
+    }
+
+    #[Route('/insurance-plans', name: 'insurance_plans', methods: ['GET'])]
+    public function insurancePlans(): JsonResponse
+    {
+        try {
+            return $this->json($this->insurancePlanRepository->findActiveChoices());
+        } catch (\Throwable) {
+            return $this->json(
+                ['error' => 'Error al cargar planes previsionales'],
+                500
+            );
+        }
+    }
+
+    #[Route('/service-packages', name: 'service_packages', methods: ['GET'])]
+    public function servicePackages(): JsonResponse
+    {
+        try {
+            return $this->json($this->servicePackageRepository->findActiveChoices());
+        } catch (\Throwable) {
+            return $this->json(
+                ['error' => 'Error al cargar paquetes'],
+                500
+            );
+        }
+    }
+
+    #[Route('/tutor-search', name: 'tutor_search', methods: ['GET'])]
+    public function tutorSearch(Request $request): JsonResponse
+    {
+        $document = trim((string) $request->query->get('document', ''));
+        if ($document === '') {
+            return $this->json(
+                ['error' => 'Parámetro "document" requerido'],
+                400
+            );
+        }
+
+        try {
+            $name = $this->personRepository->findTutorFullNameByDocument($document);
+
+            return $this->json([
+                'name' => $name,
+            ]);
+        } catch (\Throwable) {
+            return $this->json(
+                ['error' => 'Error al buscar tutor'],
+                500
+            );
+        }
+    }
+}

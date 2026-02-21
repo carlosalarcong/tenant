@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * PaymentCondition (CondicionPago)
- * 
- * Mantenedor de condiciones de pago del sistema
+ * PaymentCondition (Condición de Pago)
+ *
+ * Tabla legacy: condicion_pago
+ *
+ * Mantenedor de condiciones de pago aplicables a documentos y transacciones financieras del sistema.
  */
 #[ORM\Entity(repositoryClass: PaymentConditionRepository::class)]
 #[ORM\Table(name: 'payment_condition')]

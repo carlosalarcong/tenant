@@ -4,6 +4,13 @@ use App\Repository\Tenant\ExamServiceRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * ExamService (ExamenServicio)
+ *
+ * Tabla legacy: examen_servicio
+ *
+ * Catálogo de exámenes o servicios de diagnóstico disponibles para solicitar en admisiones y consultas.
+ */
 #[ORM\Entity(repositoryClass: ExamServiceRepository::class)]
 #[ORM\Table(name: 'exam_service')]
 class ExamService

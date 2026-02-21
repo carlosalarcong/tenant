@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * ClinicalActionAnswer
- * 
- * Respuestas de preguntas de acciones clínicas
+ * ClinicalActionAnswer (RespuestaAccionClinica)
+ *
+ * Tabla legacy: respuesta_accion_clinica
+ *
+ * Catálogo de respuestas asociadas a preguntas de acciones clínicas.
  */
 #[ORM\Entity(repositoryClass: ClinicalActionAnswerRepository::class)]
 #[ORM\Table(name: 'clinical_action_answer')]

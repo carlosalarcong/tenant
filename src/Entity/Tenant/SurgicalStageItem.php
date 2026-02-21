@@ -8,6 +8,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * SurgicalStageItem (ItemEtapaQuirurgica)
+ *
+ * Tabla legacy: item_etapa_quirurgica
+ *
+ * Ítem o tarea individual perteneciente a una etapa del proceso quirúrgico.
+ */
 #[ORM\Entity(repositoryClass: SurgicalStageItemRepository::class)]
 #[ORM\Table(name: 'surgical_stage_item')]
 #[ORM\HasLifecycleCallbacks]

@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * BankAccountType (TipoCuentaBanco)
- * 
- * Mantenedor de tipos de cuenta bancaria del sistema
+ * BankAccountType (TipoCuentaBancaria)
+ *
+ * Tabla legacy: tipo_cuenta_bancaria
+ *
+ * Mantenedor de tipos de cuenta bancaria del sistema.
  */
 #[ORM\Entity(repositoryClass: BankAccountTypeRepository::class)]
 #[ORM\Table(name: 'bank_account_type')]

@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * MedicalDevice (Dispositivo Médico RCH)
- * 
- * Mantenedor de dispositivos médicos del sistema hospitalario
+ * MedicalDevice (DispositivoMedico)
+ *
+ * Tabla legacy: dispositivo_medico
+ *
+ * Catálogo de dispositivos médicos utilizados en el sistema hospitalario.
  */
 #[ORM\Entity(repositoryClass: MedicalDeviceRepository::class)]
 #[ORM\Table(name: 'medical_device')]

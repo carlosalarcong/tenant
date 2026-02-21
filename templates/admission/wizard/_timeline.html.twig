@@ -1,0 +1,28 @@
+{% set steps = [
+    'Datos de la Admisión',
+    'Resguardo Financiero',
+    'Finalizar'
+] %}
+{% set progressPct = ((current_step - 1) / 2 * 100)|round %}
+
+<div class="admission-timeline">
+    <div class="admission-timeline-track">
+        <div class="admission-timeline-progress" style="width: {{ progressPct }}%"></div>
+    </div>
+    <div class="admission-timeline-steps">
+        {% for label in steps %}
+            {% set stepNumber = loop.index %}
+            {% set state = stepNumber < current_step ? 'done' : (stepNumber == current_step ? 'active' : 'pending') %}
+            <div class="admission-timeline-step admission-timeline-step--{{ state }}">
+                <div class="admission-timeline-bullet">
+                    {% if state == 'done' %}
+                        <i class="bx bx-check"></i>
+                    {% else %}
+                        {{ stepNumber }}
+                    {% endif %}
+                </div>
+                <div class="admission-timeline-label">{{ label }}</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

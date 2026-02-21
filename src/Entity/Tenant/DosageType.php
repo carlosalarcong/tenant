@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * DosageType (Tipo de Posología)
- * 
- * Mantenedor de tipos de posología/dosificación
+ * DosageType (TipoDosis)
+ *
+ * Tabla legacy: tipo_dosis
+ *
+ * Catálogo de tipos de dosis o posología utilizados en prescripciones médicas.
  */
 #[ORM\Entity(repositoryClass: DosageTypeRepository::class)]
 #[ORM\Table(name: 'dosage_type')]

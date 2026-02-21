@@ -7,15 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Clinic
- * 
- * Legacy table: clinica
- * Spanish name: Clínica
- * 
- * Represents clinic locations or facilities:
- * - Main hospital
- * - Branch clinics
- * - Satellite locations
+ * Clinic (Clinica)
+ *
+ * Tabla legacy: clinica
+ *
+ * Representa la clínica u hospital raíz del sistema. Entidad global que agrupa las sucursales.
  * - Medical centers
  */
 #[ORM\Entity(repositoryClass: ClinicRepository::class)]

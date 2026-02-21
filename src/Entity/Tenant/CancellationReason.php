@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * CancellationReason (MotivoAnulacion)
- * 
- * Mantenedor de motivos de anulación del sistema
+ * CancellationReason (MotivoAnulacionIngreso)
+ *
+ * Tabla legacy: motivo_anulacion_ingreso
+ *
+ * Mantenedor de motivos de anulación de ingresos del sistema.
  */
 #[ORM\Entity(repositoryClass: CancellationReasonRepository::class)]
 #[ORM\Table(name: 'cancellation_reason')]

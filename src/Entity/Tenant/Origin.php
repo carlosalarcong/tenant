@@ -7,8 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Origin (Origen)
- * 
- * Origen específico del paciente o situación
+ *
+ * Tabla legacy: origen
+ *
+ * Mantenedor de orígenes de derivación o procedencia del paciente al momento de la admisión.
  */
 #[ORM\Entity(repositoryClass: OriginRepository::class)]
 #[ORM\Table(name: 'maintainer_origin')]
@@ -28,6 +30,11 @@ class Origin
     #[ORM\ManyToOne(targetEntity: OriginType::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?OriginType $originType = null;
+
+    /** Legacy: ID_SUCURSAL */
+    #[ORM\ManyToOne(targetEntity: Branch::class)]
+    #[ORM\JoinColumn(name: 'branch_id', referencedColumnName: 'id', nullable: true)]
+    private ?Branch $branch = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
@@ -119,6 +126,17 @@ class Origin
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function getBranch(): ?Branch
+    {
+        return $this->branch;
+    }
+
+    public function setBranch(?Branch $branch): self
+    {
+        $this->branch = $branch;
         return $this;
     }
 

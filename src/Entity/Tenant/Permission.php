@@ -6,12 +6,11 @@ use App\Repository\Tenant\PermissionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Permiso individual asignado directamente a un usuario.
- * 
- * Permite control granular de acceso a:
- * - Dominios completos: domain='persona', resourceId=null, fieldName=null
- * - Recursos específicos: domain='persona', resourceId=123, fieldName=null
- * - Campos específicos: domain='persona', resourceId=123, fieldName='salario'
+ * Permission (Permiso)
+ *
+ * Tabla legacy: (nueva entidad)
+ *
+ * Representa un permiso individual asignado directamente a un usuario, con control granular de acceso a dominios, recursos y campos específicos.
  */
 #[ORM\Entity(repositoryClass: PermissionRepository::class)]
 #[ORM\Table(name: 'permission')]

@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * ClinicalActionCategory (Categoría Acción Clínica)
- * 
- * Mantenedor de categorías de acciones clínicas
+ * ClinicalActionCategory (CategoriaAccionClinica)
+ *
+ * Tabla legacy: categoria_accion_clinica
+ *
+ * Catálogo de categorías de acciones clínicas.
  */
 #[ORM\Entity(repositoryClass: ClinicalActionCategoryRepository::class)]
 #[ORM\Table(name: 'clinical_action_category')]

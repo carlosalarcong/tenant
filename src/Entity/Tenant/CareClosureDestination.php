@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * CareClosureDestination (Destino Cierre Atención)
- * 
- * Mantenedor de destinos de cierre de fichas de atención
+ * CareClosureDestination (CierreAtencionFcDestino)
+ *
+ * Tabla legacy: cierre_atencion_fc_destino
+ *
+ * Catálogo de destinos al cierre de atención.
  */
 #[ORM\Entity(repositoryClass: CareClosureDestinationRepository::class)]
 #[ORM\Table(name: 'care_closure_destination')]

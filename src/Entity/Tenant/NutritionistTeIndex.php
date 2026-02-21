@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * NutritionistTeIndex (Índice TE Nutricionista)
- * 
- * Mantenedor de índices de talla/edad
+ * NutritionistTeIndex (IndiceTENutricionista)
+ *
+ * Tabla legacy: indice_te_nutricionista
+ *
+ * Representa un índice de talla/edad (TE) utilizado por nutricionistas en la evaluación del crecimiento y estado nutricional.
  */
 #[ORM\Entity(repositoryClass: NutritionistTeIndexRepository::class)]
 #[ORM\Table(name: 'nutritionist_te_index')]

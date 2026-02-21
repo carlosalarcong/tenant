@@ -6,6 +6,10 @@ use App\Repository\Tenant\TenantModulePermissionOverrideRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * TenantModulePermissionOverride (AnulacionPermisoModuloTenant)
+ *
+ * Tabla legacy: (nueva entidad)
+ *
  * Override de permisos por módulo para configuraciones custom.
  * 
  * Permite definir roles específicos requeridos para acceder a cada módulo

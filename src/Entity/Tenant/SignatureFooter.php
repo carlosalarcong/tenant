@@ -8,8 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * SignatureFooter (PieFirma)
- * 
- * Mantenedor de pies de firma para documentos logísticos
+ *
+ * Tabla legacy: pie_firma
+ *
+ * Representa los pies de firma configurados para documentos e informes del sistema.
  */
 #[ORM\Entity(repositoryClass: SignatureFooterRepository::class)]
 #[ORM\Table(name: 'signature_footer')]

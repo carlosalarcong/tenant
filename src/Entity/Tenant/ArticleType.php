@@ -8,8 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * ArticleType (TipoArticulo)
- * 
- * Mantenedor de tipos de artículos del sistema logístico
+ *
+ * Tabla legacy: tipo_articulo
+ *
+ * Mantenedor de tipos de artículos del sistema logístico.
  */
 #[ORM\Entity(repositoryClass: ArticleTypeRepository::class)]
 #[ORM\Table(name: 'article_type')]

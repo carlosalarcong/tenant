@@ -7,15 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * BudgetItem
- * 
- * Legacy table: item_presupuesto
- * Spanish name: Item Presupuesto
- * 
- * Represents budget items or cost centers for billing:
- * - Medical services
- * - Procedures
- * - Supplies
+ * BudgetItem (ItemPresupuesto)
+ *
+ * Tabla legacy: item_presupuesto
+ *
+ * Ítem de presupuesto utilizado en la facturación de servicios médicos, procedimientos e insumos.
  * - Medications
  * - Room charges
  * - Laboratory tests

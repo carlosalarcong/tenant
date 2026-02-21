@@ -6,9 +6,11 @@ use App\Repository\Tenant\MedicalBoxRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * MedicalBox (Box)
- * 
- * Box de atención médica
+ * MedicalBox (Caja Médica)
+ *
+ * Tabla legacy: caja_medica
+ *
+ * Mantenedor de boxes o salas de atención médica disponibles en el establecimiento.
  */
 #[ORM\Entity(repositoryClass: MedicalBoxRepository::class)]
 #[ORM\Table(name: 'maintainer_medical_box')]

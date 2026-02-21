@@ -6,10 +6,11 @@ use App\Repository\Tenant\MedicalServiceBedTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * MedicalServiceBedType - Relation between medical services and bed types
- * Legacy table: rel_accion_clinica_tipo_cama
- * 
- * Links medical services with bed types they require
+ * MedicalServiceBedType (TipoCamaServicioMedico)
+ *
+ * Tabla legacy: tipo_cama_servicio_medico
+ *
+ * Relación entre servicios médicos y los tipos de cama que requieren.
  */
 #[ORM\Entity(repositoryClass: MedicalServiceBedTypeRepository::class)]
 #[ORM\Table(name: 'medical_service_bed_type')]

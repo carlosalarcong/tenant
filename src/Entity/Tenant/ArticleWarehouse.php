@@ -7,8 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * ArticleWarehouse (ArticuloBodega)
- * 
- * Relación entre artículos y bodegas con gestión de stock
+ *
+ * Tabla legacy: articulo_bodega
+ *
+ * Relación entre artículos y bodegas con gestión de stock.
  */
 #[ORM\Entity(repositoryClass: ArticleWarehouseRepository::class)]
 #[ORM\Table(name: 'article_warehouse')]

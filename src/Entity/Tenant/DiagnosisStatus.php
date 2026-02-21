@@ -6,6 +6,13 @@ use App\Repository\Tenant\DiagnosisStatusRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * DiagnosisStatus (EstadoDiagnostico)
+ *
+ * Tabla legacy: estado_diagnostico
+ *
+ * Catálogo de estados posibles de un diagnóstico clínico (activo, resuelto, etc.).
+ */
 #[ORM\Entity(repositoryClass: DiagnosisStatusRepository::class)]
 #[ORM\Table(name: 'diagnosis_status')]
 class DiagnosisStatus

@@ -6,6 +6,13 @@ use App\Repository\Tenant\WorkshopRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Workshop (Taller)
+ *
+ * Tabla legacy: taller
+ *
+ * Catálogo de talleres o unidades de atención grupal disponibles en el establecimiento.
+ */
 #[ORM\Entity(repositoryClass: WorkshopRepository::class)]
 #[ORM\Table(name: 'workshop')]
 class Workshop

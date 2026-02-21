@@ -6,6 +6,13 @@ use App\Repository\Tenant\WoundTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * WoundType (TipoHerida)
+ *
+ * Tabla legacy: tipo_herida
+ *
+ * Catálogo de tipos de herida o lesión utilizados en la clasificación clínica de urgencias y admisiones.
+ */
 #[ORM\Entity(repositoryClass: WoundTypeRepository::class)]
 #[ORM\Table(name: 'wound_type')]
 class WoundType

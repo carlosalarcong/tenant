@@ -6,10 +6,11 @@ use App\Repository\Tenant\BranchPayerRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * BranchPayer - Relation between branches and payers
- * Legacy table: rel_sucursal_prevision
- * 
- * Links branches with payers they accept
+ * BranchPayer (RelSucursalPrevision)
+ *
+ * Tabla legacy: rel_sucursal_prevision
+ *
+ * Relación entre sucursales y financiadores/previsiones que atiende cada sucursal.
  */
 #[ORM\Entity(repositoryClass: BranchPayerRepository::class)]
 #[ORM\Table(name: 'branch_payer')]

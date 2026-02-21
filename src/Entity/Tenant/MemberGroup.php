@@ -8,9 +8,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Grupos de usuarios para asignación de permisos colectivos.
- * 
- * Ejemplos: ADMIN, DOCTOR, ENFERMERA, RECEPCIONISTA, etc.
+ * MemberGroup (GrupoUsuario)
+ *
+ * Tabla legacy: grupo_usuario
+ *
+ * Representa un grupo de usuarios para la asignación colectiva de permisos en el sistema.
  */
 #[ORM\Entity(repositoryClass: MemberGroupRepository::class)]
 #[ORM\Table(name: 'member_group')]
