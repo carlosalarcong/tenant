@@ -8,10 +8,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ServicePackage - Package of medical services
- * Legacy table: paquete_prestacion
- * 
- * Represents a bundle of clinical actions/services offered as a package
+ * ServicePackage (PaqueteServicio)
+ *
+ * Tabla legacy: paquete_servicio
+ *
+ * Representa un paquete o conjunto de servicios médicos ofrecidos de forma agrupada.
  */
 #[ORM\Entity(repositoryClass: ServicePackageRepository::class)]
 #[ORM\Table(name: 'service_package')]

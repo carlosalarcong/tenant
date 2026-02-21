@@ -6,10 +6,11 @@ use App\Repository\Tenant\ExamPackageDetailRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ExamPackageDetail - Details of exams in a package
- * Legacy table: paquete_examen_detalle
- * 
- * Represents individual clinical actions/exams within an exam package
+ * ExamPackageDetail (DetallePaqueteExamen)
+ *
+ * Tabla legacy: detalle_paquete_examen
+ *
+ * Detalle de exámenes individuales que conforman un paquete de exámenes.
  */
 #[ORM\Entity(repositoryClass: ExamPackageDetailRepository::class)]
 #[ORM\Table(name: 'exam_package_detail')]

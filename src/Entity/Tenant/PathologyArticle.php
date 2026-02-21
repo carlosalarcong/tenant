@@ -7,16 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * PathologyArticle
- * 
- * Legacy table: articulo_por_patologia
- * Spanish name: Artículo por Patología
- * 
- * Represents articles/supplies associated with specific pathologies:
- * - Medical supplies required for GES pathologies
- * - Treatment materials per pathology
- * - Medication protocols
- * - Resource allocation per pathology
+ * PathologyArticle (ArticuloPatologia)
+ *
+ * Tabla legacy: articulo_patologia
+ *
+ * Representa un artículo o insumo médico asociado a una patología específica, utilizado en protocolos de tratamiento GES.
  */
 #[ORM\Entity(repositoryClass: PathologyArticleRepository::class)]
 #[ORM\Table(name: 'pathology_article')]

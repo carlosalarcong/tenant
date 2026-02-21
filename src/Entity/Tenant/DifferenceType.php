@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * DifferenceType (TipoDiferencia)
- * 
- * Mantenedor de tipos de diferencia del sistema
+ * DifferenceType (Tipo de Diferencia)
+ *
+ * Tabla legacy: tipo_diferencia
+ *
+ * Mantenedor de tipos de diferencia clasificados por dirección, utilizados en procesos de conciliación.
  */
 #[ORM\Entity(repositoryClass: DifferenceTypeRepository::class)]
 #[ORM\Table(name: 'difference_type')]

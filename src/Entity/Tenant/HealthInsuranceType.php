@@ -7,6 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * HealthInsuranceType (TipoPrevision)
+ *
+ * Tabla legacy: tipo_prevision
+ *
+ * Catálogo de tipos de previsión de salud (ej. FONASA, ISAPRE, Particular).
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: "health_insurance_type")]
 class HealthInsuranceType

@@ -7,6 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Religion (Religion)
+ *
+ * Tabla legacy: religion
+ *
+ * Catálogo de religiones o creencias asignables a personas, con código HL7 para interoperabilidad.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`religion`')]
 class Religion

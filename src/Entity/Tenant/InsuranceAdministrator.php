@@ -6,9 +6,11 @@ use App\Repository\Tenant\InsuranceAdministratorRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * InsuranceAdministrator (Administrador Seguro)
- * 
- * Administradores de seguros de salud
+ * InsuranceAdministrator (AdministradorPrevision)
+ *
+ * Tabla legacy: administrador_prevision
+ *
+ * Catálogo de administradores de previsión y seguros de salud.
  */
 #[ORM\Entity(repositoryClass: InsuranceAdministratorRepository::class)]
 #[ORM\Table(name: 'maintainer_insurance_administrator')]

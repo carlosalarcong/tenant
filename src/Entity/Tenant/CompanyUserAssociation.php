@@ -8,8 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * CompanyUserAssociation (AsociaEmpresaUsuario)
- * 
- * Mantenedor de asociaciones entre empresas y usuarios
+ *
+ * Tabla legacy: (nueva entidad)
+ *
+ * Mantenedor de asociaciones entre empresas y usuarios del sistema.
  */
 #[ORM\Entity(repositoryClass: CompanyUserAssociationRepository::class)]
 #[ORM\Table(name: 'company_user_association')]

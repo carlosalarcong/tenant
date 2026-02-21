@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * DifferenceReason (MotivoDiferencia)
- * 
- * Mantenedor de motivos de diferencia del sistema
+ * DifferenceReason (Motivo de Diferencia)
+ *
+ * Tabla legacy: motivo_diferencia
+ *
+ * Mantenedor de motivos que explican las diferencias detectadas en conciliaciones o ajustes.
  */
 #[ORM\Entity(repositoryClass: DifferenceReasonRepository::class)]
 #[ORM\Table(name: 'difference_reason')]

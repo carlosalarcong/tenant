@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * CreditCardType (TarjetaCreditoTipo)
- * 
- * Mantenedor de tipos de tarjeta de crédito del sistema
+ * CreditCardType (Tipo de Tarjeta de Crédito)
+ *
+ * Tabla legacy: tipo_tarjeta_credito
+ *
+ * Mantenedor de tipos de tarjeta de crédito disponibles en el sistema de pagos.
  */
 #[ORM\Entity(repositoryClass: CreditCardTypeRepository::class)]
 #[ORM\Table(name: 'credit_card_type')]

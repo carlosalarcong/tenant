@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Department (Unidad/Departamento)
- * 
- * Represents a department or unit within a branch
+ * Department (Departamento)
+ *
+ * Tabla legacy: departamento
+ *
+ * Catálogo de departamentos o unidades organizacionales dentro de una sucursal.
  */
 #[ORM\Entity(repositoryClass: DepartmentRepository::class)]
 #[ORM\Table(name: 'department')]

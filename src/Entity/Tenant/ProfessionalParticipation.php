@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * ProfessionalParticipation (ParticipacionProfesional)
- * 
- * Mantenedor de participaciones profesionales en liquidaciones
+ * ProfessionalParticipation (Participación Profesional)
+ *
+ * Tabla legacy: participacion_profesional
+ *
+ * Mantenedor de tipos de participación profesional utilizados en liquidaciones y honorarios médicos.
  */
 #[ORM\Entity(repositoryClass: ProfessionalParticipationRepository::class)]
 #[ORM\Table(name: 'professional_participation')]

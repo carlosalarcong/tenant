@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * PrescriptionRoute
- * 
- * Mantenedor de vías de administración de prescripción
+ * PrescriptionRoute (Vía de Administración de Receta)
+ *
+ * Tabla legacy: via_administracion_receta
+ *
+ * Mantenedor de vías de administración de medicamentos indicadas en las recetas médicas.
  */
 #[ORM\Entity(repositoryClass: PrescriptionRouteRepository::class)]
 #[ORM\Table(name: 'prescription_route')]

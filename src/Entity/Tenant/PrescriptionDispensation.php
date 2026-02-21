@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * PrescriptionDispensation
- * 
- * Mantenedor de dispensación de prescripción
+ * PrescriptionDispensation (Dispensación de Receta)
+ *
+ * Tabla legacy: dispensacion_receta
+ *
+ * Mantenedor de tipos de dispensación de recetas médicas utilizados en el módulo de farmacia.
  */
 #[ORM\Entity(repositoryClass: PrescriptionDispensationRepository::class)]
 #[ORM\Table(name: 'prescription_dispensation')]

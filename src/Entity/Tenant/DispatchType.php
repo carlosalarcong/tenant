@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * DispatchType (TipoDespacho)
- * 
- * Mantenedor de tipos de despacho del sistema logístico
+ * DispatchType (Tipo de Despacho)
+ *
+ * Tabla legacy: tipo_despacho
+ *
+ * Mantenedor de tipos de despacho utilizados en el sistema logístico de farmacia y bodega.
  */
 #[ORM\Entity(repositoryClass: DispatchTypeRepository::class)]
 #[ORM\Table(name: 'dispatch_type')]

@@ -7,11 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * BankAccount (CuentasBancarias)
- * 
- * Mantenedor de cuentas bancarias para liquid
-
-aciones
+ * BankAccount (CuentaBancaria)
+ *
+ * Tabla legacy: cuenta_bancaria
+ *
+ * Mantenedor de cuentas bancarias para liquidaciones del sistema.
  */
 #[ORM\Entity(repositoryClass: BankAccountRepository::class)]
 #[ORM\Table(name: 'bank_account')]

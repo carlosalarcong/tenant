@@ -46,4 +46,34 @@ class PaymentMethodRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Regla legacy (Paso 2 / Resguardo Financiero):
+     * - activo
+     * - visible en caja
+     * - marcado como garantia
+     * - excluir tipo de forma de pago = 3
+     *
+     * @return array<int, array{id:int,name:string,paymentMethodTypeId:?int}>
+     */
+    public function findForAdmissionFinancialSafeguard(): array
+    {
+        /** @var array<int, array{id:int,name:string,paymentMethodTypeId:?int}> $rows */
+        $rows = $this->createQueryBuilder('pm')
+            ->select('pm.id AS id', 'pm.name AS name', 'pmt.id AS paymentMethodTypeId')
+            ->leftJoin('pm.paymentMethodType', 'pmt')
+            ->where('pm.isActive = :active')
+            ->andWhere('pm.visibleInCashRegister = :visibleInCashRegister')
+            ->andWhere('pm.isGuarantee = :isGuarantee')
+            ->andWhere('(pmt.id IS NULL OR pmt.id != :excludedType)')
+            ->setParameter('active', true)
+            ->setParameter('visibleInCashRegister', true)
+            ->setParameter('isGuarantee', true)
+            ->setParameter('excludedType', 3)
+            ->orderBy('pm.id', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return $rows;
+    }
 }

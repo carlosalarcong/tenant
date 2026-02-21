@@ -8,7 +8,6 @@ export default class extends Controller {
 
     connect() {
         this.updateRutUiState();
-        this.validateRutIfNeeded();
     }
 
     onTypeChange() {
@@ -24,13 +23,13 @@ export default class extends Controller {
     }
 
     validateOnSubmit(event) {
-        if (!this.validateRutIfNeeded()) {
+        if (!this.validateRutIfNeeded(true)) {
             event.preventDefault();
             this.queryInputTarget.focus();
         }
     }
 
-    validateRutIfNeeded() {
+    validateRutIfNeeded(force = false) {
         if (!this.hasTypeSelectTarget || !this.hasQueryInputTarget) {
             return true;
         }
@@ -42,6 +41,11 @@ export default class extends Controller {
 
         const rawValue = this.queryInputTarget.value || '';
         const normalizedRut = this.normalizeRut(rawValue);
+
+        if (!force && normalizedRut.length === 0) {
+            this.clearError();
+            return true;
+        }
 
         if (normalizedRut.length < 2) {
             this.setError('Ingresa un RUT válido (ej: 12.345.678-5).');

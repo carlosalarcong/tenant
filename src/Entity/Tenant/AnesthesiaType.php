@@ -6,6 +6,13 @@ use App\Repository\Tenant\AnesthesiaTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * AnesthesiaType (TipoAnestesia)
+ *
+ * Tabla legacy: tipo_anestesia
+ *
+ * Catálogo de tipos de anestesia utilizados en procedimientos quirúrgicos y clínicos.
+ */
 #[ORM\Entity(repositoryClass: AnesthesiaTypeRepository::class)]
 #[ORM\Table(name: 'anesthesia_type')]
 class AnesthesiaType

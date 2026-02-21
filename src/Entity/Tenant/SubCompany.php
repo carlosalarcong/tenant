@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * SubCompany (Sub-Empresa)
- * 
- * Represents a subsidiary or sub-company within the organization
+ * SubCompany (SubEmpresa)
+ *
+ * Tabla legacy: sub_empresa
+ *
+ * Representa una sub-empresa o filial dentro de la organización clínica.
  */
 #[ORM\Entity(repositoryClass: SubCompanyRepository::class)]
 #[ORM\Table(name: 'sub_company')]

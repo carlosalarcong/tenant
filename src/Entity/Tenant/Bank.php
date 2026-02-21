@@ -8,8 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Bank (Banco)
- * 
- * Mantenedor de bancos del sistema
+ *
+ * Tabla legacy: banco
+ *
+ * Mantenedor de bancos del sistema.
  */
 #[ORM\Entity(repositoryClass: BankRepository::class)]
 #[ORM\Table(name: 'bank')]

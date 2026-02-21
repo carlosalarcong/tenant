@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * CurrencyType (TipoMoneda)
- * 
- * Mantenedor de tipos de moneda del sistema
+ * CurrencyType (Tipo de Moneda)
+ *
+ * Tabla legacy: tipo_moneda
+ *
+ * Mantenedor de tipos de moneda utilizados en transacciones financieras del sistema.
  */
 #[ORM\Entity(repositoryClass: CurrencyTypeRepository::class)]
 #[ORM\Table(name: 'currency_type')]

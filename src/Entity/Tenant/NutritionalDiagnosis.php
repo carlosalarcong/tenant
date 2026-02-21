@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * NutritionalDiagnosis (Diagnóstico Nutricional)
- * 
- * Mantenedor de diagnósticos nutricionales
+ * NutritionalDiagnosis (DiagnosticoNutricional)
+ *
+ * Tabla legacy: diagnostico_nutricional
+ *
+ * Representa un diagnóstico nutricional utilizado en evaluaciones y registros clínicos de nutrición.
  */
 #[ORM\Entity(repositoryClass: NutritionalDiagnosisRepository::class)]
 #[ORM\Table(name: 'nutritional_diagnosis')]

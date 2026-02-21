@@ -21,6 +21,10 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
+    _instanceof:
+        App\Service\Revenue\Payment\Handler\PaymentMethodHandlerInterface:
+            tags: ['app.revenue_payment_handler']
+
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -68,6 +72,10 @@ services:
             $menuBuilder: '@App\Service\Menu\MenuBuilder'
         tags: ['twig.extension']
 
+    App\Service\Revenue\Payment\PaymentBatchProcessor:
+        arguments:
+            $handlers: !tagged_iterator app.revenue_payment_handler
+
     # Event Listeners
     App\EventListener\LocaleListener:
         tags:
@@ -96,4 +104,3 @@ services:
             $excludedNamespaces: '%tenant.dynamic_resolution.excluded_namespaces%'
         tags:
             - { name: kernel.event_subscriber }
-

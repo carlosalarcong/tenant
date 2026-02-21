@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * EatingDisorderHistory (Antecedente TCA - Trastorno Conducta Alimentaria)
- * 
- * Mantenedor de antecedentes de trastornos de conducta alimentaria
+ * EatingDisorderHistory (AntecedenteTrastornoAlimentario)
+ *
+ * Tabla legacy: antecedente_trastorno_alimentario
+ *
+ * Catálogo de antecedentes de trastornos de conducta alimentaria del paciente.
  */
 #[ORM\Entity(repositoryClass: EatingDisorderHistoryRepository::class)]
 #[ORM\Table(name: 'eating_disorder_history')]

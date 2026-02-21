@@ -5,24 +5,11 @@ namespace App\Entity\Tenant;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Matriz de permisos para mantenedores basada en roles
- * 
- * Esta entidad almacena qué permisos tiene cada rol sobre los mantenedores.
- * Permite administrar la matriz de permisos dinámicamente sin modificar código.
- * 
- * Ejemplo de registros:
- * | role                    | permission | granted |
- * |-------------------------|------------|---------|
- * | ROLE_ADMIN              | *          | true    |
- * | ROLE_MAINTAINER_MANAGER | CREATE     | true    |
- * | ROLE_MAINTAINER_MANAGER | READ       | true    |
- * | ROLE_MAINTAINER_MANAGER | UPDATE     | true    |
- * | ROLE_MAINTAINER_MANAGER | DELETE     | true    |
- * | ROLE_MAINTAINER_MANAGER | EXPORT     | true    |
- * | ROLE_MAINTAINER_USER    | READ       | true    |
- * 
- * @author Melisa Development Team
- * @since Sprint 1.5 - Database-driven permissions (Feb 2026)
+ * MaintainerRolePermission (PermisoRolMantenedor)
+ *
+ * Tabla legacy: (nueva entidad)
+ *
+ * Matriz de permisos por rol para el control de acceso a los mantenedores del sistema.
  */
 #[ORM\Entity(repositoryClass: 'App\Repository\Tenant\MaintainerRolePermissionRepository')]
 #[ORM\Table(name: 'maintainer_role_permission')]

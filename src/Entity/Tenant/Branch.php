@@ -8,8 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Branch (Sucursal)
- * 
- * Represents a physical branch or location of the organization
+ *
+ * Tabla legacy: sucursal
+ *
+ * Sucursal o sede física de la organización en el sistema.
  */
 #[ORM\Entity(repositoryClass: BranchRepository::class)]
 #[ORM\Table(name: 'branch')]

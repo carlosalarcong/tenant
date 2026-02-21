@@ -7,17 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Professional
- * 
- * Legacy table: profesional
- * Spanish name: Profesional
- * 
- * Represents medical professionals:
- * - Doctors
- * - Nurses
- * - Technicians
- * - Administrative staff
- * - Their specialties and schedules
+ * Professional (Profesional)
+ *
+ * Tabla legacy: profesional
+ *
+ * Representa un profesional de la salud del establecimiento, incluyendo médicos, enfermeras, técnicos y personal administrativo con sus especialidades.
  */
 #[ORM\Entity(repositoryClass: ProfessionalRepository::class)]
 #[ORM\Table(name: 'professional')]

@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * EmergencyConsultationType (TipoConsultaUrgencia)
- * 
- * Mantenedor de tipos de consulta de urgencia del sistema
+ * EmergencyConsultationType (Tipo de Consulta de Urgencia)
+ *
+ * Tabla legacy: tipo_consulta_urgencia
+ *
+ * Mantenedor de tipos de consulta de urgencia utilizados en la clasificación de atenciones de emergencia.
  */
 #[ORM\Entity(repositoryClass: EmergencyConsultationTypeRepository::class)]
 #[ORM\Table(name: 'emergency_consultation_type')]

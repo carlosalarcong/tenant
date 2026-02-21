@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * BillingItem (Item)
- * 
- * Mantenedor de items de facturación del sistema
+ * BillingItem (ItemFacturacion)
+ *
+ * Tabla legacy: item_facturacion
+ *
+ * Mantenedor de ítems de facturación del sistema.
  */
 #[ORM\Entity(repositoryClass: BillingItemRepository::class)]
 #[ORM\Table(name: 'billing_item')]

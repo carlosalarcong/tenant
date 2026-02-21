@@ -5,6 +5,13 @@ namespace App\Entity\Tenant;
 //use App\Repository\HealthInsuranceRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * HealthInsurance (Prevision)
+ *
+ * Tabla legacy: prevision
+ *
+ * Catálogo de previsiones de salud (FONASA, ISAPRE, etc.) con integración HL7 e IMED.
+ */
 #[ORM\Entity()]
 #[ORM\Table(name: '`health_insurance`')]
 class HealthInsurance

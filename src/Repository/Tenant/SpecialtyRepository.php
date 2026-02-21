@@ -46,4 +46,21 @@ class SpecialtyRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    /**
+     * @return array<int, array{id:int,name:string}>
+     */
+    public function findActiveChoices(): array
+    {
+        /** @var array<int, array{id:int,name:string}> $rows */
+        $rows = $this->createQueryBuilder('s')
+            ->select('s.id AS id', 's.name AS name')
+            ->where('s.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('s.name', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return $rows;
+    }
 }

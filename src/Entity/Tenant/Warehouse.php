@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Warehouse - Inventory storage location
- * Legacy table: bodega
+ * Tabla legacy: bodega
  * 
  * Represents warehouse or inventory storage locations
  */
@@ -41,6 +41,11 @@ class Warehouse
 
     #[ORM\Column(type: 'boolean')]
     private ?bool $isAutomaticReception = false;
+
+    /** Legacy: ID_TIPO_BODEGA */
+    #[ORM\ManyToOne(targetEntity: WarehouseType::class)]
+    #[ORM\JoinColumn(name: 'warehouse_type_id', referencedColumnName: 'id', nullable: true)]
+    private ?WarehouseType $warehouseType = null;
 
     #[ORM\ManyToOne(targetEntity: Service::class)]
     #[ORM\JoinColumn(name: 'service_id', referencedColumnName: 'id', nullable: true)]
@@ -149,6 +154,17 @@ class Warehouse
     public function setIsAutomaticReception(bool $isAutomaticReception): static
     {
         $this->isAutomaticReception = $isAutomaticReception;
+        return $this;
+    }
+
+    public function getWarehouseType(): ?WarehouseType
+    {
+        return $this->warehouseType;
+    }
+
+    public function setWarehouseType(?WarehouseType $warehouseType): static
+    {
+        $this->warehouseType = $warehouseType;
         return $this;
     }
 

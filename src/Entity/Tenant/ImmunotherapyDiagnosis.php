@@ -6,6 +6,13 @@ use App\Repository\Tenant\ImmunotherapyDiagnosisRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * ImmunotherapyDiagnosis (DiagnosticoInmunoterapia)
+ *
+ * Tabla legacy: diagnostico_inmunoterapia
+ *
+ * Diagnóstico asociado a tratamientos de inmunoterapia del paciente.
+ */
 #[ORM\Entity(repositoryClass: ImmunotherapyDiagnosisRepository::class)]
 #[ORM\Table(name: 'immunotherapy_diagnosis')]
 class ImmunotherapyDiagnosis

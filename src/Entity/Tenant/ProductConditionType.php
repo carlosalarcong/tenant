@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * ProductConditionType (TipoCondicionProducto)
- * 
- * Mantenedor de tipos de condición de productos del sistema logístico
+ * ProductConditionType (Tipo de Condición de Producto)
+ *
+ * Tabla legacy: tipo_condicion_producto
+ *
+ * Mantenedor de tipos de condición de productos utilizados en el sistema logístico de farmacia y bodega.
  */
 #[ORM\Entity(repositoryClass: ProductConditionTypeRepository::class)]
 #[ORM\Table(name: 'product_condition_type')]

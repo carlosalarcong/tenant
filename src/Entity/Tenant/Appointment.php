@@ -7,16 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Appointment
- * 
- * Legacy table: cita
- * Spanish name: Cita
- * 
- * Represents medical appointments:
- * - Patient appointments with professionals
- * - Scheduled consultations
- * - Status tracking
- * - Cancellation management
+ * Appointment (Cita)
+ *
+ * Tabla legacy: cita
+ *
+ * Representa las citas o agendamientos médicos de pacientes con profesionales de la clínica.
  */
 #[ORM\Entity(repositoryClass: AppointmentRepository::class)]
 #[ORM\Table(name: 'appointment')]

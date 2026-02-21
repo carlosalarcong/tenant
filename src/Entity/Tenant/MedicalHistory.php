@@ -6,6 +6,13 @@ use App\Repository\Tenant\MedicalHistoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * MedicalHistory (AntecedenteMedico)
+ *
+ * Tabla legacy: antecedente_medico
+ *
+ * Antecedente médico registrado en la historia clínica del paciente.
+ */
 #[ORM\Entity(repositoryClass: MedicalHistoryRepository::class)]
 #[ORM\Table(name: 'medical_history')]
 class MedicalHistory

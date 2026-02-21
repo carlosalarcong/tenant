@@ -7,19 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Specialty
- * 
- * Legacy table: especialidad
- * Spanish name: Especialidad
- * 
- * Represents medical specialties:
- * - Cardiology
- * - Pediatrics
- * - Orthopedics
- * - Neurology
- * - General Surgery
- * - Internal Medicine
- * - etc.
+ * Specialty (EspecialidadMedica)
+ *
+ * Tabla legacy: especialidad_medica
+ *
+ * Representa las especialidades médicas disponibles en la clínica.
  */
 #[ORM\Entity(repositoryClass: SpecialtyRepository::class)]
 #[ORM\Table(name: 'specialty')]

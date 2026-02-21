@@ -4,6 +4,13 @@ use App\Repository\Tenant\ExamServiceTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * ExamServiceType (TipoExamenServicio)
+ *
+ * Tabla legacy: tipo_examen_servicio
+ *
+ * Tipo de examen asociado a un servicio clínico del sistema.
+ */
 #[ORM\Entity(repositoryClass: ExamServiceTypeRepository::class)]
 #[ORM\Table(name: 'exam_service_type')]
 class ExamServiceType

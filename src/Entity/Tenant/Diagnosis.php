@@ -6,6 +6,13 @@ use App\Repository\Tenant\DiagnosisRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Diagnosis (Diagnostico)
+ *
+ * Tabla legacy: diagnostico
+ *
+ * Catálogo de diagnósticos clínicos con código CIE y soporte de jerarquía padre-hijo.
+ */
 #[ORM\Entity(repositoryClass: DiagnosisRepository::class)]
 #[ORM\Table(name: 'diagnosis')]
 class Diagnosis
@@ -19,6 +26,15 @@ class Diagnosis
     #[Assert\NotBlank(message: 'El nombre es obligatorio')]
     #[Assert\Length(max: 255, maxMessage: 'El nombre no puede exceder {{ limit }} caracteres')]
     private ?string $name = null;
+
+    /** Legacy: CODIGO_DIAGNOSTICO */
+    #[ORM\Column(length: 6, nullable: true)]
+    private ?string $code = null;
+
+    /** Legacy: ID_PADRE (auto-referencia jerárquica) */
+    #[ORM\ManyToOne(targetEntity: self::class)]
+    #[ORM\JoinColumn(name: 'parent_diagnosis_id', referencedColumnName: 'id', nullable: true)]
+    private ?Diagnosis $parentDiagnosis = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $isActive = true;
@@ -94,6 +110,28 @@ class Diagnosis
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(?string $code): self
+    {
+        $this->code = $code;
+        return $this;
+    }
+
+    public function getParentDiagnosis(): ?Diagnosis
+    {
+        return $this->parentDiagnosis;
+    }
+
+    public function setParentDiagnosis(?Diagnosis $parentDiagnosis): self
+    {
+        $this->parentDiagnosis = $parentDiagnosis;
         return $this;
     }
 }

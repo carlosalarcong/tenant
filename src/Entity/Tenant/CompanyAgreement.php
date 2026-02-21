@@ -8,8 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * CompanyAgreement (ConvenioEmpresa)
- * 
- * Mantenedor de convenios de empresa del sistema
+ *
+ * Tabla legacy: convenio_empresa
+ *
+ * Mantenedor de convenios de empresa del sistema.
  */
 #[ORM\Entity(repositoryClass: CompanyAgreementRepository::class)]
 #[ORM\Table(name: 'company_agreement')]
@@ -19,6 +21,10 @@ class CompanyAgreement
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    /** Legacy: CODIGO */
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $code = null;
 
     #[ORM\Column(type: 'string', length: 100)]
     #[Assert\NotBlank(message: 'Name is required')]
@@ -48,6 +54,17 @@ class CompanyAgreement
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getCode(): ?int
+    {
+        return $this->code;
+    }
+
+    public function setCode(?int $code): self
+    {
+        $this->code = $code;
+        return $this;
     }
 
     public function getName(): string

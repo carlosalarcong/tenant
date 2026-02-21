@@ -19,10 +19,27 @@ class OriginRepository extends ServiceEntityRepository
     public function findAllActive(): array
     {
         return $this->createQueryBuilder('o')
-            ->where('o.active = :active')
+            ->where('o.isActive = :active')
             ->setParameter('active', true)
             ->orderBy('o.name', 'ASC')
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @return array<int, array{id:int,name:string}>
+     */
+    public function findActiveChoices(): array
+    {
+        /** @var array<int, array{id:int,name:string}> $rows */
+        $rows = $this->createQueryBuilder('o')
+            ->select('o.id AS id', 'o.name AS name')
+            ->where('o.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('o.name', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return $rows;
     }
 }

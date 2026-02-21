@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * NutritionistBmiIndex (Índice IMC Nutricionista)
- * 
- * Mantenedor de índices de masa corporal (BMI)
+ * NutritionistBmiIndex (IndiceBMINutricionista)
+ *
+ * Tabla legacy: indice_bmi_nutricionista
+ *
+ * Representa un índice de masa corporal (BMI) utilizado por nutricionistas en la evaluación del estado nutricional.
  */
 #[ORM\Entity(repositoryClass: NutritionistBmiIndexRepository::class)]
 #[ORM\Table(name: 'nutritionist_bmi_index')]

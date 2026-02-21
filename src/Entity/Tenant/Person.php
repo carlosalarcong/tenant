@@ -2,14 +2,22 @@
 
 namespace App\Entity\Tenant;
 
-//use App\Repository\PersonRepository;
+use App\Repository\Tenant\PersonRepository;
 use App\Security\SecuredResourceInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity()]
+/**
+ * Person (Pnatural)
+ *
+ * Tabla legacy: pnatural
+ *
+ * Representa a una persona física con sus datos demográficos, de contacto e identificación.
+ * Equivalente a la tabla pnatural del legacy, con arquitectura normalizada y soporte multi-tenant.
+ */
+#[ORM\Entity(repositoryClass: PersonRepository::class)]
 #[ORM\Table(name: '`person`')]
 class Person implements SecuredResourceInterface
 {

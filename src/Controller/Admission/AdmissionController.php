@@ -43,7 +43,7 @@ class AdmissionController extends AbstractTenantAwareController
     }
 
     #[Route('/{id}/view', name: 'view', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function view(int $id): Response
+    public function view(Request $request, int $id): Response
     {
         /** @var AdmissionRecord|null $record */
         $record = $this->entityManager->find(AdmissionRecord::class, $id);
@@ -52,23 +52,64 @@ class AdmissionController extends AbstractTenantAwareController
         }
 
         $lookups = $this->admissionService->resolveAdmissionLookups($record);
+        $admissionType = (string) $record->getAdmissionType();
+        $finishRoute = match ($admissionType) {
+            'urgencia' => 'app_admission_emergency_index',
+            'pre' => 'app_admission_pre_index',
+            default => 'app_admission_hospitalization_index',
+        };
+        $printRoute = $admissionType === 'urgencia'
+            ? 'app_admission_print_urgency'
+            : 'app_admission_print_admission';
 
         return $this->render('admission/view.html.twig', [
             'admission_id' => $record->getId(),
-            'admission_type' => $record->getAdmissionType(),
+            'admission_type' => $admissionType,
             'admission_record' => $record,
+            'admission_status_label' => $this->admissionService->getEffectiveAdmissionStatusName($record),
             'admission_lookups' => $lookups,
+            'finish_route' => $finishRoute,
+            'print_route' => $printRoute,
+            'back_url' => (string) $request->query->get('back', ''),
         ]);
+    }
+
+    #[Route('/{id}/finalize', name: 'finalize', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function finalize(Request $request, int $id): Response
+    {
+        if (!$this->isCsrfTokenValid(sprintf('admission_finalize_%d', $id), (string) $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF inválido.');
+            return $this->redirectToRoute('app_admission_view', ['id' => $id]);
+        }
+
+        /** @var AdmissionRecord|null $record */
+        $record = $this->entityManager->find(AdmissionRecord::class, $id);
+        if (!$record instanceof AdmissionRecord) {
+            throw $this->createNotFoundException('Admisión no encontrada.');
+        }
+
+        $this->admissionService->finalizeAdmission($record);
+        $admissionType = (string) $record->getAdmissionType();
+
+        $finishRoute = match ($admissionType) {
+            'urgencia' => 'app_admission_emergency_index',
+            'pre' => 'app_admission_pre_index',
+            default => 'app_admission_hospitalization_index',
+        };
+
+        $this->addFlash('admission_finalized_success', 'Ingreso guardado y finalizado exitosamente.');
+
+        return $this->redirectToRoute($finishRoute);
     }
 
     private function buildSearchViewData(Request $request, string $pageTitle, string $searchActionRoute): array
     {
-        $rawType = (string) $request->query->get('identification_type', '');
-        $initialTypeId = ctype_digit($rawType) ? (int) $rawType : 0;
+        $rawType = trim((string) $request->query->get('identification_type', ''));
+        $initialTypeId = ($rawType !== '' && is_numeric($rawType)) ? (int) $rawType : null;
 
         $identificationTypes = $this->patientSearchService->getActiveIdentificationTypes();
 
-        $identificationChoices = ['Todos' => 0];
+        $identificationChoices = [];
         $rutTypeId = 0;
         foreach ($identificationTypes as $type) {
             $identificationChoices[$type->getName()] = $type->getId();
@@ -88,12 +129,31 @@ class AdmissionController extends AbstractTenantAwareController
 
         $formData = $form->getData();
         $searchTerm = trim((string) ($formData['q'] ?? ''));
-        $selectedTypeId = $initialTypeId;
-        if (isset($formData['identification_type']) && ctype_digit((string) $formData['identification_type'])) {
+        $selectedTypeId = $initialTypeId ?? 0;
+        if (isset($formData['identification_type']) && $formData['identification_type'] !== '' && $formData['identification_type'] !== null) {
             $selectedTypeId = (int) $formData['identification_type'];
         }
         $searched = $searchTerm !== '';
         $patients = $this->patientSearchService->searchPatients($searchTerm, $selectedTypeId, 20);
+        $personIds = array_map(static fn($person) => (int) $person->getId(), $patients);
+        $admissionsByPerson = $this->admissionService->getAdmissionsByPersonIds($personIds);
+        $admissionLocksByPerson = [];
+        $admissionsStatusById = [];
+        foreach ($admissionsByPerson as $personId => $admissions) {
+            foreach ($admissions as $admission) {
+                $statusName = $this->admissionService->getEffectiveAdmissionStatusName($admission);
+                $admissionsStatusById[(int) $admission->getId()] = (string) ($statusName ?? '-');
+                if (!$this->admissionService->isBlockingAdmissionStatus($statusName)) {
+                    continue;
+                }
+
+                $admissionLocksByPerson[(int) $personId] = [
+                    'id' => (int) $admission->getId(),
+                    'status' => (string) ($statusName ?? ''),
+                ];
+                break;
+            }
+        }
 
         return [
             'page_title' => $pageTitle,
@@ -101,6 +161,9 @@ class AdmissionController extends AbstractTenantAwareController
             'search_term' => $searchTerm,
             'selected_type_id' => $selectedTypeId,
             'patients' => $patients,
+            'admissions_by_person' => $admissionsByPerson,
+            'admissions_status_by_id' => $admissionsStatusById,
+            'admission_locks_by_person' => $admissionLocksByPerson,
             'searched' => $searched,
             'search_form' => $form->createView(),
             'rut_type_id' => $rutTypeId,

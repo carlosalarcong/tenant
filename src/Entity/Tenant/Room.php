@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Room
  * 
- * Legacy table: sala
+ * Tabla legacy: sala
  * Spanish name: Sala
  * 
  * Represents hospital rooms or wards:

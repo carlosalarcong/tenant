@@ -2,6 +2,7 @@
 
 namespace App\Repository\Tenant;
 
+use App\Entity\Tenant\BranchPayer;
 use App\Entity\Tenant\Payer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -45,5 +46,30 @@ class PayerRepository extends ServiceEntityRepository
             ->setParameter('rut', $rut)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    /**
+     * @return array<int, array{id:int,name:string}>
+     */
+    public function findActiveChoicesByBranch(?int $branchId = null): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('DISTINCT p.id AS id', 'p.name AS name')
+            ->where('p.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('p.name', 'ASC');
+
+        if ($branchId !== null && $branchId > 0) {
+            $qb->join(BranchPayer::class, 'bp', 'WITH', 'bp.payer = p')
+                ->andWhere('IDENTITY(bp.branch) = :branchId')
+                ->andWhere('bp.isActive = :branchPayerActive')
+                ->setParameter('branchId', $branchId)
+                ->setParameter('branchPayerActive', true);
+        }
+
+        /** @var array<int, array{id:int,name:string}> $rows */
+        $rows = $qb->getQuery()->getArrayResult();
+
+        return $rows;
     }
 }

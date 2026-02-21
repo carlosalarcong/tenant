@@ -3,6 +3,23 @@
 {% block title %}{{ page_title }} - Sistema{% endblock %}
 
 {% block content %}
+    {% set admission_success_messages = app.flashes('admission_finalized_success') %}
+    {% if admission_success_messages is not empty %}
+        <script>
+            (() => {
+                if (!window.Swal) {
+                    return;
+                }
+                window.Swal.fire({
+                    icon: 'success',
+                    title: 'Ingreso exitoso',
+                    text: {{ admission_success_messages|last|json_encode|raw }},
+                    confirmButtonText: 'Aceptar'
+                });
+            })();
+        </script>
+    {% endif %}
+
     <div class="container-fluid px-4 py-4">
         <h1>{{ page_title }}</h1>
 
@@ -62,13 +79,16 @@
 
         {% if searched %}
             {% if patients is empty %}
+                {% set selected_type_for_register = search_form.identification_type.vars.value is not same as('') and search_form.identification_type.vars.value is not null
+                    ? search_form.identification_type.vars.value
+                    : selected_type_id %}
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <div class="alert alert-warning mb-3">
                             Paciente no encontrado en la base de datos.
                         </div>
                         <a href="{{ path('app_admission_patient_register', {
-                            identification_type: selected_type_id,
+                            identification_type: selected_type_for_register,
                             identification: search_term,
                             admission_type: page_title == 'Pre-Admisión' ? 'pre' : 'hospitalaria'
                         }) }}"
@@ -104,6 +124,7 @@
                             </thead>
                             <tbody>
                             {% for patient in patients %}
+                                {% set previousAdmissions = admissions_by_person[patient.id]|default([]) %}
                                 <tr>
                                     <td>#{{ patient.id }}</td>
                                     <td>{{ patient.identificationType ? patient.identificationType.name : '-' }}</td>
@@ -112,20 +133,82 @@
                                     <td>{{ patient.mobilePhone }}</td>
                                     <td class="text-end">
                                         {% set admission_type = page_title == 'Pre-Admisión' ? 'pre' : 'hospitalaria' %}
-                                        <a href="{{ path('app_admission_wizard_step1', { patientId: patient.id, type: admission_type }) }}"
-                                           class="btn btn-primary btn-sm"
-                                           data-turbo-frame="admission-wizard-content">
-                                            Admitir
-                                        </a>
+                                        {% set admission_lock = admission_locks_by_person[patient.id]|default(null) %}
+                                        {% if admission_lock %}
+                                            <a href="{{ path('app_admission_view', { id: admission_lock.id, back: app.request.uri }) }}"
+                                               class="btn btn-outline-secondary btn-sm"
+                                               data-turbo-frame="maintainer-content">
+                                                Ya admitido (#{{ admission_lock.id }})
+                                            </a>
+                                        {% else %}
+                                            <a href="{{ path('app_admission_wizard_step1', { patientId: patient.id, type: admission_type }) }}"
+                                               class="btn btn-primary btn-sm"
+                                               data-turbo-frame="admission-wizard-content">
+                                                Admitir
+                                            </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
+                                {% if previousAdmissions is not empty %}
+                                    <tr>
+                                        <td colspan="6" class="bg-light-subtle">
+                                            <div class="fw-semibold mb-2">Ingresos / atenciones registradas</div>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-striped mb-0">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>N°</th>
+                                                        <th>Fecha</th>
+                                                        <th>Ingreso</th>
+                                                        <th>Financiador</th>
+                                                        <th>Estado ingreso</th>
+                                                        <th>Estado cuenta</th>
+                                                        <th class="text-end">Acciones</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% for admission in previousAdmissions %}
+                                                        {% set raw_status = admissions_status_by_id[admission.id]|default('-') %}
+                                                        {% set normalized_status = raw_status|lower|replace({'á':'a','é':'e','í':'i','ó':'o','ú':'u','-':'','_':'',' ':''}) %}
+                                                        {% set status_label = normalized_status == 'completed' ? 'Admitido' : (raw_status != '' ? raw_status : '-') %}
+                                                        <tr>
+                                                            <td>{{ admission.id }}</td>
+                                                            <td>{{ admission.createdAt|date('d-m-Y') }}</td>
+                                                            <td>{{ admission.admissionType|capitalize }}</td>
+                                                            <td>
+                                                                {{ admission.payer ? admission.payer.name : '-' }}
+                                                                {% if admission.agreement %}
+                                                                    ({{ admission.agreement.name }})
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>{{ status_label }}</td>
+                                                            <td>-</td>
+                                                            <td class="text-end">
+                                                                <a href="{{ path('app_admission_view', { id: admission.id, back: app.request.uri }) }}"
+                                                                   class="btn btn-outline-primary btn-sm"
+                                                                   data-turbo-frame="maintainer-content">
+                                                                    Ver
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
                             {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <turbo-frame id="admission-wizard-content" class="d-block mt-4"></turbo-frame>
             {% endif %}
         {% endif %}
+
+        {# Siempre presente para evitar error de Turbo Frame missing en redirects del wizard #}
+        <turbo-frame id="admission-wizard-content" class="d-block mt-4">
+            <div class="text-muted small">Selecciona "Admitir" en un paciente para iniciar el asistente.</div>
+        </turbo-frame>
     </div>
 {% endblock %}

@@ -6,9 +6,11 @@ use App\Repository\Tenant\OriginTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * OriginType (Tipo Origen)
- * 
- * Clasificación de tipos de origen
+ * OriginType (TipoOrigen)
+ *
+ * Tabla legacy: tipo_origen
+ *
+ * Representa un tipo de origen utilizado para clasificar la procedencia de pacientes o solicitudes en el sistema.
  */
 #[ORM\Entity(repositoryClass: OriginTypeRepository::class)]
 #[ORM\Table(name: 'maintainer_origin_type')]

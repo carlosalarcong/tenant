@@ -6,10 +6,11 @@ use App\Repository\Tenant\MedicalServiceServiceRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * MedicalServiceService - Relation between medical services
- * Legacy table: rel_accion_clinica_servicio
- * 
- * Links medical services with other services/departments
+ * MedicalServiceService (ServicioServicioMedico)
+ *
+ * Tabla legacy: servicio_servicio_medico
+ *
+ * Relación entre servicios médicos y los servicios o unidades hospitalarias asociadas.
  */
 #[ORM\Entity(repositoryClass: MedicalServiceServiceRepository::class)]
 #[ORM\Table(name: 'medical_service_service')]

@@ -7,16 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Service
- * 
- * Legacy table: servicio
- * Spanish name: Servicio
- * 
- * Represents medical services offered:
- * - Specific procedures
- * - Treatments
- * - Tests and examinations
- * - With pricing and codes
+ * Service (Servicio)
+ *
+ * Tabla legacy: servicio
+ *
+ * Representa los servicios médicos ofrecidos por la clínica, incluyendo procedimientos, tratamientos y exámenes.
  */
 #[ORM\Entity(repositoryClass: ServiceRepository::class)]
 #[ORM\Table(name: 'service')]

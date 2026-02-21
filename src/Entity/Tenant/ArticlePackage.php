@@ -7,16 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ArticlePackage
- * 
- * Legacy table: paquete_articulo
- * Spanish name: Paquete Artículo
- * 
- * Represents bundles or packages of medical articles:
- * - Surgical kits
- * - Treatment packages
- * - Supply bundles
- * - Pre-configured sets
+ * ArticlePackage (PaqueteArticulo)
+ *
+ * Tabla legacy: paquete_articulo
+ *
+ * Representa los paquetes o kits de artículos médicos agrupados para procedimientos o tratamientos.
  */
 #[ORM\Entity(repositoryClass: ArticlePackageRepository::class)]
 #[ORM\Table(name: 'article_package')]

@@ -7,19 +7,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * BlockingType
- * 
- * Legacy table: tipo_bloqueo
- * Spanish name: Tipo Bloqueo
- * 
- * Represents the types of schedule blocking reasons:
- * - Vacation
- * - Medical leave
- * - Training/Conference
- * - Maintenance
- * - Administrative tasks
- * - Emergency
- * - etc.
+ * BlockingType (TipoBloqueo)
+ *
+ * Tabla legacy: tipo_bloqueo
+ *
+ * Representa los tipos de bloqueo de agenda médica, como vacaciones, licencia o capacitación.
  */
 #[ORM\Entity(repositoryClass: BlockingTypeRepository::class)]
 #[ORM\Table(name: 'blocking_type')]

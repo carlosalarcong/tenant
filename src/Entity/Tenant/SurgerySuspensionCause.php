@@ -6,6 +6,13 @@ use App\Repository\Tenant\SurgerySuspensionCauseRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * SurgerySuspensionCause (CausaSuspensionCirugia)
+ *
+ * Tabla legacy: causa_suspension_cirugia
+ *
+ * Causa por la cual se suspende una cirugía programada.
+ */
 #[ORM\Entity(repositoryClass: SurgerySuspensionCauseRepository::class)]
 #[ORM\Table(name: 'surgery_suspension_cause')]
 class SurgerySuspensionCause

@@ -6,8 +6,11 @@ use App\Repository\Tenant\FigureRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Figure - Billing codes and pricing figures
- * Legacy table: guarismo
+ * Figure (Figura)
+ *
+ * Tabla legacy: figura
+ *
+ * Catálogo de figuras de cobro y códigos de tarificación para servicios médicos.
  */
 #[ORM\Entity(repositoryClass: FigureRepository::class)]
 #[ORM\Table(name: 'figure')]

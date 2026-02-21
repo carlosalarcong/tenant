@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * InventoryAdjustmentReason (MotivoAjusteInventario)
- * 
- * Mantenedor de motivos de ajuste de inventario del sistema logístico
+ * InventoryAdjustmentReason (Motivo de Ajuste de Inventario)
+ *
+ * Tabla legacy: motivo_ajuste_inventario
+ *
+ * Mantenedor de motivos utilizados al realizar ajustes de inventario en el sistema logístico.
  */
 #[ORM\Entity(repositoryClass: InventoryAdjustmentReasonRepository::class)]
 #[ORM\Table(name: 'inventory_adjustment_reason')]

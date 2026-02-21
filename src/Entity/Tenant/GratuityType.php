@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * GratuityType (TipoGratuidad)
- * 
- * Mantenedor de tipos de gratuidad del sistema
+ * GratuityType (Tipo de Gratuidad)
+ *
+ * Tabla legacy: tipo_gratuidad
+ *
+ * Mantenedor de tipos de gratuidad aplicables a la atención de pacientes según su condición.
  */
 #[ORM\Entity(repositoryClass: GratuityTypeRepository::class)]
 #[ORM\Table(name: 'gratuity_type')]

@@ -7,10 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * DifferenceDirection (TipoSentidoDiferencia)
- * 
- * Mantenedor de sentidos de diferencia del sistema
- * Dependencia para DifferenceType y DifferenceReason
+ * DifferenceDirection (Dirección de Diferencia)
+ *
+ * Tabla legacy: direccion_diferencia
+ *
+ * Mantenedor del sentido o dirección de una diferencia (positiva o negativa) en conciliaciones y ajustes.
  */
 #[ORM\Entity(repositoryClass: DifferenceDirectionRepository::class)]
 #[ORM\Table(name: 'difference_direction')]

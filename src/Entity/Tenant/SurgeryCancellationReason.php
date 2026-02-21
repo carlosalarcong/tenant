@@ -6,6 +6,13 @@ use App\Repository\Tenant\SurgeryCancellationReasonRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * SurgeryCancellationReason (MotivoCancelacionCirugia)
+ *
+ * Tabla legacy: motivo_cancelacion_cirugia
+ *
+ * Motivo por el cual se cancela una cirugía programada.
+ */
 #[ORM\Entity(repositoryClass: SurgeryCancellationReasonRepository::class)]
 #[ORM\Table(name: 'surgery_cancellation_reason')]
 class SurgeryCancellationReason
