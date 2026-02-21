@@ -77,6 +77,13 @@
                                            data-turbo-frame="maintainer-content">
                                             Ver paciente
                                         </a>
+                                        <a href="{{ path('app_nursing_print_brazalete', { id: admission.id }) }}"
+                                           class="btn btn-sm btn-outline-info"
+                                           data-turbo="false"
+                                           target="_blank"
+                                           title="Imprimir brazalete">
+                                            <i class="bx bx-purchase-tag"></i> Brazalete
+                                        </a>
                                     {% endif %}
                                 </div>
                             </td>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Brazalete - {{ admission.person ? admission.person.name ~ ' ' ~ admission.person.lastName : 'Paciente' }}</title>
+    <style>
+        /* ── Layout página ── */
+        @page {
+            size: 275mm 25mm landscape;
+            margin: 0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            width: 275mm;
+            height: 25mm;
+            display: flex;
+            align-items: stretch;
+            background: #fff;
+        }
+
+        /* ── Franja de color lateral izquierda ── */
+        .brazalete-stripe {
+            width: 6mm;
+            background: #1d4ed8;
+            flex-shrink: 0;
+        }
+
+        /* ── Contenido ── */
+        .brazalete-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 1.5mm 3mm;
+            border: 1px solid #9ca3af;
+            border-left: none;
+        }
+
+        /* Logo / ícono placeholder */
+        .brazalete-logo {
+            flex-shrink: 0;
+            width: 16mm;
+            height: 16mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid #d1d5db;
+            padding-right: 4px;
+        }
+        .brazalete-logo svg { width: 12mm; height: 12mm; fill: #1d4ed8; }
+
+        /* Datos del paciente */
+        .brazalete-data {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            font-size: 7.5pt;
+            line-height: 1.3;
+            overflow: hidden;
+        }
+        .brazalete-data .nombre {
+            font-size: 8.5pt;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .brazalete-data .row { display: flex; gap: 8px; }
+        .brazalete-data .label { font-weight: bold; }
+
+        /* Columna derecha: admisión + cama */
+        .brazalete-right {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            font-size: 7pt;
+            border-left: 1px solid #d1d5db;
+            padding-left: 4px;
+            min-width: 32mm;
+        }
+        .brazalete-right .adm-number {
+            font-size: 10pt;
+            font-weight: bold;
+            color: #1d4ed8;
+        }
+
+        /* ── Vista previa en pantalla ── */
+        @media screen {
+            html { background: #f3f4f6; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+            body {
+                margin: 20px auto;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+                border-radius: 4px;
+            }
+            .no-print-btn {
+                position: fixed;
+                top: 12px;
+                right: 12px;
+                background: #1d4ed8;
+                color: #fff;
+                border: none;
+                padding: 8px 18px;
+                border-radius: 6px;
+                font-size: 14px;
+                cursor: pointer;
+                font-family: Arial, sans-serif;
+                z-index: 999;
+            }
+        }
+
+        /* ── Impresión: ocultar botón ── */
+        @media print {
+            .no-print-btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+{% set person = admission.person %}
+{% set bed    = admission.bed %}
+{% set service = admission.service %}
+
+<div class="brazalete-stripe"></div>
+
+<div class="brazalete-body">
+    <!-- Ícono hospital -->
+    <div class="brazalete-logo">
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 4L4 20v40h56V20L32 4zm0 6.3L54 22.5V58H10V22.5L32 10.3zM28 28h8v8h8v8h-8v8h-8v-8h-8v-8h8v-8z"/>
+        </svg>
+    </div>
+
+    <!-- Datos paciente -->
+    <div class="brazalete-data">
+        <div class="nombre">
+            {% if person %}
+                {{ person.name }} {{ person.lastName }}{% if person.middleName %} {{ person.middleName }}{% endif %}
+            {% else %}
+                Sin paciente asignado
+            {% endif %}
+        </div>
+
+        {% if person %}
+            <div class="row">
+                <span>
+                    <span class="label">{{ person.identificationType ? person.identificationType.name : 'ID' }}:</span>
+                    {{ person.identification }}
+                </span>
+                <span>
+                    <span class="label">Nac.:</span>
+                    {{ person.birthDateAt ? person.birthDateAt|date('d/m/Y') : '-' }}
+                </span>
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <span>
+                <span class="label">Servicio:</span>
+                {{ service ? service.name : '-' }}
+            </span>
+            <span>
+                <span class="label">Tipo:</span>
+                {{ admission.admissionType|default('-')|upper }}
+            </span>
+        </div>
+
+        <div class="row">
+            <span>
+                <span class="label">Ingreso:</span>
+                {{ admission.createdAt ? admission.createdAt|date('d/m/Y H:i') : '-' }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Número admisión + cama -->
+    <div class="brazalete-right">
+        <span class="adm-number">#{{ admission.id }}</span>
+        <span>
+            <span class="label">Cama:</span>
+            {{ bed ? bed.bedNumber : 'S/A' }}
+        </span>
+        <span>
+            <span class="label">Sala:</span>
+            {{ bed and bed.room ? bed.room.roomNumber : '-' }}
+        </span>
+    </div>
+</div>
+
+<button class="no-print-btn" onclick="window.print()">Imprimir brazalete</button>
+
+<script>
+    // Imprime automáticamente al abrir
+    window.addEventListener('load', function () {
+        window.print();
+    });
+</script>
+</body>
+</html>

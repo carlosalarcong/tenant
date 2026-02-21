@@ -60,12 +60,21 @@
                                             -
                                         {% endif %}
                                     </div>
-                                    <div class="mt-2">
+                                    <div class="mt-2 d-flex flex-wrap gap-1">
                                         <a href="{{ path('app_nursing_bed_status', { id: bed.id, serviceId: service.id }) }}"
                                            class="btn btn-sm btn-outline-secondary"
                                            data-turbo-frame="nursing-board">
                                             Estado
                                         </a>
+                                        {% if bed_status == 'occupied' and admission %}
+                                            <a href="{{ path('app_nursing_print_brazalete', { id: admission.id }) }}"
+                                               class="btn btn-sm btn-outline-info"
+                                               data-turbo="false"
+                                               target="_blank"
+                                               title="Imprimir brazalete">
+                                                <i class="bx bx-purchase-tag"></i>
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 </article>
                             {% endfor %}
