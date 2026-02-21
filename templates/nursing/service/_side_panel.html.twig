@@ -1,0 +1,186 @@
+<aside class="nur-side-panel" data-controller="nursing--service-panel">
+    <section class="nur-side-section">
+        <header class="nur-side-section__header">
+            <h6 class="mb-0">Gestión</h6>
+            <button type="button"
+                    class="btn btn-sm btn-info"
+                    data-panel-key="gestion"
+                    data-action="click->nursing--service-panel#toggle">
+                <i class="bx bx-chevron-up"></i>
+                <span data-role="toggle-label">Ocultar</span>
+            </button>
+        </header>
+
+        <div class="nur-side-section__body" data-panel-key="gestion">
+            <table class="table table-sm table-bordered mb-3">
+                <thead>
+                <tr>
+                    <th colspan="2">Ingresos</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="text-nowrap">{{ management_stats.incoming_admissions|default(0) }}</td>
+                    <td>
+                        <a href="{{ path('app_nursing_request_admissions', { serviceId: service.id }) }}"
+                           data-turbo-frame="maintainer-content">
+                            Solicitudes desde Admisión
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-nowrap">{{ management_stats.incoming_transfers|default(0) }}</td>
+                    <td>
+                        <a href="{{ path('app_nursing_request_transfers', { serviceId: service.id }) }}"
+                           data-turbo-frame="maintainer-content">
+                            Solicitudes desde Otros Servicios
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table class="table table-sm table-bordered mb-0">
+                <thead>
+                <tr>
+                    <th colspan="2">Egresos</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="text-nowrap">{{ management_stats.outgoing_transfers|default(0) }}</td>
+                    <td>
+                        <a href="{{ path('app_nursing_request_transfers', { serviceId: service.id }) }}"
+                           data-turbo-frame="maintainer-content">
+                            Solicitudes de traslado a otro servicio
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-nowrap">{{ management_stats.discharge_requests|default(0) }}</td>
+                    <td>
+                        <a href="{{ path('app_nursing_request_discharges', { serviceId: service.id }) }}"
+                           data-turbo-frame="maintainer-content">
+                            Solicitudes de alta
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="nur-side-section">
+        <header class="nur-side-section__header">
+            <h6 class="mb-0">Camas Virtuales</h6>
+            <button type="button"
+                    class="btn btn-sm btn-info"
+                    data-panel-key="virtual"
+                    data-action="click->nursing--service-panel#toggle">
+                <i class="bx bx-chevron-up"></i>
+                <span data-role="toggle-label">Ocultar</span>
+            </button>
+        </header>
+
+        <div class="nur-side-section__body" data-panel-key="virtual">
+            {% if virtual_bed_patients is empty %}
+                <div class="alert alert-light border mb-0">
+                    <div class="text-danger fw-semibold">Sin pacientes</div>
+                    <small class="text-muted">No existen pacientes en camas virtuales.</small>
+                </div>
+            {% else %}
+                <table class="table table-sm table-bordered table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>Tipo Identificación</th>
+                        <th>Identificación</th>
+                        <th>Nombre</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for transfer in virtual_bed_patients %}
+                        {% set person = transfer.admissionRecord ? transfer.admissionRecord.person : null %}
+                        <tr>
+                            <td>{{ person and person.identificationType ? person.identificationType.name : '-' }}</td>
+                            <td>{{ person and person.identification ? person.identification : '-' }}</td>
+                            <td>
+                                {% if transfer.admissionRecord %}
+                                    <a href="{{ path('app_nursing_patient_show', { id: transfer.admissionRecord.id }) }}"
+                                       data-turbo-frame="maintainer-content">
+                                        {{ person ? person.name ~ ' ' ~ person.lastName : ('Admisión #' ~ transfer.admissionRecord.id) }}
+                                    </a>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="nur-side-section">
+        <header class="nur-side-section__header">
+            <h6 class="mb-0">Leyenda</h6>
+            <button type="button"
+                    class="btn btn-sm btn-info"
+                    data-panel-key="legend"
+                    data-action="click->nursing--service-panel#toggle">
+                <i class="bx bx-chevron-up"></i>
+                <span data-role="toggle-label">Ocultar</span>
+            </button>
+        </header>
+
+        <div class="nur-side-section__body" data-panel-key="legend">
+            <table class="table table-sm table-bordered mb-3">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Descripción</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr><td><i class="bx bx-transfer-alt"></i></td><td>Paciente con traslado a otro servicio</td></tr>
+                <tr><td><i class="bx bx-log-in"></i></td><td>Ingresos del día</td></tr>
+                <tr><td><i class="bx bx-plus-medical"></i></td><td>En Pabellón</td></tr>
+                <tr><td><i class="bx bx-child"></i></td><td>Con Recién Nacido</td></tr>
+                <tr><td><i class="bx bx-purchase-tag"></i></td><td>Imprimir Brazalete</td></tr>
+                </tbody>
+            </table>
+
+            <table class="table table-sm table-bordered mb-0">
+                <thead>
+                <tr>
+                    <th>Color</th>
+                    <th>#</th>
+                    <th>Descripción</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><span class="nur-color-swatch nur-color-swatch--available"></span></td>
+                    <td>{{ legend_counts.available|default(0) }}</td>
+                    <td>Disponibles</td>
+                </tr>
+                <tr>
+                    <td><span class="nur-color-swatch nur-color-swatch--occupied"></span></td>
+                    <td>{{ legend_counts.occupied|default(0) }}</td>
+                    <td>Ocupadas</td>
+                </tr>
+                <tr>
+                    <td><span class="nur-color-swatch nur-color-swatch--blocked"></span></td>
+                    <td>{{ legend_counts.blocked|default(0) }}</td>
+                    <td>Bloqueadas</td>
+                </tr>
+                <tr>
+                    <td><span class="nur-color-swatch nur-color-swatch--reserved"></span></td>
+                    <td>{{ legend_counts.reserved|default(0) }}</td>
+                    <td>Reservadas</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</aside>

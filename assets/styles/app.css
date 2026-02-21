@@ -56,6 +56,52 @@ body {
     padding: 0.85rem;
 }
 
+.nur-side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.nur-side-section {
+    border: 1px solid #d5d9de;
+    background: #fff;
+}
+
+.nur-side-section__header {
+    background: #858585;
+    color: #fff;
+    padding: 0.45rem 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.nur-side-section__body {
+    padding: 0.5rem;
+}
+
+.nur-side-section__body .table {
+    margin-bottom: 0;
+}
+
+.nur-side-section__body .table th,
+.nur-side-section__body .table td {
+    vertical-align: middle;
+}
+
+.nur-color-swatch {
+    display: inline-block;
+    width: 100%;
+    min-width: 72px;
+    height: 16px;
+}
+
+.nur-color-swatch--available { background: #848484; }
+.nur-color-swatch--occupied { background: #5090c1; }
+.nur-color-swatch--blocked { background: #e2755f; }
+.nur-color-swatch--reserved { background: #82af6f; }
+
 .nur-bed-card {
     border-radius: 8px;
     border: 2px solid transparent;

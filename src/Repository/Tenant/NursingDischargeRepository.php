@@ -25,4 +25,21 @@ class NursingDischargeRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function countByServiceAndType(int $serviceId, ?string $dischargeType = null): int
+    {
+        $qb = $this->createQueryBuilder('nd')
+            ->select('COUNT(nd.id)')
+            ->innerJoin('nd.admissionRecord', 'ar')
+            ->andWhere('ar.service = :serviceId')
+            ->setParameter('serviceId', $serviceId);
+
+        if (null !== $dischargeType && '' !== trim($dischargeType)) {
+            $qb
+                ->andWhere('nd.dischargeType = :dischargeType')
+                ->setParameter('dischargeType', $dischargeType);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
 }

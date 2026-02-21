@@ -26,7 +26,10 @@
                         service: selected_service,
                         rooms_with_beds: rooms_with_beds,
                         admissions_by_bed: admissions_by_bed,
-                        pending_requests: pending_requests
+                        pending_requests: pending_requests,
+                        management_stats: management_stats,
+                        legend_counts: legend_counts,
+                        virtual_bed_patients: virtual_bed_patients
                     } %}
                 {% else %}
                     <turbo-frame id="nursing-board" data-nursing--board-target="board">

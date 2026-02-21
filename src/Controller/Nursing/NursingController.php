@@ -7,6 +7,8 @@ use App\Entity\Tenant\Bed;
 use App\Entity\Tenant\Service;
 use App\Repository\Tenant\AdmissionRecordRepository;
 use App\Repository\Tenant\BedRepository;
+use App\Repository\Tenant\NursingDischargeRepository;
+use App\Repository\Tenant\NursingTransferRepository;
 use App\Repository\Tenant\ServiceRepository;
 use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +22,9 @@ class NursingController extends AbstractTenantAwareController
         private TenantEntityManager $entityManager,
         private ServiceRepository $serviceRepository,
         private BedRepository $bedRepository,
-        private AdmissionRecordRepository $admissionRecordRepository
+        private AdmissionRecordRepository $admissionRecordRepository,
+        private NursingTransferRepository $nursingTransferRepository,
+        private NursingDischargeRepository $nursingDischargeRepository
     ) {}
 
     #[Route('', name: 'index', methods: ['GET'])]
@@ -32,6 +36,9 @@ class NursingController extends AbstractTenantAwareController
         $roomsWithBeds = [];
         $admissionsByBed = [];
         $pendingRequests = 0;
+        $managementStats = [];
+        $legendCounts = [];
+        $virtualBedPatients = [];
 
         if (null !== $selectedServiceId) {
             $selectedService = $this->serviceRepository->findOneActiveById($selectedServiceId);
@@ -41,6 +48,9 @@ class NursingController extends AbstractTenantAwareController
                     'rooms_with_beds' => $roomsWithBeds,
                     'admissions_by_bed' => $admissionsByBed,
                     'pending_requests' => $pendingRequests,
+                    'management_stats' => $managementStats,
+                    'legend_counts' => $legendCounts,
+                    'virtual_bed_patients' => $virtualBedPatients,
                 ] = $this->buildBoardData($selectedServiceId);
             }
         }
@@ -53,6 +63,9 @@ class NursingController extends AbstractTenantAwareController
             'rooms_with_beds' => $roomsWithBeds,
             'admissions_by_bed' => $admissionsByBed,
             'pending_requests' => $pendingRequests,
+            'management_stats' => $managementStats,
+            'legend_counts' => $legendCounts,
+            'virtual_bed_patients' => $virtualBedPatients,
         ]);
     }
 
@@ -68,6 +81,9 @@ class NursingController extends AbstractTenantAwareController
             'rooms_with_beds' => $roomsWithBeds,
             'admissions_by_bed' => $admissionsByBed,
             'pending_requests' => $pendingRequests,
+            'management_stats' => $managementStats,
+            'legend_counts' => $legendCounts,
+            'virtual_bed_patients' => $virtualBedPatients,
         ] = $this->buildBoardData($serviceId);
 
         return $this->render('nursing/service/_board.html.twig', [
@@ -75,6 +91,9 @@ class NursingController extends AbstractTenantAwareController
             'rooms_with_beds' => $roomsWithBeds,
             'admissions_by_bed' => $admissionsByBed,
             'pending_requests' => $pendingRequests,
+            'management_stats' => $managementStats,
+            'legend_counts' => $legendCounts,
+            'virtual_bed_patients' => $virtualBedPatients,
         ]);
     }
 
@@ -90,6 +109,9 @@ class NursingController extends AbstractTenantAwareController
             'rooms_with_beds' => $roomsWithBeds,
             'admissions_by_bed' => $admissionsByBed,
             'pending_requests' => $pendingRequests,
+            'management_stats' => $managementStats,
+            'legend_counts' => $legendCounts,
+            'virtual_bed_patients' => $virtualBedPatients,
         ] = $this->buildBoardData($serviceId);
 
         return $this->render('nursing/service/_board_list.html.twig', [
@@ -97,6 +119,9 @@ class NursingController extends AbstractTenantAwareController
             'rooms_with_beds' => $roomsWithBeds,
             'admissions_by_bed' => $admissionsByBed,
             'pending_requests' => $pendingRequests,
+            'management_stats' => $managementStats,
+            'legend_counts' => $legendCounts,
+            'virtual_bed_patients' => $virtualBedPatients,
         ]);
     }
 
@@ -128,6 +153,10 @@ class NursingController extends AbstractTenantAwareController
         $beds = $this->bedRepository->findActiveBedsForService($serviceId);
         $admissions = $this->admissionRecordRepository->findActiveByService($serviceId);
         $pendingRequests = $this->admissionRecordRepository->countPendingRequestsByService($serviceId);
+        $pendingIncomingTransfers = $this->nursingTransferRepository->countPendingByDestinationService($serviceId);
+        $pendingOutgoingTransfers = $this->nursingTransferRepository->countPendingByOriginService($serviceId);
+        $dischargeRequests = $this->nursingDischargeRepository->countByServiceAndType($serviceId, 'alta');
+        $virtualBedPatients = $this->nursingTransferRepository->findPendingByDestinationService($serviceId);
 
         $admissionsByBed = [];
         foreach ($admissions as $admission) {
@@ -137,10 +166,30 @@ class NursingController extends AbstractTenantAwareController
             }
         }
 
+        $legendCounts = [
+            'available' => 0,
+            'occupied' => 0,
+            'blocked' => 0,
+            'reserved' => 0,
+        ];
+
         $roomsWithBeds = [];
         foreach ($beds as $bed) {
             if (!$bed instanceof Bed || null === $bed->getId()) {
                 continue;
+            }
+
+            $status = strtolower((string) ($bed->getStatus() ?? 'reserved'));
+            if ('occupied' === $status) {
+                $legendCounts['occupied']++;
+            } elseif ('available' === $status) {
+                $legendCounts['available']++;
+            } elseif ('maintenance' === $status) {
+                $legendCounts['blocked']++;
+            } elseif (in_array($status, ['reserved', 'cleaning'], true)) {
+                $legendCounts['reserved']++;
+            } else {
+                $legendCounts['blocked']++;
             }
 
             $room = $bed->getRoom();
@@ -160,6 +209,14 @@ class NursingController extends AbstractTenantAwareController
             'rooms_with_beds' => array_values($roomsWithBeds),
             'admissions_by_bed' => $admissionsByBed,
             'pending_requests' => $pendingRequests,
+            'management_stats' => [
+                'incoming_admissions' => $pendingRequests,
+                'incoming_transfers' => $pendingIncomingTransfers,
+                'outgoing_transfers' => $pendingOutgoingTransfers,
+                'discharge_requests' => $dischargeRequests,
+            ],
+            'legend_counts' => $legendCounts,
+            'virtual_bed_patients' => $virtualBedPatients,
         ];
     }
 }

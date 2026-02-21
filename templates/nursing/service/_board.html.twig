@@ -1,99 +1,111 @@
 <turbo-frame id="nursing-board" data-nursing--board-target="board">
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div>
-                <h5 class="mb-0">{{ service.name }}</h5>
-                <small class="text-muted">Solicitudes pendientes: {{ pending_requests }}</small>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="{{ path('app_nursing_request_admissions', { serviceId: service.id }) }}"
-                   class="btn btn-outline-secondary btn-sm"
-                   data-turbo-frame="maintainer-content">
-                    Solicitudes
-                </a>
-                <a href="{{ path('app_nursing_service_board_list', { serviceId: service.id }) }}"
-                   class="btn btn-outline-primary btn-sm"
-                   data-turbo-frame="nursing-board">
-                    Vista Lista
-                </a>
+    <div class="row g-4 align-items-start">
+        <div class="col-12 col-xxl-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h5 class="mb-0">{{ service.name }}</h5>
+                        <small class="text-muted">Solicitudes pendientes: {{ pending_requests }}</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('app_nursing_request_admissions', { serviceId: service.id }) }}"
+                           class="btn btn-outline-secondary btn-sm"
+                           data-turbo-frame="maintainer-content">
+                            Solicitudes
+                        </a>
+                        <a href="{{ path('app_nursing_service_board_list', { serviceId: service.id }) }}"
+                           class="btn btn-outline-primary btn-sm"
+                           data-turbo-frame="nursing-board">
+                            Vista Lista
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if rooms_with_beds is empty %}
+                        <p class="text-muted mb-0">No hay camas configuradas para este servicio.</p>
+                    {% else %}
+                        {% for room_group in rooms_with_beds %}
+                            {% set room = room_group.room %}
+                            <section class="nur-room-panel mb-4">
+                                <header class="nur-room-panel__header">
+                                    <h6 class="fw-semibold mb-0">
+                                        {% if room %}
+                                            Sala {{ room.roomNumber }} - {{ room.name }}
+                                        {% else %}
+                                            Sala sin asignar
+                                        {% endif %}
+                                    </h6>
+                                    <span class="badge text-bg-light">{{ room_group.beds|length }} camas</span>
+                                </header>
+                                <div class="nur-room-panel__body">
+                                    <div class="nur-board-grid">
+                                    {% for bed in room_group.beds %}
+                                        {% set admission = admissions_by_bed[bed.id]|default(null) %}
+                                        {% set bed_status = bed.status|default('reserved')|lower %}
+                                        {% set status_label = {
+                                            'available': 'Disponible',
+                                            'occupied': 'Ocupada',
+                                            'maintenance': 'Mantenimiento',
+                                            'reserved': 'Reservada',
+                                            'cleaning': 'Limpieza'
+                                        }[bed_status]|default('Reservada') %}
+                                        <article class="nur-bed-card nur-bed-card--{{ bed_status }}">
+                                            <div class="fw-semibold mb-1">Cama {{ bed.bedNumber }}</div>
+                                            <div class="small mb-1">
+                                                <span class="nur-bed-status-dot nur-bed-status-dot--{{ bed_status }}"></span>{{ status_label }}
+                                            </div>
+                                            <div class="small text-muted">
+                                                {% if bed_status == 'occupied' and admission and admission.person %}
+                                                    <a href="{{ path('app_nursing_patient_show', { id: admission.id }) }}" data-turbo-frame="maintainer-content">
+                                                        {{ admission.person.name }} {{ admission.person.lastName|slice(0, 1) }}.
+                                                    </a>
+                                                {% elseif bed_status == 'available' %}
+                                                    Libre
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </div>
+                                            <div class="mt-2 d-flex flex-wrap gap-1">
+                                                <a href="{{ path('app_nursing_bed_status', { id: bed.id, serviceId: service.id }) }}"
+                                                   class="btn btn-sm btn-outline-secondary"
+                                                   data-turbo-frame="nursing-board">
+                                                    Estado
+                                                </a>
+                                                {% if bed_status == 'occupied' and admission %}
+                                                    <a href="{{ path('app_nursing_print_brazalete', { id: admission.id }) }}"
+                                                       class="btn btn-sm btn-outline-info"
+                                                       data-turbo="false"
+                                                       target="_blank"
+                                                       title="Imprimir brazalete">
+                                                        <i class="bx bx-purchase-tag"></i>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </article>
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                            </section>
+                        {% endfor %}
+
+                        <div class="d-flex flex-wrap gap-3 mt-2">
+                            <span><span class="nur-bed-status-dot nur-bed-status-dot--available"></span>Disponible</span>
+                            <span><span class="nur-bed-status-dot nur-bed-status-dot--occupied"></span>Ocupada</span>
+                            <span><span class="nur-bed-status-dot nur-bed-status-dot--maintenance"></span>Mantenimiento</span>
+                            <span><span class="nur-bed-status-dot nur-bed-status-dot--reserved"></span>Reservada</span>
+                            <span><span class="nur-bed-status-dot nur-bed-status-dot--cleaning"></span>Limpieza</span>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="card-body">
-            {% if rooms_with_beds is empty %}
-                <p class="text-muted mb-0">No hay camas configuradas para este servicio.</p>
-            {% else %}
-                {% for room_group in rooms_with_beds %}
-                    {% set room = room_group.room %}
-                    <section class="nur-room-panel mb-4">
-                        <header class="nur-room-panel__header">
-                            <h6 class="fw-semibold mb-0">
-                                {% if room %}
-                                    Sala {{ room.roomNumber }} - {{ room.name }}
-                                {% else %}
-                                    Sala sin asignar
-                                {% endif %}
-                            </h6>
-                            <span class="badge text-bg-light">{{ room_group.beds|length }} camas</span>
-                        </header>
-                        <div class="nur-room-panel__body">
-                            <div class="nur-board-grid">
-                            {% for bed in room_group.beds %}
-                                {% set admission = admissions_by_bed[bed.id]|default(null) %}
-                                {% set bed_status = bed.status|default('reserved')|lower %}
-                                {% set status_label = {
-                                    'available': 'Disponible',
-                                    'occupied': 'Ocupada',
-                                    'maintenance': 'Mantenimiento',
-                                    'reserved': 'Reservada',
-                                    'cleaning': 'Limpieza'
-                                }[bed_status]|default('Reservada') %}
-                                <article class="nur-bed-card nur-bed-card--{{ bed_status }}">
-                                    <div class="fw-semibold mb-1">Cama {{ bed.bedNumber }}</div>
-                                    <div class="small mb-1">
-                                        <span class="nur-bed-status-dot nur-bed-status-dot--{{ bed_status }}"></span>{{ status_label }}
-                                    </div>
-                                    <div class="small text-muted">
-                                        {% if bed_status == 'occupied' and admission and admission.person %}
-                                            <a href="{{ path('app_nursing_patient_show', { id: admission.id }) }}" data-turbo-frame="maintainer-content">
-                                                {{ admission.person.name }} {{ admission.person.lastName|slice(0, 1) }}.
-                                            </a>
-                                        {% elseif bed_status == 'available' %}
-                                            Libre
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </div>
-                                    <div class="mt-2 d-flex flex-wrap gap-1">
-                                        <a href="{{ path('app_nursing_bed_status', { id: bed.id, serviceId: service.id }) }}"
-                                           class="btn btn-sm btn-outline-secondary"
-                                           data-turbo-frame="nursing-board">
-                                            Estado
-                                        </a>
-                                        {% if bed_status == 'occupied' and admission %}
-                                            <a href="{{ path('app_nursing_print_brazalete', { id: admission.id }) }}"
-                                               class="btn btn-sm btn-outline-info"
-                                               data-turbo="false"
-                                               target="_blank"
-                                               title="Imprimir brazalete">
-                                                <i class="bx bx-purchase-tag"></i>
-                                            </a>
-                                        {% endif %}
-                                    </div>
-                                </article>
-                            {% endfor %}
-                            </div>
-                        </div>
-                    </section>
-                {% endfor %}
-
-                <div class="d-flex flex-wrap gap-3 mt-2">
-                    <span><span class="nur-bed-status-dot nur-bed-status-dot--available"></span>Disponible</span>
-                    <span><span class="nur-bed-status-dot nur-bed-status-dot--occupied"></span>Ocupada</span>
-                    <span><span class="nur-bed-status-dot nur-bed-status-dot--maintenance"></span>Mantenimiento</span>
-                    <span><span class="nur-bed-status-dot nur-bed-status-dot--reserved"></span>Reservada</span>
-                    <span><span class="nur-bed-status-dot nur-bed-status-dot--cleaning"></span>Limpieza</span>
-                </div>
-            {% endif %}
+        <div class="col-12 col-xxl-4">
+            {% include 'nursing/service/_side_panel.html.twig' with {
+                service: service,
+                management_stats: management_stats|default({}),
+                virtual_bed_patients: virtual_bed_patients|default([]),
+                legend_counts: legend_counts|default({})
+            } %}
         </div>
     </div>
 </turbo-frame>
