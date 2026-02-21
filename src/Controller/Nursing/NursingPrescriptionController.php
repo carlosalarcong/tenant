@@ -33,7 +33,10 @@ class NursingPrescriptionController extends AbstractTenantAwareController
             $prescribedById = (int) $request->request->get('prescribedById', 0);
             $prescribedBy = $this->entityManager->find(Person::class, $prescribedById);
             if (!$prescribedBy instanceof Person) {
-                $prescribedBy = $record->getPerson();
+                $prescribedBy = $record->getPatient()?->getPerson();
+            }
+            if (!$prescribedBy instanceof Person) {
+                throw $this->createNotFoundException('No se encontró persona para registrar la receta.');
             }
 
             $prescription = (new NursingPrescription())

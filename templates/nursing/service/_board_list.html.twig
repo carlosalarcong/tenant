@@ -42,8 +42,9 @@
                                     <td>{{ bed.bedType ? bed.bedType.name : '-' }}</td>
                                     <td>{{ bed.status|default('-')|title }}</td>
                                     <td>
-                                        {% if admission and admission.person %}
-                                            {{ admission.person.name }} {{ admission.person.lastName }} {{ admission.person.middleName|default('') }}
+                                        {% set admission_person = admission and admission.patient ? admission.patient.person : null %}
+                                        {% if admission_person %}
+                                            {{ admission_person.name }} {{ admission_person.lastName }} {{ admission_person.middleName|default('') }}
                                         {% else %}
                                             -
                                         {% endif %}

@@ -19,6 +19,7 @@ use App\Entity\Tenant\Specialty;
 use App\Repository\Tenant\AdmissionRecordRepository;
 use App\Repository\Tenant\AdmissionStatusRepository;
 use App\Repository\Tenant\AgreementRepository;
+use App\Repository\Tenant\BedRepository;
 use App\Repository\Tenant\CareTypeRepository;
 use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 
@@ -35,6 +36,7 @@ class AdmissionService
     public function __construct(
         private TenantEntityManager $entityManager,
         private AgreementRepository $agreementRepository,
+        private BedRepository $bedRepository,
         private CareTypeRepository $careTypeRepository,
         private AdmissionRecordRepository $admissionRecordRepository,
         private AdmissionStatusRepository $admissionStatusRepository
@@ -74,9 +76,7 @@ class AdmissionService
             return false;
         }
 
-        $bed = $this->entityManager->find(Bed::class, $bedId);
-
-        return $bed instanceof Bed && $bed->isActive();
+        return $this->bedRepository->existsActiveByIdAndService($bedId, $serviceId);
     }
 
     public function assignFinancialData(AdmissionRecord $record, int $payerId, int $agreementId): bool

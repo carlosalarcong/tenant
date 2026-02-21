@@ -107,8 +107,11 @@ class AdmissionApiController extends AbstractTenantAwareController
     {
         try {
             $serviceId = $request->query->getInt('service', 0);
+            if ($serviceId <= 0) {
+                return $this->json([]);
+            }
 
-            return $this->json($this->bedRepository->findActiveChoicesByService($serviceId > 0 ? $serviceId : null));
+            return $this->json($this->bedRepository->findActiveChoicesByService($serviceId));
         } catch (\Throwable) {
             return $this->json(
                 ['error' => 'Error al cargar camas'],

@@ -29,11 +29,14 @@ class NursingOrderController extends AbstractTenantAwareController
             if (!$this->isCsrfTokenValid('nursing_order_create', $request->request->get('_token'))) {
                 throw $this->createAccessDeniedException('Invalid CSRF token.');
             }
-            $orderedBy = $record->getPerson();
+            $orderedBy = $record->getPatient()?->getPerson();
             $orderedById = (int) $request->request->get('orderedById', 0);
             $candidate = $this->entityManager->find(Person::class, $orderedById);
             if ($candidate instanceof Person) {
                 $orderedBy = $candidate;
+            }
+            if (!$orderedBy instanceof Person) {
+                throw $this->createNotFoundException('No se encontró persona para registrar la indicación.');
             }
 
             $order = (new NursingOrder())

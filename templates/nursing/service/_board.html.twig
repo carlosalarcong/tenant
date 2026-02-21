@@ -55,9 +55,10 @@
                                                 <span class="nur-bed-status-dot nur-bed-status-dot--{{ bed_status }}"></span>{{ status_label }}
                                             </div>
                                             <div class="small text-muted">
-                                                {% if bed_status == 'occupied' and admission and admission.person %}
+                                                {% set admission_person = admission and admission.patient ? admission.patient.person : null %}
+                                                {% if bed_status == 'occupied' and admission_person %}
                                                     <a href="{{ path('app_nursing_patient_show', { id: admission.id }) }}" data-turbo-frame="maintainer-content">
-                                                        {{ admission.person.name }} {{ admission.person.lastName|slice(0, 1) }}.
+                                                        {{ admission_person.name }} {{ admission_person.lastName|slice(0, 1) }}.
                                                     </a>
                                                 {% elseif bed_status == 'available' %}
                                                     Libre

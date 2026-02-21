@@ -3,6 +3,7 @@
 namespace App\Repository\Tenant;
 
 use App\Entity\Tenant\Bed;
+use App\Entity\Tenant\MedicalServiceBedType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -95,13 +96,48 @@ class BedRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findActiveBedsForService(int $serviceId): array
+    /**
+     * @return array<int, array{id:int,name:string,bedTypeName:string|null,roomName:string|null}>
+     */
+    public function findActiveChoicesByService(?int $serviceId = null): array
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->select(
+                'b.id AS id',
+                "CONCAT('Cama ', b.bedNumber) AS name",
+                'bt.name AS bedTypeName',
+                'r.name AS roomName'
+            )
+            ->leftJoin('b.bedType', 'bt')
+            ->leftJoin('b.room', 'r')
+            ->where('b.isActive = :active')
+            ->setParameter('active', true)
+            ->addOrderBy('r.roomNumber', 'ASC')
+            ->addOrderBy('b.bedNumber', 'ASC');
+
+        if ($serviceId !== null && $serviceId > 0) {
+            $qb->andWhere('r.service = :serviceId')
+                ->setParameter('serviceId', $serviceId);
+        }
+
+        /** @var array<int, array{id:int,name:string,bedTypeName:string|null,roomName:string|null}> $rows */
+        $rows = $qb->getQuery()->getArrayResult();
+
+        return $rows;
+    }
+
+    public function findActiveBedsForMedicalService(int $medicalServiceId): array
     {
         return $this->createQueryBuilder('b')
-            ->innerJoin('b.room', 'r')
+            ->leftJoin('b.room', 'r')
+            ->innerJoin(
+                MedicalServiceBedType::class,
+                'msbt',
+                'WITH',
+                'msbt.bedType = b.bedType AND msbt.medicalService = :medicalServiceId AND msbt.isActive = :active'
+            )
             ->where('b.isActive = :active')
-            ->andWhere('r.service = :serviceId')
-            ->setParameter('serviceId', $serviceId)
+            ->setParameter('medicalServiceId', $medicalServiceId)
             ->setParameter('active', true)
             ->addOrderBy('r.roomNumber', 'ASC')
             ->addOrderBy('b.bedNumber', 'ASC')
@@ -109,15 +145,19 @@ class BedRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function countAvailableBedsForService(int $serviceId): int
+    public function countAvailableBedsForMedicalService(int $medicalServiceId): int
     {
         return (int) $this->createQueryBuilder('b')
             ->select('COUNT(b.id)')
-            ->innerJoin('b.room', 'r')
+            ->innerJoin(
+                MedicalServiceBedType::class,
+                'msbt',
+                'WITH',
+                'msbt.bedType = b.bedType AND msbt.medicalService = :medicalServiceId AND msbt.isActive = :active'
+            )
             ->where('b.isActive = :active')
             ->andWhere('b.status = :status')
-            ->andWhere('r.service = :serviceId')
-            ->setParameter('serviceId', $serviceId)
+            ->setParameter('medicalServiceId', $medicalServiceId)
             ->setParameter('active', true)
             ->setParameter('status', 'available')
             ->getQuery()
@@ -164,27 +204,18 @@ class BedRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    /**
-     * @return array<int, array{id:int,name:string,bedTypeName:string|null}>
-     */
-    public function findActiveChoicesByService(?int $serviceId = null): array
+    public function existsActiveByIdAndService(int $bedId, int $serviceId): bool
     {
-        $qb = $this->createQueryBuilder('b')
-            ->select('b.id AS id', "CONCAT('Cama ', b.bedNumber) AS name", 'bt.name AS bedTypeName')
-            ->leftJoin('b.bedType', 'bt')
-            ->where('b.isActive = :active')
+        return (int) $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->innerJoin('b.room', 'r')
+            ->where('b.id = :bedId')
+            ->andWhere('b.isActive = :active')
+            ->andWhere('r.service = :serviceId')
+            ->setParameter('bedId', $bedId)
             ->setParameter('active', true)
-            ->orderBy('b.bedNumber', 'ASC');
-
-        if ($serviceId !== null && $serviceId > 0) {
-            $qb->innerJoin('b.room', 'r')
-                ->andWhere('r.service = :serviceId')
-                ->setParameter('serviceId', $serviceId);
-        }
-
-        /** @var array<int, array{id:int,name:string,bedTypeName:string|null}> $rows */
-        $rows = $qb->getQuery()->getArrayResult();
-
-        return $rows;
+            ->setParameter('serviceId', $serviceId)
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
     }
 }

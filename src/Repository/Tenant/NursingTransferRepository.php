@@ -18,9 +18,10 @@ class NursingTransferRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('nt')
             ->innerJoin('nt.admissionRecord', 'ar')
-            ->leftJoin('ar.person', 'person')
+            ->leftJoin('ar.patient', 'patient')
+            ->leftJoin('patient.person', 'person')
             ->leftJoin('person.identificationType', 'identificationType')
-            ->addSelect('ar', 'person', 'identificationType')
+            ->addSelect('ar', 'patient', 'person', 'identificationType')
             ->andWhere('nt.destinationService = :serviceId')
             ->andWhere('nt.status = :status')
             ->setParameter('serviceId', $serviceId)

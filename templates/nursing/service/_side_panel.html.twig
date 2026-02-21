@@ -99,7 +99,7 @@
                     </thead>
                     <tbody>
                     {% for transfer in virtual_bed_patients %}
-                        {% set person = transfer.admissionRecord ? transfer.admissionRecord.person : null %}
+                        {% set person = transfer.admissionRecord and transfer.admissionRecord.patient ? transfer.admissionRecord.patient.person : null %}
                         <tr>
                             <td>{{ person and person.identificationType ? person.identificationType.name : '-' }}</td>
                             <td>{{ person and person.identification ? person.identification : '-' }}</td>

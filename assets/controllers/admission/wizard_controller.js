@@ -389,6 +389,59 @@ export default class extends Controller {
         const currentValue = selectElement.value;
         selectElement.innerHTML = '<option value="">-- Seleccionar --</option>';
 
+        if (this.hasBedSelectTarget && selectElement === this.bedSelectTarget) {
+            const groups = new Map();
+            const ungrouped = [];
+
+            items.forEach((item) => {
+                const roomName = (item.roomName || '').trim();
+                if (roomName !== '') {
+                    if (!groups.has(roomName)) {
+                        groups.set(roomName, []);
+                    }
+                    groups.get(roomName).push(item);
+                } else {
+                    ungrouped.push(item);
+                }
+            });
+
+            groups.forEach((groupItems, roomName) => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = roomName;
+
+                groupItems.forEach((item) => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.text = item.name;
+                    if (item.bedTypeName) {
+                        option.dataset.bedTypeName = item.bedTypeName;
+                    }
+                    if (String(item.id) === String(currentValue)) {
+                        option.selected = true;
+                    }
+                    optgroup.appendChild(option);
+                });
+
+                selectElement.appendChild(optgroup);
+            });
+
+            ungrouped.forEach((item) => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.text = item.name;
+                if (item.bedTypeName) {
+                    option.dataset.bedTypeName = item.bedTypeName;
+                }
+                if (String(item.id) === String(currentValue)) {
+                    option.selected = true;
+                }
+                selectElement.add(option);
+            });
+
+            this.syncBedType();
+            return;
+        }
+
         items.forEach((item) => {
             const option = document.createElement('option');
             option.value = item.id;

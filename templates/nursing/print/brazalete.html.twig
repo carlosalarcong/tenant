@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Brazalete - {{ admission.person ? admission.person.name ~ ' ' ~ admission.person.lastName : 'Paciente' }}</title>
+    {% set person = admission.patient ? admission.patient.person : null %}
+    <title>Brazalete - {{ person ? person.name ~ ' ' ~ person.lastName : 'Paciente' }}</title>
     <style>
         /* ── Layout página ── */
         @page {
@@ -122,7 +123,7 @@
 </head>
 <body>
 
-{% set person = admission.person %}
+{% set person = admission.patient ? admission.patient.person : null %}
 {% set bed    = admission.bed %}
 {% set service = admission.service %}
 
