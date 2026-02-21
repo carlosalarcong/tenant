@@ -12,6 +12,12 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class AdmissionRecordRepository extends ServiceEntityRepository
 {
+    private const ACTIVE_STATUS_CANDIDATES = [
+        'admitido',
+        'admitted',
+        'hospitalizado',
+    ];
+
     private const PENDING_STATUS_CANDIDATES = [
         'draft',
         'pending',
@@ -40,11 +46,12 @@ class AdmissionRecordRepository extends ServiceEntityRepository
             ->leftJoin('ar.bed', 'bed')
             ->leftJoin('ar.patient', 'patient')
             ->leftJoin('patient.person', 'person')
-            ->addSelect('bed', 'patient', 'person')
-            ->where('LOWER(ar.status) = :status')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
+            ->addSelect('bed', 'patient', 'person', 'admissionStatus')
+            ->where('LOWER(admissionStatus.name) IN (:activeStatuses)')
             ->setParameter('medicalServiceId', $medicalServiceId)
             ->setParameter('active', true)
-            ->setParameter('status', 'admitted')
+            ->setParameter('activeStatuses', self::ACTIVE_STATUS_CANDIDATES)
             ->getQuery()
             ->getResult();
     }
@@ -60,7 +67,8 @@ class AdmissionRecordRepository extends ServiceEntityRepository
                 'mss.service = ar.service AND mss.medicalService = :medicalServiceId AND mss.isActive = :active'
             )
             ->andWhere('ar.bed IS NULL')
-            ->andWhere('LOWER(ar.status) IN (:statuses)')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
+            ->andWhere('(admissionStatus.id IS NULL OR LOWER(admissionStatus.name) IN (:statuses))')
             ->setParameter('medicalServiceId', $medicalServiceId)
             ->setParameter('active', true)
             ->setParameter('statuses', self::PENDING_STATUS_CANDIDATES)
@@ -79,7 +87,8 @@ class AdmissionRecordRepository extends ServiceEntityRepository
             )
             ->andWhere('ar.id = :admissionRecordId')
             ->andWhere('ar.bed IS NULL')
-            ->andWhere('LOWER(ar.status) IN (:statuses)')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
+            ->andWhere('(admissionStatus.id IS NULL OR LOWER(admissionStatus.name) IN (:statuses))')
             ->setParameter('medicalServiceId', $medicalServiceId)
             ->setParameter('admissionRecordId', $admissionRecordId)
             ->setParameter('active', true)
@@ -99,9 +108,10 @@ class AdmissionRecordRepository extends ServiceEntityRepository
             )
             ->leftJoin('ar.patient', 'patient')
             ->leftJoin('patient.person', 'person')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
             ->addSelect('patient', 'person')
             ->andWhere('ar.bed IS NULL')
-            ->andWhere('LOWER(ar.status) IN (:statuses)')
+            ->andWhere('(admissionStatus.id IS NULL OR LOWER(admissionStatus.name) IN (:statuses))')
             ->setParameter('medicalServiceId', $medicalServiceId)
             ->setParameter('active', true)
             ->setParameter('statuses', self::PENDING_STATUS_CANDIDATES)
@@ -116,11 +126,12 @@ class AdmissionRecordRepository extends ServiceEntityRepository
             ->leftJoin('ar.bed', 'bed')
             ->leftJoin('ar.patient', 'patient')
             ->leftJoin('patient.person', 'person')
-            ->addSelect('bed', 'patient', 'person')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
+            ->addSelect('bed', 'patient', 'person', 'admissionStatus')
             ->where('ar.service = :serviceId')
-            ->andWhere('LOWER(ar.status) = :status')
+            ->andWhere('LOWER(admissionStatus.name) IN (:activeStatuses)')
             ->setParameter('serviceId', $serviceId)
-            ->setParameter('status', 'admitted')
+            ->setParameter('activeStatuses', self::ACTIVE_STATUS_CANDIDATES)
             ->getQuery()
             ->getResult();
     }
@@ -131,7 +142,8 @@ class AdmissionRecordRepository extends ServiceEntityRepository
             ->select('COUNT(ar.id)')
             ->where('ar.service = :serviceId')
             ->andWhere('ar.bed IS NULL')
-            ->andWhere('LOWER(ar.status) IN (:statuses)')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
+            ->andWhere('(admissionStatus.id IS NULL OR LOWER(admissionStatus.name) IN (:statuses))')
             ->setParameter('serviceId', $serviceId)
             ->setParameter('statuses', self::PENDING_STATUS_CANDIDATES)
             ->getQuery()
@@ -144,7 +156,8 @@ class AdmissionRecordRepository extends ServiceEntityRepository
             ->where('ar.id = :admissionRecordId')
             ->andWhere('ar.service = :serviceId')
             ->andWhere('ar.bed IS NULL')
-            ->andWhere('LOWER(ar.status) IN (:statuses)')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
+            ->andWhere('(admissionStatus.id IS NULL OR LOWER(admissionStatus.name) IN (:statuses))')
             ->setParameter('admissionRecordId', $admissionRecordId)
             ->setParameter('serviceId', $serviceId)
             ->setParameter('statuses', self::PENDING_STATUS_CANDIDATES)
@@ -157,10 +170,11 @@ class AdmissionRecordRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('ar')
             ->leftJoin('ar.patient', 'patient')
             ->leftJoin('patient.person', 'person')
+            ->leftJoin('ar.admissionStatus', 'admissionStatus')
             ->addSelect('patient', 'person')
             ->where('ar.service = :serviceId')
             ->andWhere('ar.bed IS NULL')
-            ->andWhere('LOWER(ar.status) IN (:statuses)')
+            ->andWhere('(admissionStatus.id IS NULL OR LOWER(admissionStatus.name) IN (:statuses))')
             ->setParameter('serviceId', $serviceId)
             ->setParameter('statuses', self::PENDING_STATUS_CANDIDATES)
             ->orderBy('ar.createdAt', 'DESC')
