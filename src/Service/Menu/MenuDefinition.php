@@ -66,7 +66,8 @@ class MenuDefinition
                 return $this->getDefaultMenuStructure();
             });
 
-            return $this->mergeWithDefaultMenu($menuStructure, $this->getDefaultMenuStructure());
+            $mergedMenu = $this->mergeWithDefaultMenu($menuStructure, $this->getDefaultMenuStructure());
+            return $this->normalizeMenuStructure($mergedMenu);
         } catch (\Exception $e) {
             // Si incluso el caché falla, usar directamente el hardcoded
             $this->logger?->error('Error en caché de menú, usando hardcoded', [
@@ -133,6 +134,40 @@ class MenuDefinition
         }
 
         return $menuStructure;
+    }
+
+    /**
+     * Normaliza estructura de menú para compatibilidad entre versiones.
+     * Convierte "Enfermería -> Tablero de Camas" en un ítem directo.
+     */
+    private function normalizeMenuStructure(array $menuStructure): array
+    {
+        return array_map(function (array $item): array {
+            if (!empty($item['children'])) {
+                $item['children'] = $this->normalizeMenuStructure($item['children']);
+            }
+
+            if (($item['name'] ?? null) !== 'enfermeria') {
+                return $item;
+            }
+
+            if (!empty($item['route']) && empty($item['children'])) {
+                return $item;
+            }
+
+            foreach ($item['children'] ?? [] as $child) {
+                if (($child['name'] ?? null) !== 'nursing_board') {
+                    continue;
+                }
+
+                $item['route'] = $child['route'] ?? $item['route'] ?? null;
+                $item['module'] = $item['module'] ?? ($child['module'] ?? null);
+                $item['children'] = [];
+                break;
+            }
+
+            return $item;
+        }, $menuStructure);
     }
 
     /**
@@ -226,17 +261,9 @@ class MenuDefinition
                 'name' => 'enfermeria',
                 'label' => 'Enfermería',
                 'icon' => 'bx bx-heart',
-                'module' => null,
-                'children' => [
-                    [
-                        'name' => 'nursing_board',
-                        'label' => 'Tablero de Camas',
-                        'icon' => 'bx bx-grid-alt',
-                        'route' => 'app_nursing_index',
-                        'module' => 'nursing',
-                        'children' => []
-                    ],
-                ]
+                'route' => 'app_nursing_index',
+                'module' => 'nursing',
+                'children' => []
             ],
             [
                 'name' => 'citas',
