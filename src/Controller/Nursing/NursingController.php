@@ -169,8 +169,9 @@ class NursingController extends AbstractTenantAwareController
         $legendCounts = [
             'available' => 0,
             'occupied' => 0,
-            'blocked' => 0,
+            'maintenance' => 0,
             'reserved' => 0,
+            'cleaning' => 0,
         ];
 
         $roomsWithBeds = [];
@@ -185,11 +186,13 @@ class NursingController extends AbstractTenantAwareController
             } elseif ('available' === $status) {
                 $legendCounts['available']++;
             } elseif ('maintenance' === $status) {
-                $legendCounts['blocked']++;
-            } elseif (in_array($status, ['reserved', 'cleaning'], true)) {
+                $legendCounts['maintenance']++;
+            } elseif ('reserved' === $status) {
                 $legendCounts['reserved']++;
+            } elseif ('cleaning' === $status) {
+                $legendCounts['cleaning']++;
             } else {
-                $legendCounts['blocked']++;
+                $legendCounts['reserved']++;
             }
 
             $room = $bed->getRoom();

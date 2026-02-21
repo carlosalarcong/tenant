@@ -540,3 +540,138 @@ textarea.admission-input {
 }
 
 /* === FIN RESGUARDO FINANCIERO === */
+
+/* === ENFERMERIA === */
+:root {
+    --nur-available: #28a745;
+    --nur-occupied: #dc3545;
+    --nur-maintenance: #fd7e14;
+    --nur-reserved: #6c757d;
+    --nur-cleaning: #0dcaf0;
+    --nur-card-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.nur-board-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.nur-room-panel {
+    border: 1px solid #d5d9de;
+    border-radius: 10px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.nur-room-panel__header {
+    background: #f5f7fa;
+    border-bottom: 1px solid #e2e6ea;
+    padding: 0.6rem 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.nur-room-panel__body {
+    padding: 0.85rem;
+}
+
+.nur-side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.nur-side-section {
+    border: 1px solid #d5d9de;
+    background: #fff;
+}
+
+.nur-side-section__header {
+    background: #858585;
+    color: #fff;
+    padding: 0.45rem 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.nur-side-section__body {
+    padding: 0.5rem;
+}
+
+.nur-side-section__body .table {
+    margin-bottom: 0;
+}
+
+.nur-side-section__body .table th,
+.nur-side-section__body .table td {
+    vertical-align: middle;
+}
+
+.nur-color-swatch {
+    display: inline-block;
+    width: 100%;
+    min-width: 72px;
+    height: 16px;
+}
+
+.nur-color-swatch--available { background: var(--nur-available); }
+.nur-color-swatch--occupied { background: var(--nur-occupied); }
+.nur-color-swatch--maintenance { background: var(--nur-maintenance); }
+.nur-color-swatch--reserved { background: var(--nur-reserved); }
+.nur-color-swatch--cleaning { background: var(--nur-cleaning); }
+
+.nur-bed-card {
+    border-radius: 8px;
+    border: 2px solid transparent;
+    padding: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: var(--nur-card-shadow);
+}
+
+.nur-bed-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.nur-bed-card--available { background: #f0fff4; border-color: var(--nur-available); }
+.nur-bed-card--occupied { background: #fff5f5; border-color: var(--nur-occupied); }
+.nur-bed-card--maintenance { background: #fff8f0; border-color: var(--nur-maintenance); }
+.nur-bed-card--reserved { background: #f8f9fa; border-color: var(--nur-reserved); }
+.nur-bed-card--cleaning { background: #f0fbff; border-color: var(--nur-cleaning); }
+
+.nur-bed-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+    background-color: var(--nur-reserved);
+}
+
+.nur-bed-status-dot--available { background-color: var(--nur-available); }
+.nur-bed-status-dot--occupied { background-color: var(--nur-occupied); }
+.nur-bed-status-dot--maintenance { background-color: var(--nur-maintenance); }
+.nur-bed-status-dot--reserved { background-color: var(--nur-reserved); }
+.nur-bed-status-dot--cleaning { background-color: var(--nur-cleaning); }
+
+.nur-service-card {
+    cursor: pointer;
+    transition: border-color 0.15s;
+    border: 2px solid transparent;
+}
+
+.nur-service-card:hover,
+.nur-service-card.active {
+    border-color: var(--adm-primary, #2a7de1);
+}
+
+.nur-service-card.active { background: #eef4fd; }
+
+.nur-assign-input { width: 120px; }

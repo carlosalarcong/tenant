@@ -162,22 +162,27 @@
                 <tr>
                     <td><span class="nur-color-swatch nur-color-swatch--available"></span></td>
                     <td>{{ legend_counts.available|default(0) }}</td>
-                    <td>Disponibles</td>
+                    <td>Disponible</td>
                 </tr>
                 <tr>
                     <td><span class="nur-color-swatch nur-color-swatch--occupied"></span></td>
                     <td>{{ legend_counts.occupied|default(0) }}</td>
-                    <td>Ocupadas</td>
+                    <td>Ocupada</td>
                 </tr>
                 <tr>
-                    <td><span class="nur-color-swatch nur-color-swatch--blocked"></span></td>
-                    <td>{{ legend_counts.blocked|default(0) }}</td>
-                    <td>Bloqueadas</td>
+                    <td><span class="nur-color-swatch nur-color-swatch--maintenance"></span></td>
+                    <td>{{ legend_counts.maintenance|default(0) }}</td>
+                    <td>Mantenimiento</td>
                 </tr>
                 <tr>
                     <td><span class="nur-color-swatch nur-color-swatch--reserved"></span></td>
                     <td>{{ legend_counts.reserved|default(0) }}</td>
-                    <td>Reservadas</td>
+                    <td>Reservada</td>
+                </tr>
+                <tr>
+                    <td><span class="nur-color-swatch nur-color-swatch--cleaning"></span></td>
+                    <td>{{ legend_counts.cleaning|default(0) }}</td>
+                    <td>Limpieza</td>
                 </tr>
                 </tbody>
             </table>
