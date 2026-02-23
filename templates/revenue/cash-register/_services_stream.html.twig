@@ -1,0 +1,14 @@
+{% if operation == 'add' %}
+{# ── Agrega la nueva fila al tbody ─────────────────────────────────────────── #}
+<turbo-stream action="remove" target="services-empty-row"></turbo-stream>
+<turbo-stream action="append" target="services-table-body">
+    <template>
+        {% include 'revenue/cash-register/_services_row.html.twig' with { row: row } %}
+    </template>
+</turbo-stream>
+
+{% elseif operation == 'remove' %}
+{# ── Elimina la fila del tbody ─────────────────────────────────────────────── #}
+<turbo-stream action="remove" target="service-row-{{ rowId }}"></turbo-stream>
+
+{% endif %}

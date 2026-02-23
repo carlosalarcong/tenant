@@ -1,0 +1,164 @@
+{#
+  Turbo Frame: patient-account-summary
+  Muestra la cuenta maestra de facturación del paciente y, si aplica,
+  las cuentas de pacientes cuyo tutor/garante es la misma persona.
+
+  Parámetros:
+    patient         App\Entity\Tenant\Patient|null
+    account         App\Entity\Tenant\PatientAccount|null
+    guardianAccounts App\Entity\Tenant\PatientAccount[]
+
+  Uso desde el panel de caja (ejemplo):
+    <turbo-frame id="patient-account-summary"
+                 src="{{ path('app_revenue_patient_account_summary', {patientId: patient.id}) }}">
+    </turbo-frame>
+#}
+<turbo-frame id="patient-account-summary">
+
+  {% if patient is null %}
+    <div class="alert alert-secondary d-flex align-items-center gap-2 mb-0">
+      <i class="bx bx-user-circle fs-5" aria-hidden="true"></i>
+      <span>Seleccione un paciente para ver su estado de cuenta.</span>
+    </div>
+
+  {% else %}
+    {# ── Cuenta propia del paciente ── #}
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-header bg-white d-flex align-items-center gap-2 py-2">
+        <i class="bx bx-wallet-alt text-primary fs-5" aria-hidden="true"></i>
+        <strong class="me-auto">Cuenta del paciente</strong>
+        {% if account and account.accountStatus %}
+          <span class="badge
+            {% if 'pendiente' in account.accountStatus.name|lower or 'abierta' in account.accountStatus.name|lower %}
+              bg-warning text-dark
+            {% elseif 'pagada' in account.accountStatus.name|lower %}
+              bg-success
+            {% else %}
+              bg-secondary
+            {% endif %}
+          ">{{ account.accountStatus.name }}</span>
+        {% endif %}
+      </div>
+
+      <div class="card-body py-3">
+        {# Datos del paciente #}
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="flex-grow-1">
+            <div class="fw-semibold fs-6">
+              {{ patient.person.name }} {{ patient.person.lastName }}
+            </div>
+            <div class="text-muted small">
+              {{ patient.person.identificationType ? patient.person.identificationType.name ~ ': ' : '' }}
+              {{ patient.person.identification }}
+            </div>
+            {% if patient.payer %}
+              <div class="text-muted small mt-1">
+                <i class="bx bx-shield" aria-hidden="true"></i>
+                {{ patient.payer.name }}
+                {% if patient.agreement %} · {{ patient.agreement.name }}{% endif %}
+                {% if patient.insurancePlan %} · {{ patient.insurancePlan.name }}{% endif %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if account %}
+          {# Resumen financiero #}
+          <div class="row g-2 text-center">
+            <div class="col-6 col-md-3">
+              <div class="bg-light rounded p-2">
+                <div class="small text-muted">Total cuenta</div>
+                <div class="fw-semibold">
+                  {% if account.totalAccount is not null %}
+                    ${{ account.totalAccount|number_format(0, ',', '.') }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="bg-light rounded p-2">
+                <div class="small text-muted">Saldo</div>
+                <div class="fw-semibold {% if account.accountBalance and account.accountBalance > 0 %}text-danger{% endif %}">
+                  {% if account.accountBalance is not null %}
+                    ${{ account.accountBalance|number_format(0, ',', '.') }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="bg-light rounded p-2">
+                <div class="small text-muted">Descuento</div>
+                <div class="fw-semibold">
+                  {% if account.totalDiscount is not null %}
+                    ${{ account.totalDiscount|number_format(0, ',', '.') }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="bg-light rounded p-2">
+                <div class="small text-muted">Pagos reg.</div>
+                <div class="fw-semibold">{{ account.paymentAccounts|length }}</div>
+              </div>
+            </div>
+          </div>
+
+          {% if account.modifiedAt %}
+            <div class="text-muted small mt-2 text-end">
+              Última modificación: {{ account.modifiedAt|date('d/m/Y H:i') }}
+            </div>
+          {% endif %}
+
+        {% else %}
+          <div class="alert alert-info mb-0 py-2 small">
+            <i class="bx bx-info-circle me-1" aria-hidden="true"></i>
+            Este paciente aún no tiene cuenta de facturación registrada.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ── Cuentas donde el tutor del paciente es garante ── #}
+    {% if guardianAccounts is not empty %}
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex align-items-center gap-2 py-2">
+          <i class="bx bx-user-check text-secondary fs-5" aria-hidden="true"></i>
+          <strong>Cuentas a cargo del tutor</strong>
+          <span class="badge bg-secondary ms-auto">{{ guardianAccounts|length }}</span>
+        </div>
+        <ul class="list-group list-group-flush">
+          {% for gAccount in guardianAccounts %}
+            <li class="list-group-item py-2">
+              <div class="d-flex align-items-center gap-2">
+                <div class="flex-grow-1">
+                  <div class="fw-semibold small">
+                    {{ gAccount.patient.person.name }} {{ gAccount.patient.person.lastName }}
+                  </div>
+                  <div class="text-muted small">
+                    {{ gAccount.patient.person.identification }}
+                    {% if gAccount.accountStatus %}
+                      · {{ gAccount.accountStatus.name }}
+                    {% endif %}
+                  </div>
+                </div>
+                {% if gAccount.accountBalance is not null and gAccount.accountBalance > 0 %}
+                  <span class="badge bg-warning text-dark">
+                    ${{ gAccount.accountBalance|number_format(0, ',', '.') }}
+                  </span>
+                {% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+  {% endif %}
+
+</turbo-frame>

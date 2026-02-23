@@ -1,0 +1,60 @@
+{#
+ # revenue/payment/method/_bonoweb_row.html.twig
+ #
+ # Fila de método de pago BonoWeb en el formulario de cobro.
+ # Los campos son readonly: se rellenan automáticamente cuando el cajero
+ # confirma el bono en el panel BonoWeb (evento "bonoweb:confirmed").
+ #
+ # Variables: row_form, method_code, index, row_name_prefix
+ #}
+
+<div class="payment-row"
+     data-payment-row
+     data-method-code="{{ method_code }}"
+     data-row-index="{{ index }}">
+
+    <div class="alert alert-primary py-2 px-3 mb-2 small">
+        <i class="bi bi-credit-card-2-front me-1"></i>
+        Utilice el panel <strong>Bono BonoWeb</strong> para generar y confirmar el bono.
+        Los campos se completarán automáticamente.
+    </div>
+
+    <div class="row g-2">
+
+        {# Copago (auto-completado por JS al confirmar) #}
+        <div class="col-12 col-md-5">
+            <label class="form-label">
+                Copago FONASA
+                <span class="text-danger ms-1">*</span>
+            </label>
+            {{ form_widget(row_form.amount, {
+                full_name: row_name_prefix ~ '[amount]',
+                attr: {
+                    class: 'form-control bg-light',
+                    'data-payment-amount-input': '1',
+                    placeholder: 'Auto-completado al confirmar bono'
+                }
+            }) }}
+        </div>
+
+        {# Voucher ID (auto-completado por JS al confirmar) #}
+        <div class="col-12 col-md-7">
+            <label class="form-label">
+                ID Voucher BonoWeb
+                <span class="text-danger ms-1">*</span>
+            </label>
+            {{ form_widget(row_form.voucher_id, {
+                full_name: row_name_prefix ~ '[voucher_id]',
+                attr: {
+                    class: 'form-control font-monospace bg-light',
+                    'data-bonoweb-voucher-input': '1',
+                    placeholder: 'UUID del voucher (auto-completado)'
+                }
+            }) }}
+            <div class="form-text small">
+                Se completa al confirmar el bono en el panel BonoWeb.
+            </div>
+        </div>
+
+    </div>
+</div>

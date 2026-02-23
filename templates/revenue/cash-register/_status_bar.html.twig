@@ -1,0 +1,55 @@
+<turbo-frame id="cash-register-status-bar">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+
+        {% if status == 'open' %}
+
+            <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle py-1 px-2">
+                <i class="bi bi-check-circle-fill me-1"></i>Caja abierta
+            </span>
+            {% if openRegister %}
+                <span class="text-muted small">
+                    {{ openRegister.cashRegisterLocation ? openRegister.cashRegisterLocation.name : '' }}
+                    · desde {{ openRegister.openedAt|date('H:i') }}
+                </span>
+                <a href="{{ path('app_revenue_cash_register_close', {id: openRegister.id}) }}"
+                   class="btn btn-outline-danger btn-sm py-0">
+                    <i class="bi bi-power me-1"></i> Cerrar caja
+                </a>
+            {% endif %}
+
+        {% elseif status == 'no_voucher' %}
+
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle py-1 px-2">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>Sin talonario
+            </span>
+            <span class="text-muted small">
+                La caja no tiene talonario con folios disponibles. Contacte al administrador.
+            </span>
+
+        {% elseif status == 'unclosed' %}
+
+            <span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle py-1 px-2">
+                <i class="bi bi-exclamation-circle-fill me-1"></i>Caja anterior sin cerrar
+            </span>
+            {% if openRegister %}
+                <a href="{{ path('app_revenue_cash_register_close', {id: openRegister.id}) }}"
+                   class="btn btn-warning btn-sm py-0">
+                    <i class="bi bi-lock me-1"></i> Cerrar caja del
+                    {{ openRegister.openedAt|date('d/m/Y') }}
+                </a>
+            {% endif %}
+
+        {% else %}{# closed #}
+
+            <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle py-1 px-2">
+                <i class="bi bi-dash-circle me-1"></i>Caja cerrada
+            </span>
+            <a href="{{ path('app_revenue_cash_register_open') }}"
+               class="btn btn-outline-primary btn-sm py-0">
+                <i class="bi bi-power me-1"></i> Abrir caja
+            </a>
+
+        {% endif %}
+
+    </div>
+</turbo-frame>

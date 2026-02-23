@@ -27,6 +27,14 @@ class AccountStatus
     #[ORM\Column(length: 60)]
     private string $name = '';
 
+    /**
+     * Machine-readable slug identifying this status in business logic.
+     * Example values: 'cerrada_pendiente_pago', 'abierta_pendiente_pago'.
+     * Used instead of normalizing getName() at runtime.
+     */
+    #[ORM\Column(length: 60, options: ['default' => ''])]
+    private string $code = '';
+
     public function getId(): ?int
     {
         return $this->id;
@@ -40,6 +48,17 @@ class AccountStatus
     public function setName(string $name): self
     {
         $this->name = $name;
+        return $this;
+    }
+
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
         return $this;
     }
 

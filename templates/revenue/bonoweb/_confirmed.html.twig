@@ -1,0 +1,64 @@
+{#
+ # revenue/bonoweb/_confirmed.html.twig
+ #
+ # Respuesta tras confirmar el copago (POST /{voucherId}/confirm).
+ # Se renderiza dentro de <turbo-frame id="bonoweb-panel"> porque el formulario
+ # de confirmación en _status.html.twig usa data-turbo-frame="bonoweb-panel".
+ #
+ # El Stimulus controller revenue--bonoweb detecta el modo "confirmed" en connect()
+ # y emite el evento personalizado "bonoweb:confirmed" con el copago y voucher ID,
+ # lo que permite al payment row auto-completar sus campos readonly.
+ #
+ # Variables:
+ #   voucher  (BonoWebVoucher)
+ #}
+
+<turbo-frame id="bonoweb-panel">
+
+    <div class="card border-success"
+         data-controller="revenue--bonoweb"
+         data-revenue--bonoweb-mode-value="confirmed"
+         data-revenue--bonoweb-copago-value="{{ voucher.copagoTotal }}"
+         data-revenue--bonoweb-voucher-id-value="{{ voucher.voucherId }}">
+
+        <div class="card-header bg-success-subtle py-2">
+            <h6 class="mb-0 text-success">
+                <i class="bi bi-patch-check-fill me-1"></i>
+                Bono BonoWeb confirmado
+            </h6>
+        </div>
+
+        <div class="card-body py-2">
+
+            <div class="row g-2 text-center small mb-2">
+                <div class="col-6">
+                    <div class="text-muted">Copago cobrado</div>
+                    <div class="fw-bold fs-6">
+                        $ {{ voucher.copagoTotal|number_format(0, ',', '.') }}
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-muted">Bonificación FONASA</div>
+                    <div class="fw-semibold fs-6 text-success">
+                        $ {{ voucher.bonificacionTotal|number_format(0, ',', '.') }}
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-2">
+
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted small">Voucher ID:</span>
+                <code class="small">{{ voucher.voucherId }}</code>
+            </div>
+
+            <div class="mt-2 text-success small">
+                <i class="bi bi-check2-circle me-1"></i>
+                El monto del copago ha sido completado en el formulario de pago.
+            </div>
+
+        </div>{# /card-body #}
+
+    </div>{# /card #}
+
+</turbo-frame>

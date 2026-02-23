@@ -1,0 +1,75 @@
+{% extends 'maintainers/modern_index.html.twig' %}
+
+{% block page_title %}Talonarios (Correlativo Boletas){% endblock %}
+{% block icon %}fa-book{% endblock %}
+{% block breadcrumb_section %}Tesorería{% endblock %}
+{% block description %}Gestión de talonarios de boletas por ubicación de caja{% endblock %}
+
+{% block maintainer_routes %}
+    {% set index_route  = 'app_maintainers_treasury_voucher_index' %}
+    {% set create_route = 'app_maintainers_treasury_voucher_create' %}
+    {% set edit_route   = 'app_maintainers_treasury_voucher_edit' %}
+    {% set delete_route = 'app_maintainers_treasury_voucher_delete' %}
+    {% set export_route = 'app_maintainers_treasury_voucher_export' %}
+{% endblock %}
+
+{% block table_headers %}
+    <th>ID</th>
+    <th>Ubicación de caja</th>
+    <th>Sub-empresa</th>
+    <th>Desde</th>
+    <th>Hasta</th>
+    <th>Folio actual</th>
+    <th>Disponibles</th>
+    <th>Estado</th>
+    <th>{{ 'maintainers.common.actions'|trans({}, 'maintainers') }}</th>
+{% endblock %}
+
+{% block table_row %}
+    <td>{{ item.id }}</td>
+    <td>{{ item.cashRegisterLocation ? item.cashRegisterLocation.name : '-' }}</td>
+    <td>{{ item.subCompany ? item.subCompany.name : '-' }}</td>
+    <td>{{ item.folioFrom }}</td>
+    <td>{{ item.folioTo }}</td>
+    <td>
+        <span class="fw-semibold {{ item.currentFolio > item.folioTo ? 'text-danger' : '' }}">
+            {{ item.currentFolio }}
+        </span>
+    </td>
+    <td>
+        {% set remaining = item.folioTo - item.currentFolio + 1 %}
+        {% if remaining <= 0 %}
+            <span class="badge bg-danger-subtle text-danger-emphasis">Agotado</span>
+        {% elseif remaining <= 10 %}
+            <span class="badge bg-warning-subtle text-warning-emphasis">{{ remaining }}</span>
+        {% else %}
+            <span class="badge bg-success-subtle text-success-emphasis">{{ remaining }}</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if item.isActive %}
+            <span class="badge bg-success">Activo</span>
+        {% else %}
+            <span class="badge bg-danger">Inactivo</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if item.currentFolio <= item.folioFrom %}
+            <button class="btn btn-sm btn-primary" onclick="editItem({{ item.id }})"
+                    title="Editar talonario">
+                <i class="fas fa-edit"></i>
+            </button>
+        {% else %}
+            <button class="btn btn-sm btn-secondary" disabled
+                    title="No editable: tiene folios consumidos">
+                <i class="fas fa-lock"></i>
+            </button>
+        {% endif %}
+        {% if item.isActive %}
+            <button class="btn btn-sm btn-warning" onclick="deleteItem({{ item.id }})"
+                    title="Desactivar talonario">
+                <i class="fas fa-ban"></i>
+            </button>
+        {% endif %}
+    </td>
+{% endblock %}

@@ -1,0 +1,29 @@
+<div class="payment-row" data-payment-row data-method-code="{{ method_code }}" data-row-index="{{ index }}">
+    <div class="row g-2">
+        <div class="col-12 col-md-3">
+            <label class="form-label">N° Folio bono <span class="text-danger ms-1">*</span></label>
+            {{ form_widget(row_form.folio, {
+                full_name: row_name_prefix ~ '[folio]',
+                attr: { class: 'form-control', placeholder: 'N° folio' }
+            }) }}
+        </div>
+        <div class="col-12 col-md-4">
+            <label class="form-label">Código autorización <span class="text-danger ms-1">*</span></label>
+            {{ form_widget(row_form.authorization_code, {
+                full_name: row_name_prefix ~ '[authorization_code]',
+                attr: { class: 'form-control', placeholder: 'Cód. autorización' }
+            }) }}
+        </div>
+        <div class="col-12 col-md-5">
+            <label class="form-label">Monto <span class="text-danger ms-1">*</span></label>
+            {{ form_widget(row_form.amount, {
+                full_name: row_name_prefix ~ '[amount]',
+                attr: {
+                    class: 'form-control',
+                    'data-payment-amount-input': '1',
+                    placeholder: 'Ej: 15000'
+                }
+            }) }}
+        </div>
+    </div>
+</div>

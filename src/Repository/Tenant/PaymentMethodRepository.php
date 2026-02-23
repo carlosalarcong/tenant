@@ -56,6 +56,14 @@ class PaymentMethodRepository extends ServiceEntityRepository
      *
      * @return array<int, array{id:int,name:string,paymentMethodTypeId:?int}>
      */
+    /**
+     * Busca un método de pago por su código técnico (ej. 'cash', 'credit_card').
+     */
+    public function findByCode(string $code): ?PaymentMethod
+    {
+        return $this->findOneBy(['code' => $code]);
+    }
+
     public function findForAdmissionFinancialSafeguard(): array
     {
         /** @var array<int, array{id:int,name:string,paymentMethodTypeId:?int}> $rows */

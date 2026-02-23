@@ -207,6 +207,56 @@ class AdmissionRecordRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find an AdmissionRecord by ID with its PatientAccount, PaymentAccounts and
+     * related statuses eagerly loaded. Used by the financial-guarantee endpoint.
+     */
+    public function findWithAccountById(int $admissionRecordId): ?AdmissionRecord
+    {
+        return $this->createQueryBuilder('ar')
+            ->leftJoin('ar.patient', 'p')
+            ->leftJoin('p.person', 'per')
+            ->leftJoin('ar.admissionStatus', 'ads')
+            ->leftJoin('ar.patientAccount', 'pa')
+            ->leftJoin('pa.accountStatus', 'past')
+            ->leftJoin('pa.paymentAccounts', 'paa')
+            ->leftJoin('paa.paymentStatus', 'ps')
+            ->addSelect('p', 'per', 'ads', 'pa', 'past', 'paa', 'ps')
+            ->where('ar.id = :id')
+            ->setParameter('id', $admissionRecordId)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * Find AdmissionRecords for a Person for the pending-payment check.
+     * Returns admissions where the person is the patient OR the legal guardian,
+     * excluding pre-admission records (those statuses are not real debts).
+     * PatientAccount and its AccountStatus are eagerly loaded.
+     *
+     * @return list<AdmissionRecord>
+     */
+    public function findForPaymentCheckByPersonId(int $personId): array
+    {
+        /** @var list<AdmissionRecord> $results */
+        $results = $this->createQueryBuilder('ar')
+            ->leftJoin('ar.patient', 'p')
+            ->leftJoin('p.person', 'per')
+            ->leftJoin('p.tutor', 'tut')
+            ->leftJoin('ar.admissionStatus', 'ads')
+            ->leftJoin('ar.patientAccount', 'pa')
+            ->leftJoin('pa.accountStatus', 'past')
+            ->addSelect('p', 'per', 'tut', 'ads', 'pa', 'past')
+            ->where('per.id = :personId OR tut.id = :personId')
+            ->andWhere('ads IS NULL OR LOWER(ads.name) NOT IN (:preadmissions)')
+            ->setParameter('personId', $personId)
+            ->setParameter('preadmissions', self::PENDING_STATUS_CANDIDATES)
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * @param list<int> $personIds
      * @return list<AdmissionRecord>
      */

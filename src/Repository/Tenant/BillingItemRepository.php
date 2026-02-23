@@ -28,4 +28,28 @@ class BillingItemRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Busca ítems de facturación activos cuyo nombre coincida con la consulta.
+     * Búsqueda case-insensitive con LIKE.
+     *
+     * Nota: la entidad BillingItem no tiene campo `code` ni `unitAmount`;
+     * esos campos se omiten del resultado (null/false).
+     *
+     * @return BillingItem[]
+     */
+    public function searchByQuery(string $query, int $limit = 15): array
+    {
+        $q = '%' . mb_strtolower(trim($query)) . '%';
+
+        return $this->createQueryBuilder('bi')
+            ->where('bi.isActive = :active')
+            ->andWhere('LOWER(bi.name) LIKE :q')
+            ->setParameter('active', true)
+            ->setParameter('q', $q)
+            ->orderBy('bi.name', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

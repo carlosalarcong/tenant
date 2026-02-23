@@ -73,6 +73,14 @@ class PaymentAccount
     private ?CashRegisterLocation $cashRegisterLocation = null;
 
     /**
+     * Sesión de caja abierta que procesó este pago (para nrocaja en DTE).
+     * Legacy: ID_CAJA_SESION → CajaAbierta
+     */
+    #[ORM\ManyToOne(targetEntity: CashRegister::class)]
+    #[ORM\JoinColumn(name: 'cash_register_id', referencedColumnName: 'id', nullable: true)]
+    private ?CashRegister $cashRegister = null;
+
+    /**
      * Sub-empresa asociada a este pago (para estructuras multi-empresa).
      * Legacy: ID_SUB_EMPRESA → SubEmpresa
      */
@@ -215,6 +223,17 @@ class PaymentAccount
     public function setCashRegisterLocation(?CashRegisterLocation $cashRegisterLocation): self
     {
         $this->cashRegisterLocation = $cashRegisterLocation;
+        return $this;
+    }
+
+    public function getCashRegister(): ?CashRegister
+    {
+        return $this->cashRegister;
+    }
+
+    public function setCashRegister(?CashRegister $cashRegister): self
+    {
+        $this->cashRegister = $cashRegister;
         return $this;
     }
 

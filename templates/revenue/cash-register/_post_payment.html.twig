@@ -1,0 +1,195 @@
+<turbo-frame id="payment-panel">
+    <div data-controller="revenue--post-payment"
+         data-revenue--post-payment-void-url-value="{{ path('app_revenue_cash_register_post_payment_void', {id: paymentAccount.id}) }}"
+         data-revenue--post-payment-history-url-value="{{ path('app_revenue_cash_register_post_payment_history', {id: paymentAccount.id}) }}">
+
+        {# ── Flash messages ────────────────────────────────────────────────── #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label == 'success' ? 'success' : (label == 'danger' ? 'danger' : 'warning') }} alert-dismissible fade show mb-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {# ── Encabezado ───────────────────────────────────────────────────── #}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="mb-0">
+                    <i class="bi bi-receipt me-1 text-success"></i>
+                    Pago #{{ paymentAccount.id }}
+                    {% if paymentAccount.cancellationDate %}
+                        <span class="badge bg-danger ms-2">ANULADO</span>
+                    {% else %}
+                        <span class="badge bg-success ms-2">Procesado</span>
+                    {% endif %}
+                </h5>
+                <small class="text-muted">
+                    {{ paymentAccount.paymentDate ? paymentAccount.paymentDate|date('d/m/Y H:i') : '—' }}
+                    {% if paymentAccount.cashRegisterLocation %}
+                        · Caja: {{ paymentAccount.cashRegisterLocation.name }}
+                    {% endif %}
+                </small>
+            </div>
+            <div class="d-flex gap-2">
+                {# Imprimir boleta — data-turbo="false" para que el browser maneje el PDF #}
+                <a href="{{ path('app_revenue_cash_register_post_payment_print', {id: paymentAccount.id}) }}"
+                   class="btn btn-outline-secondary btn-sm"
+                   target="_blank"
+                   data-turbo="false">
+                    <i class="bi bi-printer me-1"></i> Imprimir
+                </a>
+                {% if not paymentAccount.cancellationDate %}
+                    <button type="button"
+                            class="btn btn-outline-danger btn-sm"
+                            data-action="click->revenue--post-payment#confirmVoid">
+                        <i class="bi bi-x-circle me-1"></i> Anular
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+
+        {# ── Formulario de anulación (oculto; se envía tras confirmación) ─── #}
+        {% if not paymentAccount.cancellationDate %}
+        <form id="void-form"
+              action="{{ path('app_revenue_cash_register_post_payment_void', {id: paymentAccount.id}) }}"
+              method="POST"
+              style="display:none"
+              data-revenue--post-payment-target="voidForm">
+            <input type="hidden" name="_token" value="{{ csrf_token('payment_void_' ~ paymentAccount.id) }}">
+            <input type="hidden" name="reason" value="Anulado por cajero">
+        </form>
+        {% endif %}
+
+        {# ── Datos del paciente ───────────────────────────────────────────── #}
+        {% set patient = paymentAccount.patient %}
+        {% if patient %}
+        <div class="card border-0 bg-light mb-3">
+            <div class="card-body py-2">
+                <div class="row g-2">
+                    <div class="col-12 col-md-5">
+                        <div class="fw-semibold">{{ patient.person.name }} {{ patient.person.lastName }}</div>
+                        <div class="text-muted small">RUT: {{ patient.person.identification }}</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="text-muted small">Previsión</div>
+                        <div>{{ patient.payer ? patient.payer.name : '—' }}</div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <div class="text-muted small">Folio boleta</div>
+                        <div class="fw-semibold">
+                            {% if voucherEntry %}
+                                {{ voucherEntry.folioNumber }}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {# ── Pestañas ─────────────────────────────────────────────────────── #}
+        <ul class="nav nav-tabs mb-3" data-revenue--post-payment-target="tabList">
+            <li class="nav-item">
+                <button class="nav-link active"
+                        data-action="click->revenue--post-payment#switchTab"
+                        data-revenue--post-payment-tab-param="detail">
+                    Detalle del pago
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link"
+                        data-action="click->revenue--post-payment#switchTab"
+                        data-revenue--post-payment-tab-param="history">
+                    Historial del paciente
+                </button>
+            </li>
+        </ul>
+
+        {# ── Tab: Detalle ──────────────────────────────────────────────────── #}
+        <div data-revenue--post-payment-target="tabDetail">
+
+            {# Prestaciones #}
+            {% if clinicalActions is not empty %}
+            <h6 class="fw-semibold mb-2">Prestaciones</h6>
+            <div class="table-responsive mb-3">
+                <table class="table table-sm table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Prestación</th>
+                            <th class="text-center" style="width:80px">Cant.</th>
+                            <th class="text-end"    style="width:110px">Precio Unit.</th>
+                            <th class="text-end"    style="width:110px">Descuento</th>
+                            <th class="text-end"    style="width:120px">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cap in clinicalActions %}
+                        <tr>
+                            <td>{{ cap.billingItem ? cap.billingItem.name : '—' }}</td>
+                            <td class="text-center">{{ cap.quantity }}</td>
+                            <td class="text-end">$ {{ cap.unitPrice|number_format(0, ',', '.') }}</td>
+                            <td class="text-end">$ {{ cap.discountAmount|number_format(0, ',', '.') }}</td>
+                            <td class="text-end fw-semibold">$ {{ cap.totalAmount|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            {# Medios de pago #}
+            <h6 class="fw-semibold mb-2">Medios de pago</h6>
+            <div class="table-responsive mb-3">
+                <table class="table table-sm table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Forma de pago</th>
+                            <th>Referencia</th>
+                            <th class="text-end" style="width:120px">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detail in details %}
+                        <tr>
+                            <td>{{ detail.paymentMethod ? detail.paymentMethod.name : '—' }}</td>
+                            <td class="text-muted small">
+                                {{ detail.referenceNumber ?? '' }}
+                                {% if detail.cardLastDigits %}···{{ detail.cardLastDigits }}{% endif %}
+                            </td>
+                            <td class="text-end fw-semibold">$ {{ detail.amount|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted small py-2">Sin medios de pago registrados</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if details is not empty %}
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="2" class="text-end fw-semibold">Total pagado:</td>
+                            <td class="text-end fw-bold">$ {{ paymentAccount.amount|number_format(0, ',', '.') }}</td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+            </div>
+
+        </div>
+
+        {# ── Tab: Historial (carga lazy via Turbo Frame) ───────────────────── #}
+        <div data-revenue--post-payment-target="tabHistory" style="display:none">
+            <turbo-frame id="post-payment-history">
+                <div class="text-center text-muted py-4 small">
+                    <div class="spinner-border spinner-border-sm me-1" role="status"></div>
+                    Cargando historial...
+                </div>
+            </turbo-frame>
+        </div>
+
+    </div>
+</turbo-frame>

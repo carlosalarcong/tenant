@@ -9,7 +9,11 @@ security:
     providers:
         app_member_provider:
             id: App\Security\MemberProvider
-    
+
+    role_hierarchy:
+        ROLE_CASH_SUPERVISOR: [ROLE_USER]
+        ROLE_CASH_ADMIN:      [ROLE_CASH_SUPERVISOR]
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/

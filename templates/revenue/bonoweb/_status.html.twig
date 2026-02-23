@@ -1,0 +1,123 @@
+{#
+ # revenue/bonoweb/_status.html.twig
+ #
+ # Estado actual del voucher BonoWeb dentro de <turbo-frame id="bonoweb-status">.
+ # Recargado periódicamente (cada ~3 s) por el Stimulus controller revenue--bonoweb.
+ # Cabecera: Cache-Control: no-cache (forzada en el controlador PHP).
+ #
+ # Variables:
+ #   voucher     (BonoWebVoucher)
+ #   confirmUrl  (string)
+ #   error       (string|null)
+ #}
+
+<turbo-frame id="bonoweb-status"
+             data-bonoweb-status="{{ voucher.status }}"
+             data-bonoweb-copago="{{ voucher.copagoTotal }}"
+             data-bonoweb-voucher-id="{{ voucher.voucherId }}">
+
+    {% if error is defined and error %}
+    <div class="alert alert-danger py-2 px-3 small mb-2">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {# ──────────────────────────────────────────────────────────────────────── #}
+    {% if voucher.isPending() %}
+
+        {# Created | Verified | Waiting for Payment — paciente validando en app #}
+        <div class="text-center py-2">
+            <div class="spinner-border spinner-border-sm text-info me-1" role="status"
+                 aria-hidden="true"></div>
+            <span class="text-muted small">
+                Esperando validación del paciente en FONASA…
+            </span>
+        </div>
+
+        <div class="alert alert-info py-2 px-3 mb-0 small">
+            <i class="bi bi-phone me-1"></i>
+            El paciente debe autorizar el bono en la aplicación FONASA.
+            Esta pantalla se actualiza automáticamente.
+        </div>
+
+        {% if voucher.voucherUrl %}
+        <div class="mt-2 text-center">
+            <a href="{{ voucher.voucherUrl }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn btn-outline-info btn-sm"
+               data-turbo="false">
+                <i class="bi bi-box-arrow-up-right me-1"></i>
+                Abrir bono en FONASA
+            </a>
+        </div>
+        {% endif %}
+
+    {# ──────────────────────────────────────────────────────────────────────── #}
+    {% elseif voucher.isPaid() %}
+
+        {# Paid — paciente autorizó, cajero debe confirmar el copago #}
+        <div class="alert alert-success py-2 px-3 mb-2">
+            <div class="fw-semibold mb-1">
+                <i class="bi bi-check-circle-fill me-1"></i>
+                Bono validado por el paciente
+            </div>
+            <div class="small">
+                Copago:
+                <strong>$ {{ voucher.copagoTotal|number_format(0, ',', '.') }}</strong>
+                &nbsp;·&nbsp;
+                Bonificación:
+                <strong>$ {{ voucher.bonificacionTotal|number_format(0, ',', '.') }}</strong>
+            </div>
+        </div>
+
+        <form method="POST"
+              action="{{ confirmUrl }}"
+              data-turbo-frame="bonoweb-panel">
+            <input type="hidden"
+                   name="_token"
+                   value="{{ csrf_token('bonoweb_confirm_' ~ voucher.voucherId) }}">
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-success btn-sm">
+                    <i class="bi bi-check2-square me-1"></i>
+                    Confirmar pago del copago
+                </button>
+            </div>
+        </form>
+
+    {# ──────────────────────────────────────────────────────────────────────── #}
+    {% elseif voucher.isDone() %}
+
+        {# Done — ya confirmado por el cajero #}
+        <div class="alert alert-success py-2 px-3 mb-0">
+            <div class="fw-semibold">
+                <i class="bi bi-patch-check-fill me-1"></i>
+                Bono confirmado
+            </div>
+            <div class="small mt-1">
+                Copago confirmado:
+                <strong>$ {{ voucher.copagoTotal|number_format(0, ',', '.') }}</strong>
+            </div>
+        </div>
+
+    {# ──────────────────────────────────────────────────────────────────────── #}
+    {% elseif voucher.isCanceled() %}
+
+        {# Canceled — bono cancelado o expirado #}
+        <div class="alert alert-secondary py-2 px-3 mb-0 small">
+            <i class="bi bi-x-circle me-1"></i>
+            Bono cancelado o vencido.
+        </div>
+
+    {# ──────────────────────────────────────────────────────────────────────── #}
+    {% else %}
+
+        <div class="alert alert-warning py-2 px-3 mb-0 small">
+            <i class="bi bi-question-circle me-1"></i>
+            Estado desconocido: <code>{{ voucher.status }}</code>
+        </div>
+
+    {% endif %}
+
+</turbo-frame>

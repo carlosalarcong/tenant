@@ -1,0 +1,220 @@
+{#
+ # revenue/bonoweb/_panel.html.twig
+ #
+ # Panel BonoWeb dentro de <turbo-frame id="bonoweb-panel">.
+ #
+ # Variables:
+ #   paymentAccount  (PaymentAccount|null)
+ #   generateUrl     (string)              – sólo si no hay voucher aún
+ #   voucher         (BonoWebVoucher|null) – voucher recién creado
+ #   statusUrl       (string|null)         – URL polling para el voucher
+ #   error           (string|null)
+ #}
+
+<turbo-frame id="bonoweb-panel">
+
+    {% if paymentAccount is null %}
+
+        {# ── Sin cuenta de pago ────────────────────────────────────────────── #}
+        <div class="text-muted small py-2">
+            <i class="bi bi-info-circle me-1"></i>
+            Seleccione una cuenta de pago para generar el bono BonoWeb.
+        </div>
+
+    {% elseif voucher is not defined or voucher is null %}
+
+        {# ── Formulario de generación ──────────────────────────────────────── #}
+        {% set patient = paymentAccount.patient %}
+        {% set person  = patient ? patient.person : null %}
+
+        <div class="card border-primary">
+            <div class="card-header bg-primary-subtle py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-credit-card-2-front me-1"></i>
+                        Bono FONASA electrónico (BonoWeb)
+                    </h6>
+                    {% if person %}
+                    <small class="text-muted">
+                        {{ person.identification ?? '' }}
+                        · {{ person.name ?? '' }} {{ person.lastName ?? '' }}
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-body py-3">
+
+                {% if error is defined and error %}
+                <div class="alert alert-danger py-2 px-3 small mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form method="POST"
+                      action="{{ generateUrl }}"
+                      data-turbo-frame="bonoweb-panel"
+                      id="bonoweb-generate-form">
+
+                    <input type="hidden" name="_token"
+                           value="{{ csrf_token('bonoweb_generate') }}">
+                    <input type="hidden" name="paymentAccountId"
+                           value="{{ paymentAccount.id }}">
+
+                    {# ── Tabla de prestaciones ─────────────────────────────── #}
+                    <p class="small text-muted mb-2">
+                        <i class="bi bi-list-check me-1"></i>
+                        Ingrese las prestaciones a incluir en el bono FONASA:
+                    </p>
+
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm table-bordered align-middle mb-0"
+                               id="bonoweb-prestaciones-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nombre prestación</th>
+                                    <th style="width:110px">Código FONASA</th>
+                                    <th class="text-center" style="width:80px">Cant.</th>
+                                    <th style="width:40px"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="bonoweb-prestaciones-body">
+                                {# Fila inicial #}
+                                <tr>
+                                    <td>
+                                        <input type="text"
+                                               class="form-control form-control-sm"
+                                               name="prestaciones[0][name]"
+                                               placeholder="Ej: Consulta médica"
+                                               required>
+                                    </td>
+                                    <td>
+                                        <input type="text"
+                                               class="form-control form-control-sm font-monospace"
+                                               name="prestaciones[0][code]"
+                                               placeholder="Ej: P0301"
+                                               maxlength="20">
+                                    </td>
+                                    <td>
+                                        <input type="number"
+                                               class="form-control form-control-sm text-center"
+                                               name="prestaciones[0][quantity]"
+                                               value="1"
+                                               min="1"
+                                               max="99">
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-sm py-0 px-1"
+                                                onclick="this.closest('tr').remove()"
+                                                title="Eliminar fila">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm"
+                                id="bonoweb-add-row">
+                            <i class="bi bi-plus-circle me-1"></i>
+                            Agregar prestación
+                        </button>
+
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-send me-1"></i>
+                            Generar bono BonoWeb
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>{# /card-body #}
+        </div>{# /card #}
+
+        {# ── Script para agregar filas dinámicamente ───────────────────────── #}
+        <script>
+        (function () {
+            let rowIdx = 1;
+            document.getElementById('bonoweb-add-row')?.addEventListener('click', function () {
+                const tbody = document.getElementById('bonoweb-prestaciones-body');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" class="form-control form-control-sm"
+                               name="prestaciones[${rowIdx}][name]" placeholder="Nombre" required></td>
+                    <td><input type="text" class="form-control form-control-sm font-monospace"
+                               name="prestaciones[${rowIdx}][code]" placeholder="Código" maxlength="20"></td>
+                    <td><input type="number" class="form-control form-control-sm text-center"
+                               name="prestaciones[${rowIdx}][quantity]" value="1" min="1" max="99"></td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-outline-danger btn-sm py-0 px-1"
+                                onclick="this.closest('tr').remove()" title="Eliminar">
+                            <i class="bi bi-trash3"></i>
+                        </button>
+                    </td>`;
+                tbody.appendChild(tr);
+                rowIdx++;
+            });
+        })();
+        </script>
+
+    {% else %}
+
+        {# ── Voucher generado: resumen + polling de estado ─────────────────── #}
+        <div class="card border-info">
+            <div class="card-header bg-info-subtle py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-credit-card-2-front me-1"></i>
+                        Bono BonoWeb generado
+                    </h6>
+                    <small class="font-monospace text-muted">
+                        {{ voucher.voucherId|slice(0, 8) }}…
+                    </small>
+                </div>
+            </div>
+
+            <div class="card-body py-2">
+
+                {# Montos estimados #}
+                <div class="row g-2 mb-2 text-center small">
+                    <div class="col-6">
+                        <div class="text-muted">Copago estimado</div>
+                        <div class="fw-semibold">
+                            $ {{ voucher.copagoTotal|number_format(0, ',', '.') }}
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted">Bonificación estimada</div>
+                        <div class="fw-semibold text-success">
+                            $ {{ voucher.bonificacionTotal|number_format(0, ',', '.') }}
+                        </div>
+                    </div>
+                </div>
+
+                {# Frame de polling: Stimulus controller revenue--bonoweb gestiona la recarga #}
+                <div data-controller="revenue--bonoweb"
+                     data-revenue--bonoweb-status-url-value="{{ statusUrl }}">
+
+                    <turbo-frame id="bonoweb-status"
+                                 src="{{ statusUrl }}"
+                                 data-revenue--bonoweb-target="statusFrame"
+                                 loading="lazy">
+                        <div class="text-center text-muted py-3 small">
+                            <div class="spinner-border spinner-border-sm me-1" role="status"></div>
+                            Verificando estado del bono…
+                        </div>
+                    </turbo-frame>
+
+                </div>
+
+            </div>{# /card-body #}
+        </div>{# /card #}
+
+    {% endif %}
+
+</turbo-frame>

@@ -1,0 +1,73 @@
+{#
+  Turbo Frame: patient-account-financier
+  Muestra el financiador (previsión) activo del paciente para el contexto de cobro.
+  En el flujo de caja, el cajero confirma aquí qué plan de salud aplica antes de facturar.
+
+  Parámetros:
+    patient  App\Entity\Tenant\Patient|null
+
+  Nota MVP: muestra el financiador actual del Patient.
+  Cuando el flujo completo de Recaudación esté disponible, este frame
+  podrá extenderse para permitir cambiar el financiador antes del cobro.
+
+  Legacy: mostrarFinanciadorPacienteAction → DatosFinanciador.html.twig
+#}
+<turbo-frame id="patient-account-financier">
+
+  {% if patient is null %}
+    <div class="alert alert-secondary d-flex align-items-center gap-2 mb-0">
+      <i class="bx bx-shield-quarter fs-5" aria-hidden="true"></i>
+      <span>Sin contexto de paciente para mostrar financiador.</span>
+    </div>
+
+  {% elseif patient.payer is null %}
+    <div class="alert alert-warning d-flex align-items-center gap-2 mb-0">
+      <i class="bx bx-error-circle fs-5" aria-hidden="true"></i>
+      <span>El paciente no tiene financiador registrado.</span>
+    </div>
+
+  {% else %}
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white d-flex align-items-center gap-2 py-2">
+        <i class="bx bx-shield text-primary fs-5" aria-hidden="true"></i>
+        <strong>Financiador activo</strong>
+      </div>
+      <div class="card-body py-3">
+
+        {# Previsión / Payer #}
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <div class="small text-muted mb-1">Previsión</div>
+            <div class="fw-semibold">{{ patient.payer.name }}</div>
+          </div>
+
+          {% if patient.agreement %}
+            <div class="col-12 col-md-4">
+              <div class="small text-muted mb-1">Convenio</div>
+              <div class="fw-semibold">{{ patient.agreement.name }}</div>
+            </div>
+          {% endif %}
+
+          {% if patient.insurancePlan %}
+            <div class="col-12 col-md-4">
+              <div class="small text-muted mb-1">Plan</div>
+              <div class="fw-semibold">{{ patient.insurancePlan.name }}</div>
+            </div>
+          {% endif %}
+        </div>
+
+        {# Tipo de atención #}
+        {% if patient.careType %}
+          <hr class="my-3">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bx bx-category text-secondary" aria-hidden="true"></i>
+            <span class="small text-muted">Tipo de atención:</span>
+            <span class="fw-semibold small">{{ patient.careType.name }}</span>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  {% endif %}
+
+</turbo-frame>

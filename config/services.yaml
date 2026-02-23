@@ -76,6 +76,23 @@ services:
         arguments:
             $handlers: !tagged_iterator app.revenue_payment_handler
 
+    # DTE/Aces: argumentos escalares no autowireables
+    App\Service\Revenue\Dte\AcesClient:
+        arguments:
+            $wsUrl:     '%env(ACES_WS_URL)%'
+            $user:      '%env(ACES_USER)%'
+            $password:  '%env(ACES_PASSWORD)%'
+            $apiKey:    '%env(ACES_API_KEY)%'
+            $idEmpresa: '%env(ACES_ID_EMPRESA)%'
+            $preview:   '%env(bool:ACES_PREVIEW)%'
+
+    # BonoWeb/Snabb: argumentos escalares no autowireables
+    App\Service\Revenue\BonoWeb\BonoWebClient:
+        arguments:
+            $apiUrl:  '%env(BONOWEB_API_URL)%'
+            $apiKey:  '%env(BONOWEB_API_KEY)%'
+            $timeout: '%env(int:BONOWEB_TIMEOUT)%'
+
     # Event Listeners
     App\EventListener\LocaleListener:
         tags:

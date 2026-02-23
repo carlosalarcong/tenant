@@ -1,0 +1,61 @@
+<turbo-frame id="patient-context">
+    <div class="card border-primary-subtle">
+        <div class="card-header bg-primary-subtle fw-semibold py-2">
+            <i class="bi bi-person-vcard me-1"></i>
+            {{ patient.person.name }} {{ patient.person.lastName }}
+        </div>
+        <div class="card-body pb-2">
+
+            {# ── Campos hidden para el formulario de cobro ─────────────────── #}
+            <input type="hidden" id="ctx-patient-id"         name="patient_id"         value="{{ patient.id }}">
+            <input type="hidden" id="ctx-payer-id"           name="payer_id"           value="{{ patient.payer ? patient.payer.id : '' }}">
+            <input type="hidden" id="ctx-agreement-id"       name="agreement_id"       value="{{ patient.agreement ? patient.agreement.id : '' }}">
+            <input type="hidden" id="ctx-plan-id"            name="plan_id"            value="{{ patient.insurancePlan ? patient.insurancePlan.id : '' }}">
+            <input type="hidden" id="ctx-patient-account-id" name="patient_account_id" value="{{ patientAccount ? patientAccount.id : '' }}">
+
+            {# ── Resumen demográfico ────────────────────────────────────────── #}
+            <div class="row g-2 mb-3">
+                <div class="col-12 col-md-3">
+                    <div class="text-muted small">RUT</div>
+                    <div class="fw-semibold">{{ patient.person.identification }}</div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="text-muted small">Fecha de nacimiento</div>
+                    <div>{{ patient.person.birthDateAt ? patient.person.birthDateAt|date('d/m/Y') : '—' }}</div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="text-muted small">Previsión</div>
+                    <div>{{ patient.payer ? patient.payer.name : '—' }}</div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="text-muted small">Cuenta</div>
+                    <div>
+                        {% if patientAccount %}
+                            <span class="badge bg-success-subtle text-success-emphasis">#{{ patientAccount.id }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary-emphasis">Sin cuenta</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if patient.agreement %}
+                <div class="col-12 col-md-4">
+                    <div class="text-muted small">Convenio</div>
+                    <div>{{ patient.agreement.name }}</div>
+                </div>
+                {% endif %}
+                {% if patient.insurancePlan %}
+                <div class="col-12 col-md-4">
+                    <div class="text-muted small">Plan</div>
+                    <div>{{ patient.insurancePlan.name }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            {# ── Sub-frames: account / financier / guarantee (Fase E) ───────── #}
+            <turbo-frame id="patient-account-summary"></turbo-frame>
+            <turbo-frame id="patient-financier"></turbo-frame>
+            <turbo-frame id="patient-guarantee"></turbo-frame>
+
+        </div>
+    </div>
+</turbo-frame>

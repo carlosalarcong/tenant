@@ -1,0 +1,171 @@
+<turbo-frame id="difference-panel">
+
+    {# ── Vista: formulario de solicitud ──────────────────────────────────── #}
+    {% if difference is not defined or difference is null %}
+
+    <div class="card border-warning">
+        <div class="card-header bg-warning-subtle py-2">
+            <h6 class="mb-0">
+                <i class="bi bi-percent me-1"></i>
+                Solicitar diferencia / descuento
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="POST"
+                  action="{{ path('app_revenue_cash_register_difference_request') }}"
+                  data-turbo-frame="difference-panel">
+
+                <input type="hidden" name="_token"              value="{{ csrf_token('difference_request') }}">
+                <input type="hidden" name="total_account"       value="{{ totalAccount ?? '0' }}">
+                <input type="hidden" name="patient_account_id"  value="{{ patientAccountId ?? '' }}">
+
+                <div class="row g-3 mb-3">
+
+                    {# Tipo de diferencia #}
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold" for="diff-type">Tipo</label>
+                        <select class="form-select form-select-sm" id="diff-type" name="difference_type_id" required>
+                            <option value="">— Seleccione —</option>
+                            {% for type in types %}
+                                <option value="{{ type.id }}">{{ type.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {# Motivo #}
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold" for="diff-reason">Motivo</label>
+                        <select class="form-select form-select-sm" id="diff-reason" name="difference_reason_id">
+                            <option value="">— Seleccione —</option>
+                            {% for reason in reasons %}
+                                <option value="{{ reason.id }}">{{ reason.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {# Dirección #}
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold" for="diff-direction">Dirección</label>
+                        <select class="form-select form-select-sm" id="diff-direction" name="difference_direction_id">
+                            <option value="">— Seleccione —</option>
+                            {% for direction in directions %}
+                                <option value="{{ direction.id }}">{{ direction.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {# Monto de descuento #}
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold" for="diff-discount">Monto descuento ($)</label>
+                        <input type="number"
+                               class="form-control form-control-sm"
+                               id="diff-discount"
+                               name="total_discount"
+                               min="0"
+                               step="1"
+                               value="0"
+                               required
+                               data-action="input->revenue--difference#onDiscountInput">
+                    </div>
+
+                    {# Monto resultante (calculado) #}
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold" for="diff-after">Total con descuento ($)</label>
+                        <input type="number"
+                               class="form-control form-control-sm bg-light"
+                               id="diff-after"
+                               name="total_after_discount"
+                               readonly
+                               value="{{ totalAccount ?? '0' }}">
+                    </div>
+
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm"
+                            data-action="click->revenue--difference#closeDifference">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-warning btn-sm">
+                        <i class="bi bi-send me-1"></i> Solicitar autorización
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    {# ── Vista: estado post-solicitud (polling) ──────────────────────────── #}
+    {% else %}
+
+    <div data-controller="revenue--difference"
+         data-revenue--difference-difference-id-value="{{ difference.id }}"
+         data-revenue--difference-status-url-value="{{ statusUrl }}"
+         data-revenue--difference-cancel-url-value="{{ cancelUrl }}">
+
+        <div class="card {% if difference.isApproved() %}border-success{% elseif difference.status == 'rechazada' or difference.status == 'anulada' %}border-danger{% else %}border-warning{% endif %}">
+            <div class="card-header py-2 {% if difference.isApproved() %}bg-success-subtle{% elseif difference.status == 'rechazada' or difference.status == 'anulada' %}bg-danger-subtle{% else %}bg-warning-subtle{% endif %}">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-percent me-1"></i>
+                        Diferencia #{{ difference.id }}
+                    </h6>
+                    <small class="text-muted">
+                        {{ difference.requestedAt ? difference.requestedAt|date('H:i') : '' }}
+                    </small>
+                </div>
+            </div>
+
+            <div class="card-body py-2">
+
+                {# Resumen de montos #}
+                <div class="row g-1 mb-3 text-center small">
+                    <div class="col-4">
+                        <div class="text-muted">Cuenta original</div>
+                        <div class="fw-semibold">$ {{ difference.totalAccount|number_format(0, ',', '.') }}</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted">Descuento</div>
+                        <div class="fw-semibold text-danger">- $ {{ difference.totalDiscount|number_format(0, ',', '.') }}</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted">Total final</div>
+                        <div class="fw-bold text-success">$ {{ difference.totalAfterDiscount|number_format(0, ',', '.') }}</div>
+                    </div>
+                </div>
+
+                {# Turbo Frame de estado (se recarga automáticamente por el Stimulus controller) #}
+                <turbo-frame id="difference-status"
+                             data-revenue--difference-target="statusFrame">
+                    <div class="text-center text-muted py-3 small">
+                        <div class="spinner-border spinner-border-sm me-1" role="status"></div>
+                        Verificando estado...
+                    </div>
+                </turbo-frame>
+
+                {# Botón de anulación (solo si está pendiente) #}
+                {% if difference.isPending() %}
+                <div class="mt-2 text-end">
+                    <form method="POST"
+                          action="{{ cancelUrl }}"
+                          data-turbo-frame="difference-panel">
+                        <input type="hidden" name="_token"
+                               value="{{ csrf_token('difference_cancel_' ~ difference.id) }}">
+                        <button type="submit"
+                                class="btn btn-outline-secondary btn-sm"
+                                onclick="return confirm('¿Anular la solicitud de diferencia?')">
+                            <i class="bi bi-x-circle me-1"></i> Anular solicitud
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</turbo-frame>

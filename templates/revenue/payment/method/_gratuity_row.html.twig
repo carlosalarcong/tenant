@@ -1,0 +1,40 @@
+<div class="payment-row" data-payment-row data-method-code="{{ method_code }}" data-row-index="{{ index }}">
+    {# Fila 1: Tipo | Motivo | Monto #}
+    <div class="row g-2 mb-2">
+        <div class="col-12 col-md-4">
+            <label class="form-label">Tipo de gratuidad <span class="text-danger ms-1">*</span></label>
+            {{ form_widget(row_form.gratuity_type_id, {
+                full_name: row_name_prefix ~ '[gratuity_type_id]',
+                attr: { class: 'form-select' }
+            }) }}
+        </div>
+        <div class="col-12 col-md-4">
+            <label class="form-label">Motivo <span class="text-danger ms-1">*</span></label>
+            {{ form_widget(row_form.gratuity_reason_id, {
+                full_name: row_name_prefix ~ '[gratuity_reason_id]',
+                attr: { class: 'form-select' }
+            }) }}
+        </div>
+        <div class="col-12 col-md-4">
+            <label class="form-label">Monto exento <span class="text-danger ms-1">*</span></label>
+            {{ form_widget(row_form.amount, {
+                full_name: row_name_prefix ~ '[amount]',
+                attr: {
+                    class: 'form-control',
+                    'data-payment-amount-input': '1',
+                    placeholder: '0'
+                }
+            }) }}
+        </div>
+    </div>
+    {# Fila 2: Observaciones #}
+    <div class="row g-2">
+        <div class="col-12">
+            <label class="form-label">Observaciones</label>
+            {{ form_widget(row_form.notes, {
+                full_name: row_name_prefix ~ '[notes]',
+                attr: { class: 'form-control', rows: '2', placeholder: 'Observaciones (opcional)' }
+            }) }}
+        </div>
+    </div>
+</div>

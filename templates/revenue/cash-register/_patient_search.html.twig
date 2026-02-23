@@ -1,0 +1,20 @@
+<turbo-frame id="patient-search">
+    <div data-controller="revenue--patient-search"
+         data-revenue--patient-search-search-url-value="{{ path('app_revenue_cash_register_patient_find') }}">
+
+        <div class="position-relative">
+            <input type="text"
+                   class="form-control"
+                   placeholder="Buscar por RUT o nombre del paciente..."
+                   autocomplete="off"
+                   data-revenue--patient-search-target="input"
+                   data-action="input->revenue--patient-search#onInput keydown->revenue--patient-search#onKeydown">
+
+            <div class="list-group position-absolute w-100 shadow"
+                 data-revenue--patient-search-target="dropdown"
+                 style="top: 100%; left: 0; z-index: 1050; display: none;">
+            </div>
+        </div>
+
+    </div>
+</turbo-frame>

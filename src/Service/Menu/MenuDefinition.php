@@ -266,6 +266,14 @@ class MenuDefinition
                 'children' => []
             ],
             [
+                'name' => 'caja',
+                'label' => 'Caja',
+                'icon' => 'bx bx-dollar-circle',
+                'route' => 'app_revenue_cash_register_index',
+                'module' => 'revenue',
+                'children' => []
+            ],
+            [
                 'name' => 'citas',
                 'label' => 'Citas',
                 'icon' => $this->getIconForItem('citas'),

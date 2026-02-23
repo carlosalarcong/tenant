@@ -1,0 +1,48 @@
+{% extends 'maintainers/modern_index.html.twig' %}
+
+{% block page_title %}Asignaciones de Cajeros{% endblock %}
+{% block icon %}fa-user-tag{% endblock %}
+{% block breadcrumb_section %}Tesorería{% endblock %}
+{% block description %}Gestión de asignaciones de cajeros a ubicaciones de caja{% endblock %}
+
+{% block maintainer_routes %}
+    {% set index_route  = 'app_maintainers_treasury_cashier_assignment_index' %}
+    {% set create_route = 'app_maintainers_treasury_cashier_assignment_create' %}
+    {% set edit_route   = 'app_maintainers_treasury_cashier_assignment_edit' %}
+    {% set delete_route = 'app_maintainers_treasury_cashier_assignment_delete' %}
+    {% set export_route = 'app_maintainers_treasury_cashier_assignment_export' %}
+{% endblock %}
+
+{% block table_headers %}
+    <th>ID</th>
+    <th>Cajero</th>
+    <th>Ubicación de caja</th>
+    <th>Estado</th>
+    <th>Fecha asignación</th>
+    <th>{{ 'maintainers.common.actions'|trans({}, 'maintainers') }}</th>
+{% endblock %}
+
+{% block table_row %}
+    <td>{{ item.id }}</td>
+    <td>{{ item.member ? item.member.username : '-' }}</td>
+    <td>{{ item.cashRegisterLocation ? item.cashRegisterLocation.name : '-' }}</td>
+    <td>
+        {% if item.isActive %}
+            <span class="badge bg-success">Activo</span>
+        {% else %}
+            <span class="badge bg-danger">Inactivo</span>
+        {% endif %}
+    </td>
+    <td>{{ item.createdAt|date('d/m/Y') }}</td>
+    <td>
+        <button class="btn btn-sm btn-primary" onclick="editItem({{ item.id }})">
+            <i class="fas fa-edit"></i>
+        </button>
+        {% if item.isActive %}
+            <button class="btn btn-sm btn-warning" onclick="deleteItem({{ item.id }})"
+                    title="Desactivar asignación">
+                <i class="fas fa-user-slash"></i>
+            </button>
+        {% endif %}
+    </td>
+{% endblock %}

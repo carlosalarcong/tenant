@@ -27,6 +27,14 @@ class BillingItem
     #[Assert\Length(max: 255)]
     private string $name;
 
+    /**
+     * Tipo de afectación tributaria para DTE (Afecto IVA / Exento IVA).
+     * null = exento por defecto (tipodte=41).
+     */
+    #[ORM\ManyToOne(targetEntity: TaxAffectationType::class)]
+    #[ORM\JoinColumn(name: 'tax_affectation_type_id', referencedColumnName: 'id', nullable: true)]
+    private ?TaxAffectationType $taxAffectationType = null;
+
     #[ORM\Column(name: 'is_active', type: 'boolean')]
     private bool $isActive = true;
 
@@ -47,6 +55,17 @@ class BillingItem
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getTaxAffectationType(): ?TaxAffectationType
+    {
+        return $this->taxAffectationType;
+    }
+
+    public function setTaxAffectationType(?TaxAffectationType $taxAffectationType): self
+    {
+        $this->taxAffectationType = $taxAffectationType;
+        return $this;
     }
 
     public function getName(): string

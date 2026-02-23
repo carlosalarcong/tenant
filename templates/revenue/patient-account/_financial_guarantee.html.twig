@@ -1,0 +1,160 @@
+{#
+  Turbo Frame: patient-account-guarantee
+  Muestra el resguardo financiero de un ingreso: lista de PaymentAccounts (PagoCuenta)
+  asociados a la cuenta maestra del paciente para esta admisión.
+
+  Parámetros:
+    admission       App\Entity\Tenant\AdmissionRecord|null
+    account         App\Entity\Tenant\PatientAccount|null
+    paymentAccounts App\Entity\Tenant\PaymentAccount[]
+
+  Legacy: insertarReguardoFinancieroAction → ResguardoFinanciero.html.twig
+          (originalmente en CuentaPacienteBundle, no RecaudacionBundle)
+#}
+<turbo-frame id="patient-account-guarantee">
+
+  {% if admission is null %}
+    <div class="alert alert-secondary d-flex align-items-center gap-2 mb-0">
+      <i class="bx bx-file-blank fs-5" aria-hidden="true"></i>
+      <span>Seleccione un ingreso para ver el resguardo financiero.</span>
+    </div>
+
+  {% else %}
+    {# Cabecera: paciente + estado cuenta #}
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <div class="flex-grow-1">
+        <div class="fw-semibold">
+          {{ admission.patient.person.name }} {{ admission.patient.person.lastName }}
+        </div>
+        <div class="text-muted small">
+          {{ admission.patient.person.identification }}
+          {% if admission.admissionDate %}
+            · Ingreso: {{ admission.admissionDate|date('d/m/Y') }}
+          {% endif %}
+        </div>
+      </div>
+      {% if account and account.accountStatus %}
+        <span class="badge
+          {% if 'pendiente' in account.accountStatus.name|lower or 'abierta' in account.accountStatus.name|lower %}
+            bg-warning text-dark
+          {% elseif 'pagada' in account.accountStatus.name|lower %}
+            bg-success
+          {% else %}
+            bg-secondary
+          {% endif %}
+        ">{{ account.accountStatus.name }}</span>
+      {% endif %}
+    </div>
+
+    {% if paymentAccounts is empty %}
+      <div class="alert alert-info py-2 mb-0 small">
+        <i class="bx bx-info-circle me-1" aria-hidden="true"></i>
+        No hay resguardos financieros registrados para este ingreso.
+      </div>
+
+    {% else %}
+      {# Tabla de pagos / garantías #}
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="text-muted fw-normal small">N° Doc.</th>
+              <th class="text-muted fw-normal small">Fecha pago</th>
+              <th class="text-muted fw-normal small text-end">Monto</th>
+              <th class="text-muted fw-normal small">Estado</th>
+              <th class="text-muted fw-normal small">Cuota</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pa in paymentAccounts %}
+              <tr class="{% if pa.cancellationDate %}text-muted{% endif %}">
+                <td class="small">
+                  {% if pa.documentNumber %}
+                    {{ pa.documentNumber }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td class="small">
+                  {% if pa.paymentDate %}
+                    {{ pa.paymentDate|date('d/m/Y') }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td class="small text-end fw-semibold">
+                  {% if pa.amount is not null %}
+                    ${{ pa.amount|number_format(0, ',', '.') }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td class="small">
+                  {% if pa.paymentStatus %}
+                    <span class="badge
+                      {% set sn = pa.paymentStatus.name|lower %}
+                      {% if 'anulad' in sn or 'cancel' in sn %}
+                        bg-danger
+                      {% elseif 'regulariz' in sn or 'pagad' in sn %}
+                        bg-success
+                      {% elseif 'pendiente' in sn %}
+                        bg-warning text-dark
+                      {% else %}
+                        bg-secondary
+                      {% endif %}
+                    ">{{ pa.paymentStatus.name }}</span>
+                  {% else %}
+                    <span class="text-muted small">—</span>
+                  {% endif %}
+                </td>
+                <td class="small">
+                  {% if pa.installment %}
+                    {{ pa.installment }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {# Fila de anulación si aplica #}
+              {% if pa.cancellationDate %}
+                <tr class="table-danger">
+                  <td colspan="5" class="small py-1 text-danger">
+                    <i class="bx bx-x-circle me-1" aria-hidden="true"></i>
+                    Anulado el {{ pa.cancellationDate|date('d/m/Y') }}
+                    {% if pa.cancellationReason %} — {{ pa.cancellationReason }}{% endif %}
+                  </td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+          {# Pie: total #}
+          {% set totalAmount = 0 %}
+          {% for pa in paymentAccounts %}
+            {% if pa.amount is not null and not pa.cancellationDate %}
+              {% set totalAmount = totalAmount + pa.amount %}
+            {% endif %}
+          {% endfor %}
+          <tfoot class="table-light">
+            <tr>
+              <td colspan="2" class="small fw-semibold text-end">Total resguardado:</td>
+              <td class="small fw-semibold text-end">${{ totalAmount|number_format(0, ',', '.') }}</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      {# Diferencia con total de la cuenta #}
+      {% if account and account.totalAccount is not null %}
+        <div class="d-flex justify-content-end gap-3 mt-2 small text-muted">
+          <span>Total cuenta: <strong>${{ account.totalAccount|number_format(0, ',', '.') }}</strong></span>
+          <span>Saldo: <strong class="{% if account.accountBalance > 0 %}text-danger{% endif %}">
+            ${{ (account.accountBalance ?? 0)|number_format(0, ',', '.') }}
+          </strong></span>
+        </div>
+      {% endif %}
+
+    {% endif %}
+  {% endif %}
+
+</turbo-frame>

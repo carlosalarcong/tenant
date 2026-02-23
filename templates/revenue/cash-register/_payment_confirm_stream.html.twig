@@ -1,0 +1,47 @@
+{% if success %}
+{#
+  ── Éxito: reemplaza el frame payment-panel con un nuevo turbo-frame
+     que apunta al resumen del pago. Turbo cargará la URL automáticamente.
+#}
+<turbo-stream action="replace" target="payment-panel">
+    <template>
+        <turbo-frame id="payment-panel" src="{{ summaryUrl }}">
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando resumen...</span>
+                </div>
+                <p class="mt-2 text-muted small">Procesando pago, espera un momento…</p>
+            </div>
+        </turbo-frame>
+    </template>
+</turbo-stream>
+
+{% else %}
+{#
+  ── Error: reemplaza el frame payment-panel con los mensajes de error.
+     El cajero puede corregir y reintentar sin perder el formulario
+     (el estado está en sesión + DOM).
+#}
+<turbo-stream action="replace" target="payment-panel">
+    <template>
+        <turbo-frame id="payment-panel">
+            <div class="alert alert-danger mb-3">
+                <strong><i class="bi bi-exclamation-triangle-fill me-1"></i>No se pudo procesar el pago:</strong>
+                <ul class="mb-0 mt-1">
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="text-end">
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm"
+                        onclick="history.back()">
+                    <i class="bi bi-arrow-left me-1"></i> Volver y corregir
+                </button>
+            </div>
+        </turbo-frame>
+    </template>
+</turbo-stream>
+
+{% endif %}

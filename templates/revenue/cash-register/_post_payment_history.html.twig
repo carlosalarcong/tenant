@@ -1,0 +1,50 @@
+<turbo-frame id="post-payment-history">
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Fecha</th>
+                    <th>Caja</th>
+                    <th class="text-end">Monto</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pa in history %}
+                <tr class="{{ pa.id == currentPaymentAccount.id ? 'table-primary' : '' }}">
+                    <td class="text-muted small">{{ pa.id }}</td>
+                    <td class="small">{{ pa.paymentDate ? pa.paymentDate|date('d/m/Y H:i') : '—' }}</td>
+                    <td class="small">{{ pa.cashRegisterLocation ? pa.cashRegisterLocation.name : '—' }}</td>
+                    <td class="text-end">$ {{ pa.amount|number_format(0, ',', '.') }}</td>
+                    <td>
+                        {% if pa.cancellationDate %}
+                            <span class="badge bg-danger-subtle text-danger-emphasis">Anulado</span>
+                        {% elseif pa.paymentStatus %}
+                            <span class="badge bg-success-subtle text-success-emphasis">{{ pa.paymentStatus.name }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary-emphasis">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if pa.id != currentPaymentAccount.id %}
+                        <a href="{{ path('app_revenue_cash_register_post_payment_summary', {id: pa.id}) }}"
+                           class="btn btn-outline-secondary btn-sm py-0"
+                           data-turbo-frame="payment-panel">
+                            Ver
+                        </a>
+                        {% else %}
+                            <span class="text-muted small">actual</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-3 small">Sin pagos anteriores</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</turbo-frame>

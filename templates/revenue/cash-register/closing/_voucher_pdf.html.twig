@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Boleta #{{ voucherEntry ? voucherEntry.folioNumber : paymentAccount.id }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 11pt;
+            color: #1a1a1a;
+            padding: 24pt;
+        }
+
+        /* ── Encabezado ── */
+        .header {
+            border-bottom: 2pt solid #1a1a1a;
+            padding-bottom: 10pt;
+            margin-bottom: 14pt;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .org-name  { font-size: 16pt; font-weight: bold; }
+        .org-sub   { font-size: 9pt;  color: #555; margin-top: 2pt; }
+        .doc-box {
+            border: 1.5pt solid #1a1a1a;
+            padding: 8pt 14pt;
+            text-align: center;
+            min-width: 130pt;
+        }
+        .doc-title  { font-size: 13pt; font-weight: bold; text-transform: uppercase; }
+        .doc-folio  { font-size: 11pt; margin-top: 4pt; }
+        .doc-date   { font-size: 9pt; color: #555; margin-top: 2pt; }
+
+        /* ── Datos del receptor ── */
+        .section        { margin-bottom: 12pt; }
+        .section-title  { font-size: 10pt; font-weight: bold; text-transform: uppercase;
+                           letter-spacing: 0.04em; color: #444; border-bottom: 0.5pt solid #ccc;
+                           padding-bottom: 3pt; margin-bottom: 7pt; }
+        .field-row      { display: flex; margin-bottom: 4pt; }
+        .field-label    { width: 100pt; font-size: 9.5pt; color: #555; }
+        .field-value    { font-size: 9.5pt; font-weight: 600; }
+
+        /* ── Tablas ── */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10pt; font-size: 9.5pt; }
+        th {
+            background-color: #f0f0f0;
+            border: 0.5pt solid #bbb;
+            padding: 5pt 7pt;
+            text-align: left;
+            font-weight: bold;
+        }
+        td { border: 0.5pt solid #bbb; padding: 5pt 7pt; }
+        .text-right  { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* ── Totales ── */
+        .totals-table { margin-top: 8pt; }
+        .totals-table td { border: none; padding: 3pt 7pt; }
+        .totals-table .total-row { font-weight: bold; font-size: 12pt; border-top: 1pt solid #1a1a1a; }
+
+        /* ── Pie ── */
+        .footer {
+            margin-top: 20pt;
+            padding-top: 8pt;
+            border-top: 0.5pt solid #ccc;
+            font-size: 8.5pt;
+            color: #888;
+            text-align: center;
+        }
+        .void-banner {
+            border: 3pt solid #cc0000;
+            color: #cc0000;
+            font-size: 18pt;
+            font-weight: bold;
+            text-align: center;
+            padding: 6pt;
+            margin-bottom: 14pt;
+            letter-spacing: 0.1em;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    {# ── Banner de anulación ─────────────────────────────────────────────── #}
+    {% if paymentAccount.cancellationDate %}
+    <div class="void-banner">ANULADO</div>
+    {% endif %}
+
+    {# ── Encabezado ──────────────────────────────────────────────────────── #}
+    <div class="header">
+        <div class="header-top">
+            <div>
+                <div class="org-name">{{ app.request ? app.request.host : 'Centro de Salud' }}</div>
+                <div class="org-sub">Sistema de Gestión Hospitalaria</div>
+            </div>
+            <div class="doc-box">
+                <div class="doc-title">Boleta</div>
+                <div class="doc-folio">
+                    Folio: <strong>{{ voucherEntry ? voucherEntry.folioNumber : 'S/N' }}</strong>
+                </div>
+                <div class="doc-date">
+                    {{ paymentAccount.paymentDate ? paymentAccount.paymentDate|date('d/m/Y H:i') : '—' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── Datos del paciente ───────────────────────────────────────────────── #}
+    {% set patient = paymentAccount.patient %}
+    {% if patient %}
+    <div class="section">
+        <div class="section-title">Datos del paciente</div>
+        <div class="field-row">
+            <span class="field-label">Nombre:</span>
+            <span class="field-value">{{ patient.person.name }} {{ patient.person.lastName }}</span>
+        </div>
+        <div class="field-row">
+            <span class="field-label">RUT:</span>
+            <span class="field-value">{{ patient.person.identification }}</span>
+        </div>
+        <div class="field-row">
+            <span class="field-label">Previsión:</span>
+            <span class="field-value">{{ patient.payer ? patient.payer.name : '—' }}</span>
+        </div>
+        {% if patient.agreement %}
+        <div class="field-row">
+            <span class="field-label">Convenio:</span>
+            <span class="field-value">{{ patient.agreement.name }}</span>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {# ── Prestaciones ─────────────────────────────────────────────────────── #}
+    {% if clinicalActions is not empty %}
+    <div class="section">
+        <div class="section-title">Prestaciones</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Prestación</th>
+                    <th class="text-center" style="width:55pt">Cant.</th>
+                    <th class="text-right"  style="width:80pt">P. Unitario</th>
+                    <th class="text-right"  style="width:70pt">Descuento</th>
+                    <th class="text-right"  style="width:80pt">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cap in clinicalActions %}
+                <tr>
+                    <td>{{ cap.billingItem ? cap.billingItem.name : '—' }}</td>
+                    <td class="text-center">{{ cap.quantity }}</td>
+                    <td class="text-right">$ {{ cap.unitPrice|number_format(0, ',', '.') }}</td>
+                    <td class="text-right">$ {{ cap.discountAmount|number_format(0, ',', '.') }}</td>
+                    <td class="text-right"><strong>$ {{ cap.totalAmount|number_format(0, ',', '.') }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {# ── Medios de pago ───────────────────────────────────────────────────── #}
+    <div class="section">
+        <div class="section-title">Formas de pago</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Forma de pago</th>
+                    <th>Referencia</th>
+                    <th class="text-right" style="width:90pt">Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detail in details %}
+                <tr>
+                    <td>{{ detail.paymentMethod ? detail.paymentMethod.name : '—' }}</td>
+                    <td class="text-center">
+                        {{ detail.referenceNumber ?? '' }}
+                        {% if detail.cardLastDigits %}···{{ detail.cardLastDigits }}{% endif %}
+                    </td>
+                    <td class="text-right">$ {{ detail.amount|number_format(0, ',', '.') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" class="text-center">—</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# ── Total ────────────────────────────────────────────────────────────── #}
+    <table class="totals-table">
+        <tr class="total-row">
+            <td class="text-right" style="width:75%">TOTAL COBRADO:</td>
+            <td class="text-right">$ {{ paymentAccount.amount|number_format(0, ',', '.') }}</td>
+        </tr>
+    </table>
+
+    {# ── Caja ─────────────────────────────────────────────────────────────── #}
+    {% if paymentAccount.cashRegisterLocation %}
+    <div style="font-size:9pt; color:#555; margin-top:10pt;">
+        Caja: {{ paymentAccount.cashRegisterLocation.name }}
+        {% if paymentAccount.createdByMember %}
+            · Cajero: {{ paymentAccount.createdByMember.name ?? paymentAccount.createdByMember.email }}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {# ── Pie de página ────────────────────────────────────────────────────── #}
+    <div class="footer">
+        Documento generado electrónicamente · Pago #{{ paymentAccount.id }}
+        {% if paymentAccount.cancellationDate %}
+            · ANULADO el {{ paymentAccount.cancellationDate|date('d/m/Y H:i') }}
+        {% endif %}
+    </div>
+
+</body>
+</html>

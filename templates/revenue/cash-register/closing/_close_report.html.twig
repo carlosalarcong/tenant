@@ -1,0 +1,150 @@
+{#
+  Turbo Frame: cash-register-report
+  Resumen HTML del cierre de caja. Sin PDF (Fase G).
+
+  Parámetros:
+    cashRegister  CashRegister            — caja cerrada
+    details       CashRegisterDetail[]    — detalle por forma de pago
+
+  Legacy: gestionInformeCajaAction (vista)
+#}
+<turbo-frame id="cash-register-report">
+
+  {# ── Flash de confirmación ── #}
+  {% for label, messages in app.flashes %}
+    {% for message in messages %}
+      <div class="alert alert-{{ label == 'success' ? 'success' : (label == 'warning' ? 'warning' : 'danger') }} alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+        <i class="bx {{ label == 'success' ? 'bx-check-circle' : 'bx-error-circle' }} fs-5" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+      </div>
+    {% endfor %}
+  {% endfor %}
+
+  <div class="card border-0 shadow-sm">
+
+    {# ── Encabezado ── #}
+    <div class="card-header bg-white d-flex align-items-center gap-2 py-2">
+      <i class="bx bx-file-blank text-secondary fs-5" aria-hidden="true"></i>
+      <strong class="me-auto">Informe de cierre de caja</strong>
+      <span class="badge {{ cashRegister.status == 'cerrada' ? 'bg-success' : 'bg-warning text-dark' }}">
+        {{ cashRegister.status|upper }}
+      </span>
+    </div>
+
+    <div class="card-body">
+
+      {# ── Datos de la sesión ── #}
+      <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-md-3">
+          <div class="small text-muted">Cajero</div>
+          <div class="fw-semibold">{{ cashRegister.member.username }}</div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <div class="small text-muted">Ubicación</div>
+          <div class="fw-semibold">{{ cashRegister.cashRegisterLocation.name }}</div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <div class="small text-muted">Apertura</div>
+          <div class="fw-semibold">{{ cashRegister.openedAt|date('d/m/Y H:i') }}</div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <div class="small text-muted">Cierre</div>
+          <div class="fw-semibold">
+            {{ cashRegister.closedAt ? cashRegister.closedAt|date('d/m/Y H:i') : '—' }}
+          </div>
+        </div>
+      </div>
+
+      {# ── Totales ── #}
+      <div class="row g-2 text-center mb-4">
+        <div class="col-6 col-md-3">
+          <div class="bg-light rounded p-2">
+            <div class="small text-muted">Monto inicial</div>
+            <div class="fw-semibold">${{ cashRegister.initialAmount|number_format(0, ',', '.') }}</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="bg-light rounded p-2">
+            <div class="small text-muted">Monto real</div>
+            <div class="fw-semibold">
+              {{ cashRegister.realAmount is not null
+                 ? '$' ~ cashRegister.realAmount|number_format(0, ',', '.')
+                 : '—' }}
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="bg-light rounded p-2">
+            <div class="small text-muted">Superávit</div>
+            <div class="fw-semibold {{ cashRegister.surplus > 0 ? 'text-success' : '' }}">
+              {{ cashRegister.surplus is not null
+                 ? '$' ~ cashRegister.surplus|number_format(0, ',', '.')
+                 : '—' }}
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="bg-light rounded p-2">
+            <div class="small text-muted">Déficit</div>
+            <div class="fw-semibold {{ cashRegister.deficit > 0 ? 'text-danger' : '' }}">
+              {{ cashRegister.deficit is not null
+                 ? '$' ~ cashRegister.deficit|number_format(0, ',', '.')
+                 : '—' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Detalle por forma de pago ── #}
+      {% if details is not empty %}
+        <h6 class="text-muted text-uppercase small fw-bold mb-2">Detalle por forma de pago</h6>
+        <div class="table-responsive mb-3">
+          <table class="table table-sm align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Forma de pago</th>
+                <th>Banco</th>
+                <th>N° depósito</th>
+                <th class="text-end">Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% set total = 0 %}
+              {% for detail in details %}
+                {% set total = total + detail.amount %}
+                <tr>
+                  <td class="small">{{ detail.paymentMethod.name }}</td>
+                  <td class="small text-muted">{{ detail.bank ? detail.bank.name : '—' }}</td>
+                  <td class="small text-muted">{{ detail.depositNumber ?? '—' }}</td>
+                  <td class="text-end fw-semibold small">${{ detail.amount|number_format(0, ',', '.') }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot class="table-light">
+              <tr>
+                <th colspan="3" class="text-end">Total contado</th>
+                <th class="text-end">${{ total|number_format(0, ',', '.') }}</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted small">No se registraron detalles de cierre.</p>
+      {% endif %}
+
+      {# ── Acciones ── #}
+      <div class="d-flex gap-2 justify-content-end">
+        <a href="{{ path('app_revenue_cash_register_open') }}"
+           class="btn btn-outline-primary btn-sm"
+           data-turbo-frame="cash-register-open">
+          <i class="bx bx-log-in-circle me-1" aria-hidden="true"></i>
+          Abrir nueva caja
+        </a>
+        {# PDF disponible en Fase G #}
+      </div>
+
+    </div>
+  </div>
+
+</turbo-frame>

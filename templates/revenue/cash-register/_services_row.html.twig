@@ -1,0 +1,43 @@
+<tr id="service-row-{{ row.rowId }}"
+    data-service-row
+    data-row-id="{{ row.rowId }}"
+    data-billing-item-id="{{ row.billingItemId }}"
+    data-item-name="{{ row.name|e('html_attr') }}"
+    data-unit-amount="{{ row.unitAmount }}">
+    <td>{{ row.name }}</td>
+    <td class="text-center" style="width:90px">
+        <input type="number"
+               class="form-control form-control-sm text-center"
+               value="{{ row.quantity }}"
+               min="1"
+               step="1"
+               data-row-id="{{ row.rowId }}"
+               data-field="quantity"
+               data-action="change->revenue--services-selector#onRowChange">
+    </td>
+    <td class="text-end pe-2" style="width:110px">
+        {{ row.unitAmount|number_format(0, ',', '.') }}
+    </td>
+    <td class="text-end" style="width:110px">
+        <input type="number"
+               class="form-control form-control-sm text-end"
+               value="{{ row.discount }}"
+               min="0"
+               step="1"
+               data-row-id="{{ row.rowId }}"
+               data-field="discount"
+               data-action="change->revenue--services-selector#onRowChange">
+    </td>
+    <td class="text-end fw-semibold" id="service-row-total-{{ row.rowId }}" style="width:120px">
+        $ {{ row.totalAmount|number_format(0, ',', '.') }}
+    </td>
+    <td class="text-center" style="width:48px">
+        <button type="button"
+                class="btn btn-sm btn-outline-danger"
+                data-action="click->revenue--services-selector#onRemoveClick"
+                data-revenue--services-selector-row-id-param="{{ row.rowId }}"
+                title="Eliminar">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </td>
+</tr>

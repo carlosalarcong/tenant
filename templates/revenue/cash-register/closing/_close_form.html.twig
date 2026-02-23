@@ -1,0 +1,118 @@
+{#
+  Turbo Frame: cash-register-close
+  Formulario de cierre de caja. El cajero ingresa el monto real contado
+  por cada forma de pago activa.
+
+  Parámetros:
+    cashRegister    CashRegister        — caja a cerrar
+    paymentMethods  PaymentMethod[]     — formas de pago activas
+
+  Nota: Los "totales esperados" muestran $0 hasta que la Fase C
+  integre los registros de PaymentAccountDetail.
+
+  Legacy: gestionCerrarCajaAction (vista)
+#}
+<turbo-frame id="cash-register-close">
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex align-items-center gap-2 py-2">
+      <i class="bx bx-log-out-circle text-danger fs-5" aria-hidden="true"></i>
+      <strong class="me-auto">Cerrar caja</strong>
+      <span class="badge bg-light text-dark border">
+        {{ cashRegister.cashRegisterLocation.name }}
+      </span>
+    </div>
+
+    <div class="card-body">
+
+      {# ── Resumen de apertura ── #}
+      <div class="row g-2 mb-4 text-center">
+        <div class="col-6 col-md-3">
+          <div class="bg-light rounded p-2">
+            <div class="small text-muted">Apertura</div>
+            <div class="fw-semibold">{{ cashRegister.openedAt|date('d/m/Y H:i') }}</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="bg-light rounded p-2">
+            <div class="small text-muted">Monto inicial</div>
+            <div class="fw-semibold">${{ cashRegister.initialAmount|number_format(0, ',', '.') }}</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="bg-light rounded p-2">
+            <div class="small text-muted">Total esperado</div>
+            <div class="fw-semibold text-muted" title="Disponible en Fase C">$0</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="bg-light rounded p-2">
+            <div class="small text-muted">Cajero</div>
+            <div class="fw-semibold small">{{ cashRegister.member.username }}</div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Formulario de montos por forma de pago ── #}
+      <form method="post"
+            action="{{ path('app_revenue_cash_register_close_submit', {id: cashRegister.id}) }}"
+            data-turbo-frame="cash-register-close">
+        <input type="hidden" name="_token"
+               value="{{ csrf_token('cash_register_close_' ~ cashRegister.id) }}">
+
+        {% if paymentMethods is empty %}
+          <div class="alert alert-warning mb-3">
+            <i class="bx bx-error-circle me-1"></i>
+            No hay formas de pago activas configuradas.
+          </div>
+        {% else %}
+          <div class="table-responsive mb-4">
+            <table class="table table-sm align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Forma de pago</th>
+                  <th class="text-end" style="width:170px">Monto contado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for method in paymentMethods %}
+                  <tr>
+                    <td class="fw-semibold small">{{ method.name }}</td>
+                    <td class="text-end">
+                      <div class="input-group input-group-sm justify-content-end">
+                        <span class="input-group-text">$</span>
+                        <input type="number"
+                               name="amounts[{{ method.id }}]"
+                               class="form-control text-end"
+                               style="max-width:120px"
+                               min="0"
+                               step="1"
+                               value="0"
+                               placeholder="0">
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
+
+        <div class="d-flex gap-2 justify-content-end">
+          <a href="{{ path('app_revenue_cash_register_open') }}"
+             class="btn btn-outline-secondary btn-sm"
+             data-turbo-frame="cash-register-open">
+            Cancelar
+          </a>
+          <button type="submit" class="btn btn-danger btn-sm"
+                  onclick="return confirm('¿Confirma el cierre de caja?')">
+            <i class="bx bx-lock-alt me-1" aria-hidden="true"></i>
+            Confirmar cierre
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+</turbo-frame>

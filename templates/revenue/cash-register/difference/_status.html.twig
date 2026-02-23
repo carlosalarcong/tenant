@@ -1,0 +1,84 @@
+<turbo-frame id="difference-status"
+             data-difference-status="{{ difference.status }}"
+             data-discount-amount="{{ difference.totalDiscount }}"
+             data-total-after-discount="{{ difference.totalAfterDiscount }}">
+
+    {% if difference.isPending() %}
+
+        {# ── Pendiente de autorización ──────────────────────────────────── #}
+        <div class="text-center py-3">
+            <div class="spinner-border spinner-border-sm text-warning me-1" role="status"
+                 aria-hidden="true"></div>
+            <span class="text-muted small">
+                Esperando autorización de supervisor...
+            </span>
+        </div>
+
+        <div class="alert alert-warning py-2 px-3 mb-0 small">
+            <i class="bi bi-hourglass-split me-1"></i>
+            La solicitud está siendo revisada. Esta pantalla se actualizará
+            automáticamente cuando el supervisor resuelva la solicitud.
+        </div>
+
+    {% elseif difference.isApproved() %}
+
+        {# ── Aprobada (manual o auto-aprobada) ──────────────────────────── #}
+        <div class="alert alert-success py-2 px-3 mb-0">
+            <div class="fw-semibold mb-1">
+                <i class="bi bi-check-circle-fill me-1"></i>
+                {% if difference.status == 'auto_aprobada' %}
+                    Descuento aprobado automáticamente
+                {% else %}
+                    Descuento autorizado
+                {% endif %}
+            </div>
+            <div class="small">
+                Descuento de
+                <strong>$ {{ difference.totalDiscount|number_format(0, ',', '.') }}</strong>
+                aplicado. Nuevo total:
+                <strong>$ {{ difference.totalAfterDiscount|number_format(0, ',', '.') }}</strong>
+            </div>
+            {% if difference.authorizedByMember %}
+                <div class="text-muted small mt-1">
+                    Por: {{ difference.authorizedByMember.name ?? difference.authorizedByMember.email }}
+                    {% if difference.authorizedAt %}
+                        · {{ difference.authorizedAt|date('H:i') }}
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+    {% elseif difference.status == 'rechazada' %}
+
+        {# ── Rechazada ──────────────────────────────────────────────────── #}
+        <div class="alert alert-danger py-2 px-3 mb-0">
+            <div class="fw-semibold mb-1">
+                <i class="bi bi-x-circle-fill me-1"></i>
+                Solicitud rechazada
+            </div>
+            <div class="small">
+                El supervisor no autorizó el descuento. El cobro se realizará
+                por el monto original de
+                <strong>$ {{ difference.totalAccount|number_format(0, ',', '.') }}</strong>.
+            </div>
+            {% if difference.authorizedByMember %}
+                <div class="text-muted small mt-1">
+                    Por: {{ difference.authorizedByMember.name ?? difference.authorizedByMember.email }}
+                    {% if difference.authorizedAt %}
+                        · {{ difference.authorizedAt|date('H:i') }}
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+    {% else %}
+
+        {# ── Anulada ────────────────────────────────────────────────────── #}
+        <div class="alert alert-secondary py-2 px-3 mb-0 small">
+            <i class="bi bi-dash-circle me-1"></i>
+            Solicitud anulada.
+        </div>
+
+    {% endif %}
+
+</turbo-frame>
