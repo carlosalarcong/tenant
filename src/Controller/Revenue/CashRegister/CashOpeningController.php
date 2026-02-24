@@ -102,13 +102,13 @@ class CashOpeningController extends AbstractTenantAwareController
                 default      => 'No es posible abrir una caja en el estado actual.',
             });
 
-            return $this->redirectToRoute('app_revenue_cash_register_open');
+            return $this->redirectToRoute('app_revenue_cash_register_index');
         }
 
         $locationId = (int) $request->request->get('location_id', 0);
         if ($locationId <= 0) {
             $this->addFlash('danger', 'Debe seleccionar una ubicación de caja.');
-            return $this->redirectToRoute('app_revenue_cash_register_open');
+            return $this->redirectToRoute('app_revenue_cash_register_index');
         }
 
         $location = $this->locationRepository->find($locationId);
@@ -125,7 +125,7 @@ class CashOpeningController extends AbstractTenantAwareController
             $location->getName()
         ));
 
-        return $this->redirectToRoute('app_revenue_cash_register_open');
+        return $this->redirectToRoute('app_revenue_cash_register_index');
     }
 
     // -------------------------------------------------------------------------
@@ -188,30 +188,60 @@ class CashOpeningController extends AbstractTenantAwareController
             return $this->redirectToRoute('app_revenue_cash_register_report', ['id' => $id]);
         }
 
-        // Construir detailData desde el formulario: amounts[{payment_method_id}] = monto
-        $amounts  = $request->request->all('amounts');
-        $bankIds  = $request->request->all('bank_ids');
-        $deposits = $request->request->all('deposit_numbers');
+        // ── Determinar si proviene del formulario simplificado (modal §2c)
+        //    o del formulario detallado por forma de pago.
+        $isSimpleForm = $request->request->has('difference_type');
 
-        $detailData = [];
-        foreach ($amounts as $methodId => $amount) {
-            $amountClean = str_replace(['.', ','], ['', '.'], (string) $amount);
-            if (!is_numeric($amountClean) || (float) $amountClean < 0) {
-                continue;
+        if ($isSimpleForm) {
+            // Formulario simplificado del modal Gestión Caja (§2c):
+            // No envía montos por método de pago; cierra con detailData vacío.
+            // TODO (Fase C): capturar deposit_number y asociarlo al método EFECTIVO.
+            $detailData = [];
+        } else {
+            // Formulario detallado: amounts[{payment_method_id}] = monto
+            $amounts  = $request->request->all('amounts');
+            $bankIds  = $request->request->all('bank_ids');
+            $deposits = $request->request->all('deposit_numbers');
+
+            $detailData = [];
+            foreach ($amounts as $methodId => $amount) {
+                $amountClean = str_replace(['.', ','], ['', '.'], (string) $amount);
+                if (!is_numeric($amountClean) || (float) $amountClean < 0) {
+                    continue;
+                }
+                $detailData[] = [
+                    'payment_method_id' => (int) $methodId,
+                    'amount'            => number_format((float) $amountClean, 2, '.', ''),
+                    'bank_id'           => isset($bankIds[$methodId]) ? (int) $bankIds[$methodId] : null,
+                    'deposit_number'    => $deposits[$methodId] ?? null,
+                ];
             }
-            $detailData[] = [
-                'payment_method_id' => (int) $methodId,
-                'amount'            => number_format((float) $amountClean, 2, '.', ''),
-                'bank_id'           => isset($bankIds[$methodId]) ? (int) $bankIds[$methodId] : null,
-                'deposit_number'    => $deposits[$methodId] ?? null,
-            ];
         }
 
         $this->cashRegisterService->closeRegister($cashRegister, $detailData);
 
+        // ── Aplicar diferencia manual si proviene del modal simplificado (§2c)
+        if ($isSimpleForm) {
+            $diffType   = $request->request->get('difference_type', 'no');
+            $diffAmount = str_replace(['.', ','], ['', '.'], (string) $request->request->get('difference_amount', '0'));
+            $diffAmount = is_numeric($diffAmount) ? number_format((float) $diffAmount, 2, '.', '') : '0.00';
+
+            if ($diffType === 'superavit') {
+                $this->cashRegisterService->overrideDifference($cashRegister, $diffAmount, '0.00');
+            } elseif ($diffType === 'deficit') {
+                $this->cashRegisterService->overrideDifference($cashRegister, '0.00', $diffAmount);
+            }
+        }
+
         $request->getSession()->remove('cash_register_id');
 
         $this->addFlash('success', 'Caja cerrada correctamente.');
+
+        // El modal simplificado (§2c) vuelve al dashboard de Gestión Caja con flash.
+        // El formulario detallado (standalone /close/{id}) va al reporte de cierre.
+        if ($isSimpleForm) {
+            return $this->redirectToRoute('app_revenue_cash_register_index');
+        }
 
         return $this->redirectToRoute('app_revenue_cash_register_report', ['id' => $id]);
     }

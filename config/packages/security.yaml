@@ -13,6 +13,7 @@ security:
     role_hierarchy:
         ROLE_CASH_SUPERVISOR: [ROLE_USER]
         ROLE_CASH_ADMIN:      [ROLE_CASH_SUPERVISOR]
+        ROLE_ADMIN:           [ROLE_CASH_ADMIN]
 
     firewalls:
         dev:

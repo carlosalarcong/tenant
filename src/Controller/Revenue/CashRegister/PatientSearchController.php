@@ -61,11 +61,23 @@ class PatientSearchController extends AbstractTenantAwareController
     {
         $query = trim($request->query->getString('q', ''));
 
-        if (mb_strlen($query) < 2) {
+        // Parámetros de búsqueda avanzada (§3a)
+        $nombre          = trim($request->query->getString('nombre', ''));
+        $apellidoPaterno = trim($request->query->getString('apellido_paterno', ''));
+        $apellidoMaterno = trim($request->query->getString('apellido_materno', ''));
+        $matchType       = $request->query->getString('match_type', 'exact');
+
+        $isAdvanced = $nombre !== '' || $apellidoPaterno !== '' || $apellidoMaterno !== '';
+
+        if ($isAdvanced) {
+            $patients = $this->patientRepository->searchByAdvanced(
+                $nombre, $apellidoPaterno, $apellidoMaterno, $matchType, 10
+            );
+        } elseif (mb_strlen($query) >= 2) {
+            $patients = $this->patientRepository->searchByQuery($query, 10);
+        } else {
             return $this->json([]);
         }
-
-        $patients = $this->patientRepository->searchByQuery($query, 10);
 
         $results = [];
         foreach ($patients as $patient) {

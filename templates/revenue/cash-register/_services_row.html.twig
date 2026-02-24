@@ -4,8 +4,18 @@
     data-billing-item-id="{{ row.billingItemId }}"
     data-item-name="{{ row.name|e('html_attr') }}"
     data-unit-amount="{{ row.unitAmount }}">
+
+    {# Código — pendiente de mapear en BillingItem #}
+    <td class="text-muted small" style="width:150px">—</td>
+
+    {# Pabellón — fijo "No Aplica" por convención §3e #}
+    <td class="small" style="width:90px">No Aplica</td>
+
+    {# Nombre #}
     <td>{{ row.name }}</td>
-    <td class="text-center" style="width:90px">
+
+    {# Cantidad — editable #}
+    <td class="text-center" style="width:80px">
         <input type="number"
                class="form-control form-control-sm text-center"
                value="{{ row.quantity }}"
@@ -15,22 +25,25 @@
                data-field="quantity"
                data-action="change->revenue--services-selector#onRowChange">
     </td>
-    <td class="text-end pe-2" style="width:110px">
-        {{ row.unitAmount|number_format(0, ',', '.') }}
-    </td>
+
+    {# Valor (monto unitario) — editable #}
     <td class="text-end" style="width:110px">
         <input type="number"
                class="form-control form-control-sm text-end"
-               value="{{ row.discount }}"
+               value="{{ row.unitAmount }}"
                min="0"
                step="1"
                data-row-id="{{ row.rowId }}"
-               data-field="discount"
+               data-field="unitAmount"
                data-action="change->revenue--services-selector#onRowChange">
     </td>
-    <td class="text-end fw-semibold" id="service-row-total-{{ row.rowId }}" style="width:120px">
+
+    {# Total — calculado #}
+    <td class="text-end fw-semibold" id="service-row-total-{{ row.rowId }}" style="width:110px">
         $ {{ row.totalAmount|number_format(0, ',', '.') }}
     </td>
+
+    {# Eliminar #}
     <td class="text-center" style="width:48px">
         <button type="button"
                 class="btn btn-sm btn-outline-danger"

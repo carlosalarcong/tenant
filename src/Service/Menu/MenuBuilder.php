@@ -87,6 +87,30 @@ class MenuBuilder
             }
         }
 
+        // Expandir Caja para cualquiera de sus submódulos de Revenue.
+        if (($item['name'] ?? null) === 'caja') {
+            if (
+                str_contains($currentPath, '/revenue/cash-register')
+                || str_contains($currentPath, '/revenue/supervisor')
+                || str_contains($currentPath, '/revenue/patient-account')
+                || str_contains($currentPath, '/revenue/dte')
+            ) {
+                return true;
+            }
+        }
+
+        // Mantener expandido el subitem "Supervisor" en todas sus rutas.
+        if (($item['name'] ?? null) === 'caja_supervisor') {
+            if (str_contains($currentPath, '/revenue/supervisor') || str_contains($currentPath, '/revenue/dte')) {
+                return true;
+            }
+        }
+
+        // Mantener expandido el subitem "Pago Cuenta" en todas sus rutas.
+        if (($item['name'] ?? null) === 'caja_pago_cuenta' && str_contains($currentPath, '/revenue/patient-account')) {
+            return true;
+        }
+
         return false;
     }
 
@@ -97,9 +121,26 @@ class MenuBuilder
     {
         $request = $this->requestStack->getCurrentRequest();
         $currentRoute = $request?->attributes->get('_route');
+        $currentPath = $request?->getPathInfo() ?? '';
 
-        return array_map(function($item) use ($currentRoute) {
+        return array_map(function($item) use ($currentRoute, $currentPath) {
             $item['is_active'] = isset($item['route']) && $item['route'] === $currentRoute;
+
+            // Activación por prefijo de path para submódulos con múltiples endpoints.
+            if (($item['name'] ?? null) === 'caja_recaudacion' && str_contains($currentPath, '/revenue/cash-register')) {
+                $item['is_active'] = true;
+            }
+
+            if (($item['name'] ?? null) === 'caja_supervisor') {
+                if (str_contains($currentPath, '/revenue/supervisor') || str_contains($currentPath, '/revenue/dte')) {
+                    $item['is_active'] = true;
+                }
+            }
+
+            if (($item['name'] ?? null) === 'caja_pago_cuenta' && str_contains($currentPath, '/revenue/patient-account')) {
+                $item['is_active'] = true;
+            }
+
             $item['should_expand'] = $this->shouldExpand($item);
 
             if (!empty($item['children'])) {

@@ -4,6 +4,7 @@ namespace App\Controller\Revenue\CashRegister;
 
 use App\Controller\AbstractTenantAwareController;
 use App\Entity\Tenant\Member;
+use App\Repository\Tenant\CashRegisterLocationRepository;
 use App\Repository\Tenant\CashRegisterRepository;
 use App\Service\Revenue\CashRegister\CashRegisterService;
 use App\Service\Revenue\Payment\PaymentMethodConfigRegistry;
@@ -17,37 +18,81 @@ use Symfony\Component\Routing\Attribute\Route;
  * Shell principal del módulo de caja.
  *
  * Entrypoints:
- *   - GET /revenue/cash-register                             → cobro directo
- *   - GET /revenue/cash-register/from-admission/{id}        → cobro vinculado a admisión
- *   - GET /revenue/cash-register/from-appointment/{id}      → cobro vinculado a cita
+ *   - GET /revenue/cash-register                             → dashboard con tabs (entrada principal)
+ *   - GET /revenue/cash-register/from-admission/{id}        → cobro directo vinculado a admisión
+ *   - GET /revenue/cash-register/from-appointment/{id}      → cobro directo vinculado a cita
  *   - GET /revenue/cash-register/status-bar                 → Turbo Frame de barra de estado
  *
- * El index renderiza el layout completo con los Turbo Frames y el orquestador
- * Stimulus (revenue--cash-register). Los frames internos se cargan de forma lazy
- * desde sus respectivos controllers (PatientSearch, Services, PostPayment, etc.).
+ * El index renderiza el dashboard con tabs (Gestión Caja / Pago Paciente / Informes).
+ * El tab activo por defecto depende del estado operativo de la caja del cajero.
+ * Los accesos desde admisión/cita renderizan el shell de cobro directamente, sin tabs.
  *
- * Legacy: CajaController / IndexCajaAction
+ * Legacy: CajaController / IndexCajaAction + DefaultController::indexAction
  */
 #[Route('/revenue/cash-register', name: 'app_revenue_cash_register_')]
 class CashRegisterController extends AbstractTenantAwareController
 {
     public function __construct(
-        private readonly CashRegisterService        $cashRegisterService,
-        private readonly CashRegisterRepository     $cashRegisterRepository,
-        private readonly PaymentMethodConfigRegistry $configRegistry,
-        private readonly FormFactoryInterface       $formFactory,
+        private readonly CashRegisterService           $cashRegisterService,
+        private readonly CashRegisterRepository        $cashRegisterRepository,
+        private readonly CashRegisterLocationRepository $locationRepository,
+        private readonly PaymentMethodConfigRegistry   $configRegistry,
+        private readonly FormFactoryInterface          $formFactory,
     ) {}
 
     // -------------------------------------------------------------------------
-    // Index — shell principal
+    // Index — dashboard de entrada con tabs
     // -------------------------------------------------------------------------
 
-    /** Cobro directo (sin origen específico). */
+    /**
+     * Pantalla de entrada del módulo de Caja.
+     *
+     * Renderiza el dashboard con 3 tabs:
+     *   - Gestión Caja  → activo por defecto si la caja NO está operativa
+     *   - Pago Paciente → activo por defecto si la caja está operativa (status 'open')
+     *   - Informes      → placeholder (Fase 2)
+     *
+     * Legacy: DefaultController::indexAction + validacionComplementariaCaja
+     */
     #[Route('', name: 'index', methods: ['GET'])]
     public function index(): Response
     {
-        return $this->renderShell('direct');
+        $member     = $this->resolveCurrentMember();
+        $cashStatus = $this->cashRegisterService->validateOperatingStatus($member);
+
+        $openRegister = ($cashStatus !== 'closed')
+            ? $this->cashRegisterRepository->findOpenByMember($member)
+            : null;
+
+        $locations = ($cashStatus === 'closed')
+            ? $this->locationRepository->findAllActive()
+            : [];
+
+        $lastClosedRegister = ($cashStatus === 'closed')
+            ? $this->cashRegisterRepository->findLastClosedByMember($member)
+            : null;
+
+        return $this->render('revenue/dashboard/index.html.twig', [
+            'cashStatus'          => $cashStatus,
+            'openRegister'        => $openRegister,
+            'lastClosedRegister'  => $lastClosedRegister,
+            'locations'           => $locations,
+            'context'           => 'direct',
+            'admissionRecordId' => 0,
+            'appointmentId'     => 0,
+            'payment_methods'   => $this->configRegistry->all(),
+            'initial_rows'      => $this->createInitialPaymentRows(),
+            'statusBarUrl'      => $this->generateUrl('app_revenue_cash_register_status_bar'),
+            'patientSearchUrl'  => $this->generateUrl('app_revenue_cash_register_patient_search'),
+            'servicesUrl'       => $this->generateUrl('app_revenue_cash_register_services_panel'),
+            'confirmUrl'        => $this->generateUrl('app_revenue_cash_register_payment_confirm'),
+            'differenceFormUrl' => $this->generateUrl('app_revenue_cash_register_difference_form'),
+        ]);
     }
+
+    // -------------------------------------------------------------------------
+    // Accesos contextuales — renderizan el shell de cobro directamente
+    // -------------------------------------------------------------------------
 
     /** Cobro originado desde una admisión (pasa admissionRecordId al confirm). */
     #[Route('/from-admission/{admissionRecordId}', name: 'from_admission', methods: ['GET'], requirements: ['admissionRecordId' => '\d+'])]
@@ -95,6 +140,10 @@ class CashRegisterController extends AbstractTenantAwareController
     // Private helpers
     // -------------------------------------------------------------------------
 
+    /**
+     * Renderiza el shell de cobro directo (sin tabs de dashboard).
+     * Usado por fromAdmission y fromAppointment.
+     */
     private function renderShell(
         string $context,
         int $admissionRecordId = 0,
@@ -115,8 +164,7 @@ class CashRegisterController extends AbstractTenantAwareController
     }
 
     /**
-     * Crea una fila inicial de formulario por cada método de pago registrado
-     * (igual que AdmissionWizardController::createInitialPaymentRows).
+     * Crea una fila inicial de formulario por cada método de pago registrado.
      *
      * @return array<string, \Symfony\Component\Form\FormView>
      */

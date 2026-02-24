@@ -269,9 +269,34 @@ class MenuDefinition
                 'name' => 'caja',
                 'label' => 'Caja',
                 'icon' => 'bx bx-dollar-circle',
-                'route' => 'app_revenue_cash_register_index',
-                'module' => 'revenue',
-                'children' => []
+                'route' => null,
+                'module' => null,
+                'children' => [
+                    [
+                        'name' => 'caja_recaudacion',
+                        'label' => 'Recaudación',
+                        'icon' => 'bx bx-money',
+                        'route' => 'app_revenue_cash_register_index',
+                        'module' => 'revenue',
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'caja_supervisor',
+                        'label' => 'Supervisor',
+                        'icon' => 'bx bx-shield-quarter',
+                        'route' => 'app_revenue_supervisor_differences_index',
+                        'module' => 'revenue',
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'caja_pago_cuenta',
+                        'label' => 'Pago Cuenta',
+                        'icon' => 'bx bx-wallet',
+                        'route' => 'app_revenue_patient_account_summary',
+                        'module' => 'revenue',
+                        'children' => []
+                    ],
+                ]
             ],
             [
                 'name' => 'citas',

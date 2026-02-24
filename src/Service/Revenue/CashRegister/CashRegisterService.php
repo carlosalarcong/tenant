@@ -129,6 +129,18 @@ class CashRegisterService
         $this->em->flush();
     }
 
+    /**
+     * Sobreescribe los valores de superávit/déficit de una caja ya cerrada.
+     * Se usa cuando el cajero ingresa manualmente la diferencia en el formulario
+     * de cierre (radio Superávit / Déficit / No en §2c del módulo Recaudación).
+     */
+    public function overrideDifference(CashRegister $cashRegister, string $surplus, string $deficit): void
+    {
+        $cashRegister->setSurplus($surplus);
+        $cashRegister->setDeficit($deficit);
+        $this->em->flush();
+    }
+
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------

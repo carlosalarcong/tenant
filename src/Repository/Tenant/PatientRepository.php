@@ -28,6 +28,63 @@ class PatientRepository extends ServiceEntityRepository
     }
 
     /**
+     * Búsqueda avanzada por nombre, apellido paterno y/o materno con modo configurable.
+     *
+     * @param string      $firstName    Nombre (vacío = ignorado)
+     * @param string      $lastName     Apellido paterno (vacío = ignorado)
+     * @param string      $motherName   Apellido materno (vacío = ignorado)
+     * @param string      $matchType    'contains' | 'starts' | 'exact'
+     * @return Patient[]
+     */
+    public function searchByAdvanced(
+        string $firstName,
+        string $lastName,
+        string $motherName,
+        string $matchType = 'exact',
+        int    $limit = 10
+    ): array {
+        $qb = $this->createQueryBuilder('p')
+            ->leftJoin('p.person', 'per')
+            ->addSelect('per')
+            ->leftJoin('p.payer', 'pay')
+            ->addSelect('pay')
+            ->leftJoin('p.agreement', 'agr')
+            ->addSelect('agr')
+            ->leftJoin('p.insurancePlan', 'plan')
+            ->addSelect('plan');
+
+        $conditions = [];
+
+        foreach ([
+            'firstName'  => ['per.name',     $firstName],
+            'lastName'   => ['per.lastName',  $lastName],
+            'motherName' => ['per.motherName', $motherName],
+        ] as $param => [$field, $value]) {
+            if (trim($value) === '') {
+                continue;
+            }
+            $v = mb_strtolower(trim($value));
+            $placeholder = ':' . $param;
+            $conditions[] = "LOWER({$field}) LIKE {$placeholder}";
+            $qb->setParameter($param, match ($matchType) {
+                'contains' => '%' . $v . '%',
+                'starts'   => $v . '%',
+                default    => $v,         // exact
+            });
+        }
+
+        if (empty($conditions)) {
+            return [];
+        }
+
+        $qb->where(implode(' AND ', $conditions))
+            ->orderBy('p.admissionDate', 'DESC')
+            ->setMaxResults($limit);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
      * Busca pacientes por RUT (identification) o por nombre/apellido.
      * Búsqueda case-insensitive con LIKE.
      *

@@ -85,7 +85,8 @@
             </p>
           {% endif %}
           <a href="{{ openRegister ? path('app_revenue_cash_register_close', {id: openRegister.id}) : '#' }}"
-             class="btn btn-sm btn-outline-danger">
+             class="btn btn-sm btn-outline-danger"
+             data-turbo-frame="_top">
             <i class="bx bx-log-out-circle me-1" aria-hidden="true"></i>
             Cerrar caja
           </a>
@@ -109,7 +110,8 @@
           </p>
           {% if openRegister %}
             <a href="{{ path('app_revenue_cash_register_close', {id: openRegister.id}) }}"
-               class="btn btn-sm btn-warning">
+               class="btn btn-sm btn-warning"
+               data-turbo-frame="_top">
               <i class="bx bx-lock-alt me-1" aria-hidden="true"></i>
               Ir a cerrar caja anterior
               <span class="text-muted ms-1">({{ openRegister.openedAt|date('d/m/Y') }})</span>

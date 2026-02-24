@@ -5,23 +5,40 @@ import { Controller } from '@hotwired/stimulus';
  *
  * Gestiona el buscador de pacientes para el flujo de caja.
  *
- * Funcionamiento:
- *  1. El usuario escribe en el <input> → debounce 300 ms → fetch JSON a /find?q=...
- *  2. Se renderiza un dropdown tipo list-group con los resultados.
- *  3. Al seleccionar un paciente:
+ * Sub-tabs:
+ *   - Simple   → búsqueda por RUT/identificación (onInput debounced + onSearch button)
+ *   - Avanzada → búsqueda por nombre/apellidos con parámetro de coincidencia
+ *
+ * Flujo compartido:
+ *  1. Se renderiza un dropdown tipo list-group con los resultados JSON.
+ *  2. Al seleccionar un paciente:
  *       a) Se carga el Turbo Frame #patient-context con el endpoint /{id}/context.
- *       b) Se emite el evento nativo `patient:selected` con { patientId } para
- *          que el orquestador principal pueda reaccionar.
+ *       b) Se emite el evento nativo `patient:selected` con { patientId }.
  *
  * Valores Stimulus:
  *   - searchUrl (String): URL del endpoint JSON /find
  *
  * Targets:
- *   - input:    <input type="text"> de búsqueda
- *   - dropdown: contenedor del dropdown de resultados
+ *   - simpleTab:       contenedor del panel Simple
+ *   - advancedTab:     contenedor del panel Avanzada
+ *   - input:           <input> de identificación (Simple)
+ *   - nombre:          <input> nombre (Avanzada)
+ *   - apellidoPaterno: <input> apellido paterno (Avanzada)
+ *   - apellidoMaterno: <input> apellido materno (Avanzada)
+ *   - matchType:       <input type="radio"> parámetros de búsqueda (múltiple)
+ *   - dropdown:        contenedor del dropdown de resultados
  */
 export default class extends Controller {
-    static targets = ['input', 'dropdown'];
+    static targets = [
+        'simpleTab',
+        'advancedTab',
+        'input',
+        'nombre',
+        'apellidoPaterno',
+        'apellidoMaterno',
+        'matchType',
+        'dropdown',
+    ];
 
     static values = {
         searchUrl: String,
@@ -38,7 +55,25 @@ export default class extends Controller {
         document.removeEventListener('click', this._handleDocumentClick);
     }
 
-    // ── Handlers de eventos ────────────────────────────────────────────────
+    // ── Tab switching ──────────────────────────────────────────────────────
+
+    showSimple(event) {
+        event.preventDefault();
+        this.simpleTabTarget.style.display = '';
+        this.advancedTabTarget.style.display = 'none';
+        this._setActiveTab(event.currentTarget);
+        this.hideDropdown();
+    }
+
+    showAdvanced(event) {
+        event.preventDefault();
+        this.simpleTabTarget.style.display = 'none';
+        this.advancedTabTarget.style.display = '';
+        this._setActiveTab(event.currentTarget);
+        this.hideDropdown();
+    }
+
+    // ── Handlers Simple ────────────────────────────────────────────────────
 
     onInput(event) {
         clearTimeout(this._debounceTimer);
@@ -49,7 +84,7 @@ export default class extends Controller {
             return;
         }
 
-        this._debounceTimer = setTimeout(() => this._fetchResults(query), 300);
+        this._debounceTimer = setTimeout(() => this._fetch({ q: query }), 300);
     }
 
     onKeydown(event) {
@@ -58,12 +93,63 @@ export default class extends Controller {
         }
     }
 
+    /** Botón 🔍 Buscar en tab Simple. */
+    onSearch(event) {
+        event.preventDefault();
+        const query = this.inputTarget.value.trim();
+
+        if (query.length < 2) {
+            return;
+        }
+
+        this._fetch({ q: query });
+    }
+
+    // ── Handlers Avanzada ──────────────────────────────────────────────────
+
+    /** Botón 🔍 Buscar en tab Avanzada. */
+    onSearchAdvanced(event) {
+        event.preventDefault();
+        const nombre          = this.nombreTarget.value.trim();
+        const apellidoPaterno = this.apellidoPaternoTarget.value.trim();
+        const apellidoMaterno = this.apellidoMaternoTarget.value.trim();
+
+        if (!nombre && !apellidoPaterno && !apellidoMaterno) {
+            return;
+        }
+
+        const matchType = this.matchTypeTargets.find((r) => r.checked)?.value ?? 'exact';
+
+        this._fetch({
+            nombre,
+            apellido_paterno: apellidoPaterno,
+            apellido_materno: apellidoMaterno,
+            match_type: matchType,
+        });
+    }
+
+    /** Botón ✏ Limpiar en tab Avanzada. */
+    onClear(event) {
+        event.preventDefault();
+        this.nombreTarget.value          = '';
+        this.apellidoPaternoTarget.value = '';
+        this.apellidoMaternoTarget.value = '';
+        this.matchTypeTargets.forEach((r) => {
+            r.checked = r.value === 'exact';
+        });
+        this.hideDropdown();
+    }
+
     // ── Fetch ──────────────────────────────────────────────────────────────
 
-    async _fetchResults(query) {
+    async _fetch(params) {
         try {
             const url = new URL(this.searchUrlValue, window.location.origin);
-            url.searchParams.set('q', query);
+            for (const [key, value] of Object.entries(params)) {
+                if (value !== '' && value !== null && value !== undefined) {
+                    url.searchParams.set(key, value);
+                }
+            }
 
             const response = await fetch(url.toString(), {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
@@ -106,7 +192,7 @@ export default class extends Controller {
 
         dropdown.querySelectorAll('[data-patient-id]').forEach((btn) => {
             btn.addEventListener('click', () => {
-                const patientId = parseInt(btn.dataset.patientId, 10);
+                const patientId  = parseInt(btn.dataset.patientId, 10);
                 const contextUrl = btn.dataset.contextUrl;
                 this._selectPatient(patientId, contextUrl);
             });
@@ -118,9 +204,9 @@ export default class extends Controller {
     _selectPatient(patientId, contextUrl) {
         this.hideDropdown();
 
-        // Mostrar el nombre elegido en el input
+        // Mostrar el nombre en el input Simple si está activo
         const selectedBtn = this.dropdownTarget.querySelector(`[data-patient-id="${patientId}"]`);
-        if (this.hasInputTarget && selectedBtn) {
+        if (this.hasInputTarget && selectedBtn && this.simpleTabTarget.style.display !== 'none') {
             const name = selectedBtn.querySelector('.fw-semibold')?.textContent ?? '';
             this.inputTarget.value = name;
         }
@@ -145,8 +231,15 @@ export default class extends Controller {
     hideDropdown() {
         if (this.hasDropdownTarget) {
             this.dropdownTarget.style.display = 'none';
-            this.dropdownTarget.innerHTML = '';
+            this.dropdownTarget.innerHTML     = '';
         }
+    }
+
+    _setActiveTab(clickedBtn) {
+        const nav = clickedBtn.closest('.nav');
+        if (!nav) return;
+        nav.querySelectorAll('.nav-link').forEach((l) => l.classList.remove('active'));
+        clickedBtn.classList.add('active');
     }
 
     _onDocumentClick(event) {

@@ -37,6 +37,26 @@ class CashRegisterRepository extends ServiceEntityRepository
     }
 
     /**
+     * Encuentra la última caja cerrada del cajero.
+     * Se usa para mostrar la sección "Caja Anterior" en Gestión Caja cuando
+     * el cajero no tiene ninguna caja abierta actualmente.
+     */
+    public function findLastClosedByMember(Member $member): ?CashRegister
+    {
+        return $this->createQueryBuilder('cr')
+            ->leftJoin('cr.cashRegisterLocation', 'loc')
+            ->addSelect('loc')
+            ->where('cr.member = :member')
+            ->andWhere('cr.status = :status')
+            ->setParameter('member', $member)
+            ->setParameter('status', 'cerrada')
+            ->orderBy('cr.closedAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
      * Encuentra una caja por ID con su ubicación y detalles de cierre cargados
      * en la misma query (evita N+1 al renderizar el reporte).
      */

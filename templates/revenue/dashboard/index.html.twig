@@ -1,0 +1,862 @@
+{% extends 'app_layout.html.twig' %}
+
+{% block title %}Recaudación{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Design tokens del módulo Recaudación ── */
+.rv {
+  --rv-bg:         #F0F2F5;
+  --rv-surface:    #FFFFFF;
+  --rv-surface2:   #F7F8FA;
+  --rv-border:     #E2E6EB;
+  --rv-accent:     #1A6EBF;
+  --rv-accent-dk:  #14528F;
+  --rv-accent-lt:  #EBF3FC;
+  --rv-success:    #0E7C4A;
+  --rv-success-bg: #E8F5EE;
+  --rv-warn:       #B45309;
+  --rv-warn-bg:    #FEF3C7;
+  --rv-danger:     #C0392B;
+  --rv-danger-bg:  #FDECEB;
+  --rv-text:       #1A1E27;
+  --rv-text-2:     #4B5563;
+  --rv-text-3:     #9CA3AF;
+  --rv-radius:     12px;
+  --rv-radius-sm:  8px;
+  --rv-shadow:     0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Tab Navigation ── */
+.rv-tab-nav {
+  background: var(--rv-surface);
+  border-bottom: 1px solid var(--rv-border);
+  padding: 0 4px;
+  display: flex;
+  gap: 2px;
+  margin: -16px -16px 0;  /* sangrar hasta los bordes del contenido */
+}
+.rv-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 18px 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--rv-text-2);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: color .2s;
+  white-space: nowrap;
+  border-radius: 0;
+  text-decoration: none;
+}
+.rv-tab:hover:not(.rv-tab--disabled) { color: var(--rv-accent); }
+.rv-tab.active { color: var(--rv-accent) !important; }
+.rv-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--rv-accent);
+  border-radius: 2px 2px 0 0;
+}
+.rv-tab--disabled {
+  color: var(--rv-text-3) !important;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.rv-tab svg { width: 15px; height: 15px; flex-shrink: 0; }
+.rv-lock { font-size: 11px; color: var(--rv-text-3); }
+
+/* ── Contenido ── */
+.rv-content {
+  padding: 28px 0 0;
+  min-height: 400px;
+}
+.rv-main { max-width: 860px; }
+
+/* ── Banner ── */
+.rv-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 15px 18px;
+  border-radius: var(--rv-radius);
+  margin-bottom: 22px;
+  border: 1px solid transparent;
+  animation: rv-slide-down .3s ease;
+}
+@keyframes rv-slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rv-banner.warn    { background: var(--rv-warn-bg);    border-color: #FCD34D; }
+.rv-banner.danger  { background: var(--rv-danger-bg);  border-color: #F9A8A4; }
+.rv-banner.success { background: var(--rv-success-bg); border-color: #6EE7B7; }
+.rv-banner.info    { background: var(--rv-accent-lt);  border-color: #93C5FD; }
+.rv-banner-icon { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+.rv-banner-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; line-height: 1.3; }
+.rv-banner.warn   .rv-banner-title { color: var(--rv-warn); }
+.rv-banner.danger .rv-banner-title { color: var(--rv-danger); }
+.rv-banner.success .rv-banner-title { color: var(--rv-success); }
+.rv-banner.info   .rv-banner-title { color: var(--rv-accent-dk); }
+.rv-banner-desc { font-size: 13px; color: var(--rv-text-2); line-height: 1.5; }
+
+/* ── Card ── */
+.rv-card {
+  background: var(--rv-surface);
+  border: 1px solid var(--rv-border);
+  border-radius: var(--rv-radius);
+  box-shadow: var(--rv-shadow);
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: rv-fade-up .35s ease both;
+}
+.rv-card:nth-child(2) { animation-delay: .05s; }
+.rv-card:nth-child(3) { animation-delay: .10s; }
+@keyframes rv-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rv-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--rv-border);
+  background: var(--rv-surface2);
+}
+.rv-card-header svg { width: 15px; height: 15px; color: var(--rv-accent); flex-shrink: 0; }
+.rv-card-header-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--rv-text-2);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+
+/* ── Info Grid ── */
+.rv-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1px;
+  background: var(--rv-border);
+}
+.rv-info-cell {
+  background: var(--rv-surface);
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rv-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--rv-text-3);
+}
+.rv-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--rv-text);
+}
+.rv-value.mono {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+}
+.rv-value.accent { color: var(--rv-accent); }
+.rv-value.warn   { color: var(--rv-warn); }
+.rv-value.danger { color: var(--rv-danger); }
+
+/* ── Pill de estado ── */
+.rv-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+.rv-pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.rv-pill.open {
+  background: var(--rv-success-bg);
+  color: var(--rv-success);
+}
+.rv-pill.open .rv-pill-dot {
+  background: var(--rv-success);
+  box-shadow: 0 0 0 2px #A7F3D0;
+  animation: rv-pulse 2s infinite;
+}
+@keyframes rv-pulse {
+  0%,100% { box-shadow: 0 0 0 2px #A7F3D0; }
+  50%      { box-shadow: 0 0 0 4px #6EE7B7; }
+}
+.rv-pill.closed  { background: var(--rv-danger-bg);  color: var(--rv-danger); }
+.rv-pill.warn    { background: var(--rv-warn-bg);    color: var(--rv-warn); }
+.rv-pill.closed .rv-pill-dot  { background: var(--rv-danger); }
+.rv-pill.warn    .rv-pill-dot { background: var(--rv-warn); }
+
+/* ── Actions ── */
+.rv-actions {
+  padding: 18px 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--rv-border);
+  background: var(--rv-surface2);
+}
+.rv-action-note {
+  font-size: 12px;
+  color: var(--rv-text-3);
+}
+
+/* ── Buttons ── */
+.rv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--rv-radius-sm);
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: all .18s ease;
+  letter-spacing: -.1px;
+  text-decoration: none;
+}
+.rv-btn svg { width: 15px; height: 15px; }
+.rv-btn-primary {
+  background: var(--rv-accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(26,110,191,.30);
+}
+.rv-btn-primary:hover {
+  background: var(--rv-accent-dk);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(26,110,191,.40);
+  transform: translateY(-1px);
+}
+.rv-btn-danger {
+  background: var(--rv-danger);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(192,57,43,.30);
+}
+.rv-btn-danger:hover {
+  background: #a93226;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(192,57,43,.40);
+  transform: translateY(-1px);
+}
+.rv-btn-warn {
+  background: #D97706;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(180,83,9,.30);
+}
+.rv-btn-warn:hover {
+  background: #B45309;
+  color: #fff;
+  transform: translateY(-1px);
+}
+.rv-btn-ghost {
+  background: transparent;
+  color: var(--rv-text-2);
+  border: 1px solid var(--rv-border);
+}
+.rv-btn-ghost:hover { background: var(--rv-surface2); color: var(--rv-text); }
+.rv-btn:active { transform: translateY(0) !important; }
+
+/* ── Open form (abrir caja inline) ── */
+.rv-open-form {
+  padding: 20px;
+}
+.rv-select {
+  width: 100%;
+  max-width: 360px;
+  padding: 9px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  border: 1px solid var(--rv-border);
+  border-radius: var(--rv-radius-sm);
+  background: var(--rv-surface);
+  color: var(--rv-text);
+  outline: none;
+  transition: border-color .15s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239CA3AF' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+.rv-select:focus { border-color: var(--rv-accent); box-shadow: 0 0 0 3px rgba(26,110,191,.12); }
+.rv-form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--rv-text-3);
+  margin-bottom: 8px;
+}
+.rv-form-group { margin-bottom: 16px; }
+
+/* ── Flash messages ── */
+.rv-flash { margin-bottom: 16px; }
+.rv-flash-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--rv-radius-sm);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.rv-flash-item.success { background: var(--rv-success-bg); color: var(--rv-success); border: 1px solid #A7F3D0; }
+.rv-flash-item.warning { background: var(--rv-warn-bg);    color: var(--rv-warn);    border: 1px solid #FCD34D; }
+.rv-flash-item.danger  { background: var(--rv-danger-bg);  color: var(--rv-danger);  border: 1px solid #F9A8A4; }
+
+/* ── Informes placeholder ── */
+.rv-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--rv-text-3);
+}
+.rv-placeholder svg { width: 40px; height: 40px; margin-bottom: 16px; opacity: .4; }
+.rv-placeholder-title { font-size: 15px; font-weight: 600; color: var(--rv-text-2); margin-bottom: 6px; }
+.rv-placeholder-desc  { font-size: 13px; max-width: 360px; line-height: 1.6; }
+</style>
+{% endblock %}
+
+{% block content %}
+{#
+  Variables del controller:
+    cashStatus    string               — 'open' | 'closed' | 'unclosed' | 'no_voucher'
+    openRegister  CashRegister|null    — caja actualmente abierta (si existe)
+    locations     CashRegisterLocation[] — ubicaciones activas (solo cuando closed)
+    app.user      Member               — cajero autenticado
+
+  Lógica de tabs:
+    cashStatus == 'open'  → Tab "Pago Paciente" activo
+    cualquier otro        → Tab "Gestión Caja" activo (cajero debe gestionar su caja primero)
+#}
+{% set cashOpen = cashStatus == 'open' %}
+
+<div class="rv">
+
+    {# ── Flash messages (post-redirect-get) ──────────────────────── #}
+    {% if app.flashes|length %}
+    <div class="rv-flash">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+            <div class="rv-flash-item {{ label }}">
+                {% if label == 'success' %}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                {% else %}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {% endif %}
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# ── Tab Navigation ──────────────────────────────────────────── #}
+    <div class="rv-tab-nav">
+
+        {# Tab 1: Gestión Caja — activo cuando la caja NO está operativa #}
+        <button class="rv-tab {{ not cashOpen ? 'active' : '' }}"
+                data-bs-toggle="tab"
+                data-bs-target="#rv-pane-gestion"
+                type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2"/>
+                <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+            </svg>
+            Gestión Caja
+            {% if cashStatus == 'unclosed' %}
+                <span style="font-size:10px;background:#FDECEB;color:#C0392B;padding:1px 6px;border-radius:20px;font-weight:700;">!</span>
+            {% elseif cashStatus == 'no_voucher' %}
+                <span style="font-size:10px;background:#FEF3C7;color:#B45309;padding:1px 6px;border-radius:20px;font-weight:700;">!</span>
+            {% endif %}
+        </button>
+
+        {# Tab 2: Pago Paciente — activo y habilitado solo cuando cashOpen #}
+        <button class="rv-tab {{ cashOpen ? 'active' : 'rv-tab--disabled' }}"
+                type="button"
+                {% if cashOpen %}
+                data-bs-toggle="tab"
+                data-bs-target="#rv-pane-pago"
+                {% else %}
+                title="Debe abrir una caja antes de cobrar"
+                {% endif %}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            Pago Paciente
+            {% if not cashOpen %}
+                <span class="rv-lock">🔒</span>
+            {% endif %}
+        </button>
+
+        {# Tab 3: Informes #}
+        <button class="rv-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#rv-pane-informes"
+                type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Informes
+        </button>
+
+    </div>{# /rv-tab-nav #}
+
+    {# ── Tab Content ─────────────────────────────────────────────── #}
+    <div class="tab-content rv-content">
+
+        {# ══════════════════════════════════════════════════════════
+           TAB 1: GESTIÓN CAJA
+           §2a: Caja Abierta sin Cerrar (unclosed) / Caja abierta (open)
+           §2b: Caja Cerrada (closed)
+           §2c: Modal Cerrar Caja
+        ══════════════════════════════════════════════════════════ #}
+        <div class="tab-pane fade {{ not cashOpen ? 'show active' : '' }}"
+             id="rv-pane-gestion">
+            <div class="rv-main">
+
+                {# ── Banner de estado ── #}
+                {% if cashStatus == 'unclosed' %}
+                {# §2a — banner amarillo: Caja Abierta sin Cerrar #}
+                <div class="rv-banner warn">
+                    <svg class="rv-banner-icon" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <div>
+                        <div class="rv-banner-title">Caja Abierta sin Cerrar</div>
+                        <div class="rv-banner-desc">Debe Cerrar Caja anterior que se encuentra actualmente sin Cerrar.</div>
+                    </div>
+                </div>
+
+                {% elseif cashStatus == 'open' %}
+                <div class="rv-banner success">
+                    <svg class="rv-banner-icon" viewBox="0 0 24 24" fill="none" stroke="#0E7C4A" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <div>
+                        <div class="rv-banner-title">Caja abierta y operativa</div>
+                        <div class="rv-banner-desc">La caja está activa. Puede procesar cobros en la pestaña Pago Paciente.</div>
+                    </div>
+                </div>
+
+                {% elseif cashStatus == 'closed' %}
+                {# §2b — banner amarillo: Caja Cerrada #}
+                <div class="rv-banner warn">
+                    <svg class="rv-banner-icon" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4"/>
+                    </svg>
+                    <div>
+                        <div class="rv-banner-title">Caja Cerrada</div>
+                        <div class="rv-banner-desc">Debe Abrir una Nueva Caja.</div>
+                    </div>
+                </div>
+
+                {% else %}{# no_voucher #}
+                <div class="rv-banner danger">
+                    <svg class="rv-banner-icon" viewBox="0 0 24 24" fill="none" stroke="#C0392B" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <div>
+                        <div class="rv-banner-title">Sin talonario disponible</div>
+                        <div class="rv-banner-desc">La caja activa no tiene un talonario con folios disponibles. Contacte al administrador antes de operar.</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {# ── Botón principal contextual (centrado, §2a/§2b) ── #}
+                <div style="text-align:center;margin:24px 0">
+                    {% if cashStatus in ['open', 'unclosed'] %}
+                        {# §2a — "🔒 Cerrar Caja" (rojo, abre modal §2c) #}
+                        <button type="button"
+                                class="rv-btn rv-btn-danger"
+                                style="font-size:15px;padding:12px 32px"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modal-cerrar-caja">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                            Cerrar Caja
+                        </button>
+
+                    {% elseif cashStatus == 'closed' %}
+                        {# §2b — "🔒 Abrir Caja" (verde, despliega formulario) #}
+                        <button type="button"
+                                class="rv-btn"
+                                style="background:var(--rv-success);color:#fff;font-size:15px;padding:12px 32px;box-shadow:0 2px 8px rgba(14,124,74,.30)"
+                                onclick="var f=document.getElementById('rv-open-form');f.style.display=f.style.display==='none'?'block':'none'">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 019.9-1"/></svg>
+                            Abrir Caja
+                        </button>
+                        {# Formulario inline de apertura #}
+                        <div id="rv-open-form" style="display:none;max-width:380px;margin:20px auto 0;text-align:left">
+                            <form method="post" action="{{ path('app_revenue_cash_register_open_submit') }}" data-turbo="false">
+                                <input type="hidden" name="_token" value="{{ csrf_token('cash_register_open') }}">
+                                <div class="rv-form-group">
+                                    <label for="rv-location" class="rv-form-label">Ubicación de Caja</label>
+                                    {% if locations is empty %}
+                                        <p style="font-size:13px;color:var(--rv-text-3)">No hay ubicaciones activas. Contacte al administrador.</p>
+                                    {% else %}
+                                        <select id="rv-location" name="location_id" class="rv-select" required>
+                                            <option value="">— Seleccione una ubicación —</option>
+                                            {% for loc in locations %}
+                                                <option value="{{ loc.id }}">{{ loc.name }}{% if loc.branch %} · {{ loc.branch.name }}{% endif %}</option>
+                                            {% endfor %}
+                                        </select>
+                                    {% endif %}
+                                </div>
+                                {% if locations is not empty %}
+                                <button type="submit" class="rv-btn rv-btn-primary" style="width:100%">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 019.9-1"/></svg>
+                                    Confirmar apertura
+                                </button>
+                                {% endif %}
+                            </form>
+                        </div>
+
+                    {% else %}{# no_voucher #}
+                        <span style="font-size:13px;color:var(--rv-text-2)">
+                            Contacte al administrador para asignar un talonario con folios disponibles.
+                        </span>
+                    {% endif %}
+                </div>
+
+                {# ── Card: Información Cajero (§2a/§2b) ── #}
+                <div class="rv-card">
+                    <div class="rv-card-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <span class="rv-card-header-title">Información Cajero</span>
+                    </div>
+                    <div class="rv-info-grid">
+                        <div class="rv-info-cell">
+                            <span class="rv-label">Nombre</span>
+                            <span class="rv-value">{{ app.user.firstName ?: '—' }}</span>
+                        </div>
+                        <div class="rv-info-cell">
+                            <span class="rv-label">Apellidos</span>
+                            <span class="rv-value">{{ app.user.lastName ?: '—' }}</span>
+                        </div>
+                        <div class="rv-info-cell">
+                            <span class="rv-label">Usuario</span>
+                            <span class="rv-value mono accent">{{ app.user.username }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {# ── Card: Información Caja (§2a subtitle "Caja Actualmente Abierta" / §2b "Caja Anterior") ── #}
+                {# §2a: usa openRegister; §2b: usa lastClosedRegister #}
+                {% set cajaRecord = openRegister ?? lastClosedRegister ?? null %}
+                <div class="rv-card">
+                    <div class="rv-card-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                        </svg>
+                        <span class="rv-card-header-title">Información Caja</span>
+                        <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+                            {% if cashStatus in ['open', 'unclosed', 'no_voucher'] %}
+                                <span style="font-size:11px;color:var(--rv-text-3);font-weight:600;text-transform:uppercase;letter-spacing:.4px">Caja Actualmente Abierta</span>
+                            {% elseif cashStatus == 'closed' and cajaRecord %}
+                                <span style="font-size:11px;color:var(--rv-text-3);font-weight:600;text-transform:uppercase;letter-spacing:.4px">Caja Anterior</span>
+                            {% endif %}
+                            {% if cashStatus == 'open' %}
+                                <span class="rv-pill open"><span class="rv-pill-dot"></span>Abierta</span>
+                            {% elseif cashStatus == 'unclosed' %}
+                                <span class="rv-pill warn"><span class="rv-pill-dot"></span>Sin cerrar</span>
+                            {% else %}
+                                <span class="rv-pill closed"><span class="rv-pill-dot"></span>Cerrada</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if cajaRecord %}
+                    <div class="rv-info-grid">
+                        <div class="rv-info-cell">
+                            <span class="rv-label">Fecha Apertura</span>
+                            <span class="rv-value mono">{{ cajaRecord.openedAt|date('d-m-Y H:i') }}</span>
+                        </div>
+                        <div class="rv-info-cell">
+                            <span class="rv-label">Fecha Cierre</span>
+                            {% if cajaRecord.closedAt %}
+                                <span class="rv-value mono">{{ cajaRecord.closedAt|date('d-m-Y H:i') }}</span>
+                            {% else %}
+                                <span class="rv-value warn">Caja aun no ha sido Cerrada</span>
+                            {% endif %}
+                        </div>
+                        <div class="rv-info-cell">
+                            <span class="rv-label">Ubicación Caja</span>
+                            <span class="rv-value">{{ cajaRecord.cashRegisterLocation ? cajaRecord.cashRegisterLocation.name : '—' }}</span>
+                        </div>
+                        <div class="rv-info-cell">
+                            <span class="rv-label">Último Documento Emitido</span>
+                            {# TODO (Fase C): conectar con voucher/folio del talonario para mostrar el último emitido #}
+                            <span class="rv-value" style="color:var(--rv-text-3)">—</span>
+                        </div>
+                        <div class="rv-info-cell">
+                            <span class="rv-label">Monto Inicial</span>
+                            <span class="rv-value mono">CLP{{ cajaRecord.initialAmount|number_format(0, ',', '.') }}</span>
+                        </div>
+                        {% if cashStatus == 'closed' and cajaRecord.realAmount is not null %}
+                        <div class="rv-info-cell">
+                            <span class="rv-label">Monto de Cierre</span>
+                            <span class="rv-value mono accent">CLP{{ cajaRecord.realAmount|number_format(0, ',', '.') }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="rv-info-grid">
+                        <div class="rv-info-cell" style="grid-column:1/-1">
+                            <span class="rv-value" style="color:var(--rv-text-3);font-size:13px">No hay registro de caja para este cajero.</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>{# /rv-card caja #}
+
+            </div>{# /rv-main #}
+
+            {# ══════════════════════════════════════════════════════════
+               Modal §2c — Cerrar Caja
+               Accesible cuando cashStatus in ['open', 'unclosed']
+            ══════════════════════════════════════════════════════════ #}
+            {% if openRegister %}
+            <div class="modal fade" id="modal-cerrar-caja"
+                 tabindex="-1"
+                 aria-labelledby="modal-cerrar-caja-label"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" style="max-width:480px">
+                    <div class="modal-content border-0" style="border-radius:var(--rv-radius);overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.18)">
+
+                        {# Header azul §2c "Cierre Caja" #}
+                        <div class="modal-header py-3 px-4" style="background:#337ab7;border-bottom:none">
+                            <h5 class="modal-title text-white fw-semibold mb-0" id="modal-cerrar-caja-label"
+                                style="font-family:'DM Sans',sans-serif;font-size:15px;display:flex;align-items:center;gap:8px">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+                                </svg>
+                                Cierre Caja
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+
+                        <form method="post"
+                              action="{{ path('app_revenue_cash_register_close_submit', {id: openRegister.id}) }}"
+                              data-turbo="false"
+                              id="form-cerrar-caja">
+                            <input type="hidden" name="_token"
+                                   value="{{ csrf_token('cash_register_close_' ~ openRegister.id) }}">
+                            {# difference_type se actualiza vía JS desde los radios #}
+                            <input type="hidden" name="difference_type" id="close-diff-type" value="no">
+
+                            <div class="modal-body px-4 py-4">
+
+                                {# Sección 1 — Ingreso Número de Depósito #}
+                                <div class="mb-4">
+                                    <p class="fw-semibold mb-3"
+                                       style="font-family:'DM Sans',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--rv-text-3)">
+                                        Ingreso Número de Depósito
+                                    </p>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-5">
+                                            <label class="rv-form-label">Monto EFECTIVO</label>
+                                            {# Solo lectura — TODO (Fase C): suma transacciones efectivo de esta caja #}
+                                            <input type="text"
+                                                   class="form-control form-control-sm"
+                                                   style="background:var(--rv-surface2);color:var(--rv-text-2);border-color:var(--rv-border)"
+                                                   value="CLP0"
+                                                   readonly
+                                                   title="Disponible en Fase C">
+                                        </div>
+                                        <div class="col-12 col-sm-7">
+                                            <label for="close-deposit-number" class="rv-form-label">
+                                                Número de Depósito
+                                                <span style="color:#d9534f;font-size:13px"> *</span>
+                                            </label>
+                                            <input type="text"
+                                                   id="close-deposit-number"
+                                                   name="deposit_number"
+                                                   class="form-control form-control-sm"
+                                                   required
+                                                   placeholder="N° depósito">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr style="border-color:var(--rv-border);margin:0 0 20px">
+
+                                {# Sección 2 — Ingreso Superávit / Déficit Caja #}
+                                <div>
+                                    <p class="fw-semibold mb-3"
+                                       style="font-family:'DM Sans',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--rv-text-3)">
+                                        Ingreso Superávit / Déficit Caja
+                                    </p>
+                                    <div class="d-flex flex-column gap-3">
+
+                                        {# Radio Superávit #}
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="form-check mb-0" style="min-width:110px">
+                                                <input class="form-check-input" type="radio"
+                                                       name="difference_radio" id="diff-superavit" value="superavit"
+                                                       onchange="
+                                                           document.getElementById('close-diff-type').value='superavit';
+                                                           document.getElementById('diff-superavit-amt').disabled=false;
+                                                           document.getElementById('diff-deficit-amt').disabled=true;
+                                                           document.getElementById('diff-deficit-amt').value='';
+                                                       ">
+                                                <label class="form-check-label fw-semibold" for="diff-superavit"
+                                                       style="font-family:'DM Sans',sans-serif;font-size:13.5px">
+                                                    Superávit
+                                                </label>
+                                            </div>
+                                            <input type="number"
+                                                   id="diff-superavit-amt"
+                                                   name="difference_amount"
+                                                   class="form-control form-control-sm"
+                                                   style="max-width:150px"
+                                                   min="0" step="1" placeholder="Monto $"
+                                                   disabled>
+                                        </div>
+
+                                        {# Radio Déficit #}
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="form-check mb-0" style="min-width:110px">
+                                                <input class="form-check-input" type="radio"
+                                                       name="difference_radio" id="diff-deficit" value="deficit"
+                                                       onchange="
+                                                           document.getElementById('close-diff-type').value='deficit';
+                                                           document.getElementById('diff-deficit-amt').disabled=false;
+                                                           document.getElementById('diff-superavit-amt').disabled=true;
+                                                           document.getElementById('diff-superavit-amt').value='';
+                                                       ">
+                                                <label class="form-check-label fw-semibold" for="diff-deficit"
+                                                       style="font-family:'DM Sans',sans-serif;font-size:13.5px">
+                                                    Déficit
+                                                </label>
+                                            </div>
+                                            <input type="number"
+                                                   id="diff-deficit-amt"
+                                                   name="difference_amount"
+                                                   class="form-control form-control-sm"
+                                                   style="max-width:150px"
+                                                   min="0" step="1" placeholder="Monto $"
+                                                   disabled>
+                                        </div>
+
+                                        {# Radio No #}
+                                        <div class="form-check mb-0">
+                                            <input class="form-check-input" type="radio"
+                                                   name="difference_radio" id="diff-no" value="no" checked
+                                                   onchange="
+                                                       document.getElementById('close-diff-type').value='no';
+                                                       document.getElementById('diff-superavit-amt').disabled=true;
+                                                       document.getElementById('diff-deficit-amt').disabled=true;
+                                                       document.getElementById('diff-superavit-amt').value='';
+                                                       document.getElementById('diff-deficit-amt').value='';
+                                                   ">
+                                            <label class="form-check-label fw-semibold" for="diff-no"
+                                                   style="font-family:'DM Sans',sans-serif;font-size:13.5px">
+                                                No
+                                            </label>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>{# /modal-body #}
+
+                            {# Footer: botón confirmar + "← Volver" (gris, alineado derecha) #}
+                            <div class="modal-footer px-4 py-3"
+                                 style="border-top:1px solid var(--rv-border);background:var(--rv-surface2);justify-content:flex-end;gap:8px">
+                                <button type="submit" class="rv-btn rv-btn-danger" style="font-size:13px;padding:8px 20px">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                                    Confirmar cierre
+                                </button>
+                                <button type="button"
+                                        class="rv-btn rv-btn-ghost"
+                                        style="font-size:13px;padding:8px 20px"
+                                        data-bs-dismiss="modal">
+                                    ← Volver
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>{# /pane-gestion #}
+
+        {# ══════════════════════════════════════════════════════════
+           TAB 2: PAGO PACIENTE
+           Flujo de cobro completo. Solo accesible si la caja está abierta.
+        ══════════════════════════════════════════════════════════ #}
+        <div class="tab-pane fade {{ cashOpen ? 'show active' : '' }}"
+             id="rv-pane-pago">
+            {% if cashOpen %}
+                {% include 'revenue/cash-register/_cobro_shell.html.twig' with {show_header: false} %}
+            {% else %}
+                <div class="rv-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="11" width="18" height="11" rx="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4"/>
+                    </svg>
+                    <div class="rv-placeholder-title">Caja no disponible</div>
+                    <div class="rv-placeholder-desc">Para procesar cobros debe tener una caja abierta y operativa. Vaya a <strong>Gestión Caja</strong> para abrirla.</div>
+                </div>
+            {% endif %}
+        </div>
+
+        {# ══════════════════════════════════════════════════════════
+           TAB 3: INFORMES — placeholder (Fase 2)
+        ══════════════════════════════════════════════════════════ #}
+        <div class="tab-pane fade" id="rv-pane-informes">
+            <div class="rv-placeholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <div class="rv-placeholder-title">Informes — próximamente</div>
+                <div class="rv-placeholder-desc">
+                    El historial de cobros del día y los reportes de cierre estarán disponibles en esta sección.
+                    Por ahora, el reporte de cierre se genera desde <strong>Gestión Caja → Cerrar Caja</strong>.
+                </div>
+            </div>
+        </div>
+
+    </div>{# /tab-content #}
+
+</div>{# /rv #}
+{% endblock %}
