@@ -1,94 +1,60 @@
-{# Toggle naranja cuando el switch está activado #}
-<style>
-    .rv-method-toggle:checked {
-        background-color: #fd7e14 !important;
-        border-color:     #fd7e14 !important;
-    }
-    .rv-pgm-panel .pgm-card-header .pgm-card-name {
-        color: #fff;
-    }
-    .rv-pgm-panel.is-active .pgm-card-header .pgm-card-name {
-        color: #fff;
-    }
-</style>
-
 <div data-controller="revenue--payment-builder"
      data-revenue--payment-builder-total-cuenta-value="0"
      data-action="input->revenue--payment-builder#recalculateTotal change->revenue--payment-builder#recalculateTotal">
 
-    {# ── Sub-tabs: $ Medios de Pago / $ Otros Medios ─────────────────────── #}
-    <ul class="nav nav-tabs mb-3">
-        <li class="nav-item">
-            <button type="button" class="nav-link active">$ Medios de Pago</button>
-        </li>
-        <li class="nav-item">
-            <button type="button" class="nav-link disabled"
-                    title="Pendiente de implementar">
-                $ Otros Medios
-            </button>
-        </li>
-    </ul>
-
-    {# ── Panel de totales (fondo verde claro) ────────────────────────────── #}
-    <div class="p-3 mb-3 rounded" style="background-color: #d4edda; border: 1px solid #c3e6cb;">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="fw-semibold text-dark">Total Cuenta</span>
-            <span class="fw-bold text-dark"
-                  data-revenue--payment-builder-target="totalCuentaDisplay">
-                $ 0
-            </span>
+    {# ── Total cuenta / Saldo ─────────────────────────────────────────────── #}
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header py-2 border-bottom d-flex align-items-center gap-2">
+            <i class="bi bi-wallet2 text-primary"></i>
+            <span class="fw-semibold">Medios de pago</span>
         </div>
-        <div class="d-flex justify-content-between align-items-center">
-            <span class="fw-semibold text-dark">Saldo Cuenta</span>
-            <span class="fw-bold text-dark"
-                  data-revenue--payment-builder-target="saldoCuenta">
-                $ 0
-            </span>
+        <div class="card-body p-3">
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="bg-light border rounded px-3 py-2 text-center">
+                        <div class="text-muted small lh-1 mb-1">Total cuenta</div>
+                        <div class="fw-semibold"
+                             data-revenue--payment-builder-target="totalCuentaDisplay">$ 0</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="bg-light border rounded px-3 py-2 text-center">
+                        <div class="text-muted small lh-1 mb-1">Saldo cuenta</div>
+                        <div class="fw-semibold"
+                             data-revenue--payment-builder-target="saldoCuenta">$ 0</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    {# ── Banner amarillo: Aplicar Diferencia ─────────────────────────────── #}
-    <div class="alert alert-warning py-2 mb-3 small fw-semibold">
-        ⇅ Aplicar Diferencia Prestaciones
-    </div>
-
-    {# ── Grid 2 columnas de paneles azul oscuro ──────────────────────────── #}
+    {# ── Métodos de pago ──────────────────────────────────────────────────── #}
     <div class="row g-2 mb-3">
         {% for method_code, method in payment_methods %}
         <div class="col-6">
-            <div class="pgm-card rv-pgm-panel"
-                 data-method-card="{{ method_code }}"
-                 style="background-color: #1a3a5c; border: none; border-radius: 6px; margin-bottom: 0;">
+            <div class="pgm-card" data-method-card="{{ method_code }}">
 
-                {# Header: nombre + toggle naranja + X ─────────────────── #}
-                <div class="pgm-card-header" style="padding: 0.6rem 0.75rem;">
-                    <span class="pgm-card-name fw-semibold small text-uppercase"
-                          style="color: #fff !important; flex-grow: 1;">
-                        {{ method.label }}
-                    </span>
+                <div class="pgm-card-header">
+                    <span class="pgm-card-name">{{ method.label }}</span>
                     <div class="form-check form-switch pgm-card-switch mb-0 me-1">
-                        <input class="form-check-input rv-method-toggle"
+                        <input class="form-check-input"
                                type="checkbox"
                                id="payment-method-switch-{{ method_code }}"
                                data-payment-method-switch="{{ method_code }}"
                                data-action="change->revenue--payment-builder#toggleMethod"
                                role="switch"
-                               aria-label="Activar {{ method.label }}"
-                               style="cursor: pointer;">
+                               aria-label="Activar {{ method.label }}">
                     </div>
                     <button type="button"
-                            class="btn p-0"
-                            style="background: none; border: none; color: rgba(255,255,255,0.65); line-height: 1; font-size: 0.85rem;"
+                            class="btn btn-sm btn-link p-0 text-secondary text-decoration-none lh-1"
                             data-action="click->revenue--payment-builder#deactivateMethod"
                             data-method-code="{{ method_code }}"
                             title="Desactivar {{ method.label }}">
-                        ✕
+                        <i class="bi bi-x"></i>
                     </button>
                 </div>
 
-                {# Panel de contenido — animado por max-height CSS (.pgm-card-body) #}
-                <div class="pgm-card-body" data-method-panel="{{ method_code }}"
-                     style="background-color: rgba(0,0,0,0.15);">
+                <div class="pgm-card-body" data-method-panel="{{ method_code }}">
                     <div class="pgm-card-body-inner">
                         <div data-method-rows="{{ method_code }}">
                             {% if initial_rows[method_code] is defined %}
@@ -108,19 +74,19 @@
         {% endfor %}
     </div>
 
-    {# ── Alerta de estado (accesible para lógica del controller) ─────────── #}
+    {# Alerta de estado — gestionada por Stimulus, oculta por defecto #}
     <div class="pgm-status-alert pgm-alert-info d-none"
          data-revenue--payment-builder-target="statusAlert">
-        <i class="bx bx-info-circle" aria-hidden="true"></i>
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
         <span data-revenue--payment-builder-target="statusAlertText"></span>
     </div>
 
-    {# ── Footer — Efectuar Pago / Cancelar ───────────────────────────────── #}
-    <div class="d-flex justify-content-end gap-2 mt-2">
+    {# ── Acciones ─────────────────────────────────────────────────────────── #}
+    <div class="d-flex justify-content-end gap-2 pt-2 border-top mt-1">
         <button type="button"
                 class="btn btn-outline-secondary btn-sm"
                 data-action="click->revenue--cash-register#cancelPayment">
-            ← Cancelar
+            Cancelar
         </button>
         <button type="button"
                 class="btn btn-success btn-sm"
@@ -128,7 +94,7 @@
                 data-action="click->revenue--cash-register#submitPayment"
                 disabled
                 title="Se habilita cuando el Saldo Cuenta llega a $0">
-            $ Efectuar Pago
+            <i class="bi bi-check-lg me-1"></i>Efectuar pago
         </button>
     </div>
 

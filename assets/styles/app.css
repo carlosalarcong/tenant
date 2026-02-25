@@ -154,16 +154,22 @@ body {
 .nur-assign-input { width: 120px; }
 /* === ADMISION FORM === */
 
-/* Variables */
+/* Variables — alineadas con la paleta del template principal */
 :root {
-    --adm-primary:       #2a7de1;
-    --adm-primary-hover: #1e6bc8;
-    --adm-primary-alpha: rgba(42, 125, 225, 0.15);
+    --adm-primary:       #5e72e4;
+    --adm-primary-hover: #4c63d2;
+    --adm-primary-alpha: rgba(94, 114, 228, 0.15);
     --adm-label-color:   #495057;
     --adm-label-size:    0.8125rem;
     --adm-border:        #dee2e6;
     --adm-field-height:  38px;
-    --adm-card-shadow:   0 1px 3px rgba(0, 0, 0, 0.08);
+    --adm-card-shadow:   0 2px 8px rgba(0, 0, 0, 0.06);
+
+    /* Bootstrap primary override — unifica text-primary, border-primary, nav-pills active */
+    --bs-primary:        #5e72e4;
+    --bs-primary-rgb:    94, 114, 228;
+    --bs-link-color:     #5e72e4;
+    --bs-link-color-rgb: 94, 114, 228;
 }
 
 /* Wrapper del paso */
@@ -537,6 +543,12 @@ textarea.admission-input {
     opacity: 0.55;
     cursor: not-allowed;
     pointer-events: all;
+}
+
+/* Buscador de paciente — foco del input de identificación */
+.rv-id-input:focus {
+    border-color: #5e72e4;
+    box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
 }
 
 /* === FIN RESGUARDO FINANCIERO === */

@@ -7,285 +7,138 @@
     <input type="hidden" id="ctx-plan-id"            name="plan_id"            value="{{ patient.insurancePlan ? patient.insurancePlan.id : '' }}">
     <input type="hidden" id="ctx-patient-account-id" name="patient_account_id" value="{{ patientAccount ? patientAccount.id : '' }}">
 
-    {# ═══════════════════════════════════════════════════════════════════════
-       §3c — INFORMACIÓN PACIENTE
-    ═══════════════════════════════════════════════════════════════════════ #}
-    <div class="card mb-3 border-0 shadow-sm">
-        <div class="card-header d-flex align-items-center justify-content-between py-2"
-             style="background-color: #555; color: #fff;">
-            <span class="fw-semibold">👤 Información Paciente</span>
-            <button type="button" class="btn btn-sm btn-warning" disabled
-                    title="Pendiente de implementar">
-                ✏ Editar
-            </button>
+    {# ── Datos del paciente ────────────────────────────────────────────────── #}
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header py-2 border-bottom d-flex align-items-center gap-2">
+            <i class="bi bi-person-vcard text-primary"></i>
+            <span class="fw-semibold">Información del paciente</span>
+            {% if patientAccount %}
+                <span class="badge bg-success-subtle text-success-emphasis ms-auto">
+                    Cuenta #{{ patientAccount.id }}
+                </span>
+            {% else %}
+                <span class="badge bg-secondary-subtle text-secondary-emphasis ms-auto">Sin cuenta</span>
+            {% endif %}
         </div>
-        <div class="card-body pb-2">
+        <div class="card-body py-3">
+            <dl class="row g-0 mb-0 small">
+                <dt class="col-5 text-muted fw-normal">RUT</dt>
+                <dd class="col-7 fw-semibold mb-2">{{ patient.person.identification ?? '—' }}</dd>
 
-            {# ── Datos demográficos ─────────────────────────────────────────── #}
-            <div class="row g-2 mb-3">
-                <div class="col-6 col-md-4">
-                    <div class="text-muted small">Rut</div>
-                    <div class="fw-semibold">{{ patient.person.identification ?? '—' }}</div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="text-muted small">Nombre</div>
-                    <div>{{ patient.person.name ?? '—' }}</div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="text-muted small">Fecha Nacimiento</div>
-                    <div>{{ patient.person.birthDateAt ? patient.person.birthDateAt|date('d/m/Y') : '—' }}</div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="text-muted small">Edad</div>
-                    <div>
-                        {% if patient.person.birthDateAt %}
-                            {{ date().diff(patient.person.birthDateAt).y }} años
-                        {% else %}
-                            —
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="text-muted small">Apellidos</div>
-                    <div>
-                        {{ patient.person.lastName ?? '' }}
-                        {% if patient.person.motherName is defined and patient.person.motherName %}
-                            {{ patient.person.motherName }}
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="text-muted small">Empresa Solicitante</div>
-                    <div>—</div>
-                </div>
-            </div>
+                <dt class="col-5 text-muted fw-normal">Nombre</dt>
+                <dd class="col-7 mb-2">{{ patient.person.name ?? '—' }}</dd>
 
-            {# ── Sección colapsable 1 — Pagos Efectuados ────────────────────── #}
-            <div class="mb-2">
-                <div class="d-flex align-items-center justify-content-between px-3 py-2 rounded-top"
-                     style="background-color: #6c757d; color: #fff; cursor: pointer;"
-                     data-bs-toggle="collapse"
-                     data-bs-target="#ctx-collapse-pagos"
-                     aria-expanded="false">
-                    <span class="small fw-semibold">Listado de Pagos Efectuados por Paciente</span>
-                    <span class="ctx-chevron">▼</span>
-                </div>
-                <div id="ctx-collapse-pagos" class="collapse">
-                    <div class="table-responsive border border-top-0 rounded-bottom">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="small">Atención</th>
-                                    <th class="small">Fecha Atención</th>
-                                    <th class="small">Financiador</th>
-                                    <th class="small">Estado Cuenta</th>
-                                    <th class="small">Tipo Atención</th>
-                                    <th class="small">Adjunto</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted small py-3">
-                                        Sin registros disponibles
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                <dt class="col-5 text-muted fw-normal">Apellidos</dt>
+                <dd class="col-7 mb-2">
+                    {{ patient.person.lastName ?? '—' }}
+                    {% if patient.person.motherName is defined and patient.person.motherName %}
+                        {{ patient.person.motherName }}
+                    {% endif %}
+                </dd>
 
-            {# ── Sección colapsable 2 — Lab / Imagenología ──────────────────── #}
-            <div class="mb-2">
-                <div class="d-flex align-items-center justify-content-between px-3 py-2 rounded-top"
-                     style="background-color: #6c757d; color: #fff; cursor: pointer;"
-                     data-bs-toggle="collapse"
-                     data-bs-target="#ctx-collapse-lab"
-                     aria-expanded="false">
-                    <span class="small fw-semibold">Listado de Solicitudes de Imagenología y/o Laboratorio</span>
-                    <span class="ctx-chevron">▼</span>
-                </div>
-                <div id="ctx-collapse-lab" class="collapse">
-                    <div class="table-responsive border border-top-0 rounded-bottom">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="small">Atención</th>
-                                    <th class="small">Fecha Atención</th>
-                                    <th class="small">Observación</th>
-                                    <th class="small">Código</th>
-                                    <th class="small">Examen</th>
-                                    <th class="small">Tipo Prestación</th>
-                                    <th class="small">Tipo Atención</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted small py-3">
-                                        Sin registros disponibles
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                <dt class="col-5 text-muted fw-normal">Nacimiento</dt>
+                <dd class="col-7 mb-2">
+                    {{ patient.person.birthDateAt ? patient.person.birthDateAt|date('d/m/Y') : '—' }}
+                    {% if patient.person.birthDateAt %}
+                        <span class="text-muted">({{ date().diff(patient.person.birthDateAt).y }} años)</span>
+                    {% endif %}
+                </dd>
 
-            {# ── Sección colapsable 3 — Tratamientos ────────────────────────── #}
-            <div class="mb-0">
-                <div class="d-flex align-items-center justify-content-between px-3 py-2 rounded-top"
-                     style="background-color: #6c757d; color: #fff; cursor: pointer;"
-                     data-bs-toggle="collapse"
-                     data-bs-target="#ctx-collapse-tratamientos"
-                     aria-expanded="false">
-                    <span class="small fw-semibold">Listado Tratamientos en Proceso de Paciente</span>
-                    <span class="ctx-chevron">▼</span>
-                </div>
-                <div id="ctx-collapse-tratamientos" class="collapse">
-                    <div class="table-responsive border border-top-0 rounded-bottom">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="small">Nombre Tratamiento</th>
-                                    <th class="small">Fecha Creación</th>
-                                    <th class="small">Estado Del Tratamiento</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted small py-3">
-                                        Sin registros disponibles
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                <dt class="col-5 text-muted fw-normal">Previsión</dt>
+                <dd class="col-7 mb-0">{{ patient.payer ? patient.payer.name : '—' }}</dd>
+            </dl>
+        </div>
+    </div>
 
-        </div>{# /card-body #}
-    </div>{# /card §3c #}
-
-    {# ═══════════════════════════════════════════════════════════════════════
-       §3d — DATOS PRESTACIÓN
-    ═══════════════════════════════════════════════════════════════════════ #}
+    {# ── Datos de prestación ───────────────────────────────────────────────── #}
     <div class="card border-0 shadow-sm">
-        <div class="card-header d-flex align-items-center justify-content-between py-2"
-             style="background-color: #555; color: #fff;">
-            <span class="fw-semibold">📋 Datos Prestación</span>
-            <button type="button" class="btn btn-sm btn-warning"
+        <div class="card-header py-2 border-bottom d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-clipboard2-pulse text-primary"></i>
+                <span class="fw-semibold">Datos de prestación</span>
+            </div>
+            <button type="button"
+                    class="btn btn-outline-secondary btn-sm"
                     data-bs-toggle="collapse"
                     data-bs-target="#ctx-prestacion-form">
-                ✏ Editar
+                <i class="bi bi-pencil me-1"></i>Editar
             </button>
         </div>
 
-        {# ── Vista lectura (post-guardar / por defecto) ──────────────────── #}
-        <div id="ctx-prestacion-view" class="card-body py-2">
-            <div class="row g-2">
-                <div class="col-md-6">
-                    <table class="table table-sm mb-0">
-                        <tbody>
-                            <tr>
-                                <td class="text-muted small fw-semibold" style="width:40%">Financiador</td>
-                                <td class="small">{{ patient.payer ? patient.payer.name : '—' }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted small fw-semibold">Convenio</td>
-                                <td class="small">{{ patient.agreement ? patient.agreement.name : '—' }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted small fw-semibold">Plan</td>
-                                <td class="small">{{ patient.insurancePlan ? patient.insurancePlan.name : '—' }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <table class="table table-sm mb-0">
-                        <tbody>
-                            <tr>
-                                <td class="text-muted small fw-semibold" style="width:45%">Origen</td>
-                                <td class="small">—</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted small fw-semibold">Derivado por</td>
-                                <td class="small">—</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted small fw-semibold">Derivado Externo</td>
-                                <td class="small">No</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        {# ── Vista lectura (por defecto) ──────────────────────────────────── #}
+        <div id="ctx-prestacion-view" class="card-body py-3">
+            <dl class="row g-0 mb-0 small">
+                <dt class="col-5 text-muted fw-normal">Financiador</dt>
+                <dd class="col-7 mb-2">{{ patient.payer ? patient.payer.name : '—' }}</dd>
+
+                <dt class="col-5 text-muted fw-normal">Convenio</dt>
+                <dd class="col-7 mb-2">{{ patient.agreement ? patient.agreement.name : '—' }}</dd>
+
+                <dt class="col-5 text-muted fw-normal">Plan</dt>
+                <dd class="col-7 mb-2">{{ patient.insurancePlan ? patient.insurancePlan.name : '—' }}</dd>
+
+                <dt class="col-5 text-muted fw-normal">Origen</dt>
+                <dd class="col-7 mb-2">—</dd>
+
+                <dt class="col-5 text-muted fw-normal">Derivado por</dt>
+                <dd class="col-7 mb-2">—</dd>
+
+                <dt class="col-5 text-muted fw-normal">Derivado externo</dt>
+                <dd class="col-7 mb-0">No</dd>
+            </dl>
         </div>
 
-        {# ── Vista formulario (edición — pendiente datos de selects) ──────── #}
-        <div id="ctx-prestacion-form" class="collapse">
-            <div class="card-body py-2">
+        {# ── Vista formulario (edición) ───────────────────────────────────── #}
+        <div id="ctx-prestacion-form" class="collapse border-top">
+            <div class="card-body py-3">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <div class="mb-2">
-                            <label class="form-label small mb-1">
-                                Financiador <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select form-select-sm" name="ctx_financiador">
-                                {% if patient.payer %}
-                                    <option value="{{ patient.payer.id }}" selected>
-                                        {{ patient.payer.name }}
-                                    </option>
-                                {% else %}
-                                    <option value="">— Sin financiador —</option>
-                                {% endif %}
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small mb-1">Convenio</label>
-                            <select class="form-select form-select-sm" name="ctx_convenio">
-                                <option value="">— Sin convenio —</option>
-                                {% if patient.agreement %}
-                                    <option value="{{ patient.agreement.id }}" selected>
-                                        {{ patient.agreement.name }}
-                                    </option>
-                                {% endif %}
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small mb-1">
-                                Plan <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select form-select-sm" name="ctx_plan">
-                                <option value="">— Sin plan —</option>
-                                {% if patient.insurancePlan %}
-                                    <option value="{{ patient.insurancePlan.id }}" selected>
-                                        {{ patient.insurancePlan.name }}
-                                    </option>
-                                {% endif %}
-                            </select>
-                        </div>
+                        <label class="form-label small mb-1">
+                            Financiador <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select form-select-sm" name="ctx_financiador">
+                            {% if patient.payer %}
+                                <option value="{{ patient.payer.id }}" selected>{{ patient.payer.name }}</option>
+                            {% else %}
+                                <option value="">— Sin financiador —</option>
+                            {% endif %}
+                        </select>
+
+                        <label class="form-label small mb-1 mt-2">Convenio</label>
+                        <select class="form-select form-select-sm" name="ctx_convenio">
+                            <option value="">— Sin convenio —</option>
+                            {% if patient.agreement %}
+                                <option value="{{ patient.agreement.id }}" selected>{{ patient.agreement.name }}</option>
+                            {% endif %}
+                        </select>
+
+                        <label class="form-label small mb-1 mt-2">
+                            Plan <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select form-select-sm" name="ctx_plan">
+                            <option value="">— Sin plan —</option>
+                            {% if patient.insurancePlan %}
+                                <option value="{{ patient.insurancePlan.id }}" selected>{{ patient.insurancePlan.name }}</option>
+                            {% endif %}
+                        </select>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-2">
-                            <label class="form-label small mb-1">Origen</label>
-                            <select class="form-select form-select-sm" name="ctx_origen">
-                                <option value="">— Seleccionar —</option>
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small mb-1">Derivado por</label>
-                            <input type="text"
-                                   class="form-control form-control-sm"
-                                   name="ctx_derivado_por"
-                                   placeholder="Profesional derivador...">
-                        </div>
-                        <div class="mb-2 d-flex align-items-center gap-2 pt-1">
+                        <label class="form-label small mb-1">Origen</label>
+                        <select class="form-select form-select-sm" name="ctx_origen">
+                            <option value="">— Seleccionar —</option>
+                        </select>
+
+                        <label class="form-label small mb-1 mt-2">Derivado por</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               name="ctx_derivado_por"
+                               placeholder="Profesional derivador...">
+
+                        <div class="form-check mt-3">
                             <input class="form-check-input" type="checkbox"
-                                   id="ctx-derivado-externo" name="ctx_derivado_externo"
-                                   value="1">
+                                   id="ctx-derivado-externo" name="ctx_derivado_externo" value="1">
                             <label class="form-check-label small" for="ctx-derivado-externo">
-                                Derivado Externo
+                                Derivado externo
                             </label>
                         </div>
                     </div>
@@ -293,19 +146,19 @@
             </div>
         </div>
 
-        {# ── Footer — botones de acción §3d ──────────────────────────────── #}
-        <div class="card-footer d-flex justify-content-end gap-2 py-2 bg-transparent border-top">
+        {# ── Footer ───────────────────────────────────────────────────────── #}
+        <div class="card-footer d-flex justify-content-end gap-2 py-2 bg-transparent">
             <button type="button"
                     class="btn btn-sm btn-outline-secondary"
                     data-action="click->revenue--cash-register#cancelPatient">
-                ← Cancelar
+                Cancelar
             </button>
             <button type="button"
                     class="btn btn-sm btn-success"
                     data-action="click->revenue--cash-register#selectPaymentMethod">
-                $ Seleccionar Medio de Pago
+                <i class="bi bi-credit-card me-1"></i>Seleccionar medio de pago
             </button>
         </div>
-    </div>{# /card §3d #}
+    </div>
 
 </turbo-frame>

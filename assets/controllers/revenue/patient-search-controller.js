@@ -32,7 +32,9 @@ export default class extends Controller {
     static targets = [
         'simpleTab',
         'advancedTab',
+        'typeSelect',
         'input',
+        'errorMessage',
         'nombre',
         'apellidoPaterno',
         'apellidoMaterno',
@@ -48,6 +50,7 @@ export default class extends Controller {
         this._debounceTimer = null;
         this._handleDocumentClick = this._onDocumentClick.bind(this);
         document.addEventListener('click', this._handleDocumentClick);
+        this.updateRutUiState();
     }
 
     disconnect() {
@@ -74,9 +77,22 @@ export default class extends Controller {
     }
 
     // ── Handlers Simple ────────────────────────────────────────────────────
+    onTypeChange() {
+        this.updateRutUiState();
+        this.validateRutIfNeeded();
+    }
 
     onInput(event) {
         clearTimeout(this._debounceTimer);
+        if (this.isRutSelected()) {
+            this.applyRutMask();
+        }
+
+        if (!this.validateRutIfNeeded()) {
+            this.hideDropdown();
+            return;
+        }
+
         const query = event.target.value.trim();
 
         if (query.length < 2) {
@@ -96,6 +112,12 @@ export default class extends Controller {
     /** Botón 🔍 Buscar en tab Simple. */
     onSearch(event) {
         event.preventDefault();
+
+        if (!this.validateRutIfNeeded(true)) {
+            this.inputTarget.focus();
+            return;
+        }
+
         const query = this.inputTarget.value.trim();
 
         if (query.length < 2) {
@@ -232,6 +254,130 @@ export default class extends Controller {
         if (this.hasDropdownTarget) {
             this.dropdownTarget.style.display = 'none';
             this.dropdownTarget.innerHTML     = '';
+        }
+    }
+
+    updateRutUiState() {
+        if (!this.hasInputTarget) {
+            return;
+        }
+
+        if (this.isRutSelected()) {
+            this.inputTarget.placeholder = 'Ejemplo: 12.345.678-9';
+            this.inputTarget.maxLength = 12;
+            this.applyRutMask();
+            return;
+        }
+
+        this.inputTarget.placeholder = 'Ingrese identificación...';
+        this.inputTarget.removeAttribute('maxLength');
+        this.clearError();
+    }
+
+    isRutSelected() {
+        if (!this.hasTypeSelectTarget) {
+            // Fallback: en Caja hoy solo existe RUT en el selector simple.
+            return true;
+        }
+
+        const selectedText = this.typeSelectTarget.options[this.typeSelectTarget.selectedIndex]?.text || '';
+        return selectedText.trim().toLowerCase() === 'rut';
+    }
+
+    validateRutIfNeeded(force = false) {
+        if (!this.hasInputTarget || !this.isRutSelected()) {
+            this.clearError();
+            return true;
+        }
+
+        const rawValue = this.inputTarget.value || '';
+        const normalizedRut = this.normalizeRut(rawValue);
+
+        if (!force && normalizedRut.length === 0) {
+            this.clearError();
+            return true;
+        }
+
+        if (normalizedRut.length < 2) {
+            this.setError('Ingresa un RUT válido (ej: 12.345.678-5).');
+            return false;
+        }
+
+        if (!this.isValidRut(normalizedRut)) {
+            this.setError('RUT inválido. Verifica dígito verificador.');
+            return false;
+        }
+
+        this.clearError();
+        return true;
+    }
+
+    normalizeRut(value) {
+        return String(value ?? '')
+            .replace(/\./g, '')
+            .replace(/-/g, '')
+            .replace(/\s+/g, '')
+            .toUpperCase();
+    }
+
+    applyRutMask() {
+        const normalized = this.normalizeRut(this.inputTarget.value || '');
+        if (normalized === '') {
+            return;
+        }
+
+        if (normalized.length === 1) {
+            this.inputTarget.value = normalized;
+            return;
+        }
+
+        const body = normalized.slice(0, -1).replace(/\D/g, '');
+        const verifier = normalized.slice(-1).replace(/[^0-9K]/g, '');
+        const bodyWithDots = body.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        this.inputTarget.value = verifier ? `${bodyWithDots}-${verifier}` : bodyWithDots;
+    }
+
+    isValidRut(normalizedRut) {
+        if (!/^\d+[0-9K]$/.test(normalizedRut)) {
+            return false;
+        }
+
+        const body = normalizedRut.slice(0, -1);
+        const verifier = normalizedRut.slice(-1);
+
+        let sum = 0;
+        let multiplier = 2;
+
+        for (let i = body.length - 1; i >= 0; i -= 1) {
+            sum += Number(body[i]) * multiplier;
+            multiplier = multiplier === 7 ? 2 : multiplier + 1;
+        }
+
+        const remainder = 11 - (sum % 11);
+        const expectedVerifier = remainder === 11 ? '0' : remainder === 10 ? 'K' : String(remainder);
+
+        return verifier === expectedVerifier;
+    }
+
+    setError(message) {
+        this.inputTarget.setCustomValidity(message);
+        this.inputTarget.classList.add('is-invalid');
+
+        if (this.hasErrorMessageTarget) {
+            this.errorMessageTarget.textContent = message;
+            this.errorMessageTarget.classList.remove('d-none');
+        }
+    }
+
+    clearError() {
+        if (this.hasInputTarget) {
+            this.inputTarget.setCustomValidity('');
+            this.inputTarget.classList.remove('is-invalid');
+        }
+
+        if (this.hasErrorMessageTarget) {
+            this.errorMessageTarget.textContent = '';
+            this.errorMessageTarget.classList.add('d-none');
         }
     }
 

@@ -92,9 +92,9 @@ class PatientRepository extends ServiceEntityRepository
      */
     public function searchByQuery(string $query, int $limit = 10): array
     {
-        $q = '%' . mb_strtolower(trim($query)) . '%';
-
-        return $this->createQueryBuilder('p')
+        $rawQuery = trim($query);
+        $q = '%' . mb_strtolower($rawQuery) . '%';
+        $qb = $this->createQueryBuilder('p')
             ->leftJoin('p.person', 'per')
             ->addSelect('per')
             ->leftJoin('p.payer', 'pay')
@@ -108,8 +108,59 @@ class PatientRepository extends ServiceEntityRepository
             ->orWhere('LOWER(per.lastName) LIKE :q')
             ->setParameter('q', $q)
             ->orderBy('p.admissionDate', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+            ->setMaxResults($limit);
+
+        foreach ($this->buildRutSearchVariants($rawQuery) as $index => $variant) {
+            $param = 'rutv' . $index;
+            $qb->orWhere('LOWER(per.identification) LIKE :' . $param)
+               ->setParameter($param, '%' . mb_strtolower($variant) . '%');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Genera variantes comunes del RUT para búsqueda flexible sin funciones SQL.
+     * Ejemplo base: 151261361 -> 15.126.136-1, 15126136-1, 15.126.1361
+     *
+     * @return string[]
+     */
+    private function buildRutSearchVariants(string $query): array
+    {
+        $normalized = (string) preg_replace('/[^0-9kK]/', '', $query);
+        $normalized = mb_strtolower($normalized);
+
+        if (!preg_match('/^[0-9]{7,8}[0-9k]$/', $normalized)) {
+            return [];
+        }
+
+        $body = substr($normalized, 0, -1);
+        $dv = substr($normalized, -1);
+
+        $formattedBody = $this->formatRutBodyWithDots($body);
+
+        return array_values(array_unique([
+            $normalized,                 // 151261361
+            $body . '-' . $dv,           // 15126136-1
+            $formattedBody . '-' . $dv,  // 15.126.136-1
+            $formattedBody . $dv,        // 15.126.1361
+        ]));
+    }
+
+    private function formatRutBodyWithDots(string $body): string
+    {
+        $result = '';
+        $counter = 0;
+
+        for ($i = strlen($body) - 1; $i >= 0; $i--) {
+            $result = $body[$i] . $result;
+            $counter++;
+
+            if ($counter % 3 === 0 && $i !== 0) {
+                $result = '.' . $result;
+            }
+        }
+
+        return $result;
     }
 }

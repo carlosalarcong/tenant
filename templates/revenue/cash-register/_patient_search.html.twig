@@ -1,140 +1,150 @@
 <turbo-frame id="patient-search">
-    {# Borde naranja en foco del campo de identificación (§3a) #}
-    <style>
-        .rv-id-input:focus {
-            border-color: #fd7e14;
-            box-shadow: 0 0 0 0.2rem rgba(253, 126, 20, 0.25);
-        }
-    </style>
 
+    {# El data-controller envuelve tanto la card como el dropdown para que
+       el target "dropdown" sea accesible aunque esté fuera de la card
+       (la card tiene overflow:hidden global que recortaría el dropdown). #}
     <div data-controller="revenue--patient-search"
          data-revenue--patient-search-search-url-value="{{ path('app_revenue_cash_register_patient_find') }}">
 
-        {# ── Sub-tabs Simple / Avanzada ─────────────────────────────────────── #}
-        <ul class="nav nav-tabs mb-3">
-            <li class="nav-item">
-                <button type="button"
-                        class="nav-link active"
-                        data-action="click->revenue--patient-search#showSimple">
-                    🔍 Busqueda Simple
-                </button>
-            </li>
-            <li class="nav-item">
-                <button type="button"
-                        class="nav-link"
-                        data-action="click->revenue--patient-search#showAdvanced">
-                    🔍 Busqueda Avanzada
-                </button>
-            </li>
-        </ul>
+        <div class="card">
 
-        {# ── Panel: Búsqueda Simple ──────────────────────────────────────────── #}
-        <div data-revenue--patient-search-target="simpleTab">
-            <div class="row g-2 align-items-end">
-                <div class="col-auto">
-                    <label class="form-label small mb-1">Tipo de Identificación</label>
-                    <select class="form-select form-select-sm" style="min-width: 110px">
-                        <option>Rut</option>
-                    </select>
+            <div class="card-header py-2 d-flex align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-person-search text-primary"></i>
+                    <span class="fw-semibold">Búsqueda de paciente</span>
                 </div>
-                <div class="col">
-                    <label class="form-label small mb-1">
-                        Campo Identificación <span class="text-danger">*</span>
-                    </label>
-                    <input type="text"
-                           class="form-control form-control-sm rv-id-input"
-                           placeholder="Ingrese identificación..."
-                           autocomplete="off"
-                           data-revenue--patient-search-target="input"
-                           data-action="input->revenue--patient-search#onInput keydown->revenue--patient-search#onKeydown">
-                </div>
-                <div class="col-auto">
-                    <button type="button"
-                            class="btn btn-primary btn-sm"
-                            data-action="click->revenue--patient-search#onSearch">
-                        🔍 Buscar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        {# ── Panel: Búsqueda Avanzada ────────────────────────────────────────── #}
-        <div data-revenue--patient-search-target="advancedTab" style="display: none">
-            <div class="row g-2 mb-2">
-                <div class="col">
-                    <label class="form-label small mb-1">
-                        Nombre <span class="text-warning fw-bold">**</span>
-                    </label>
-                    <input type="text"
-                           class="form-control form-control-sm"
-                           placeholder="Nombre..."
-                           autocomplete="off"
-                           data-revenue--patient-search-target="nombre">
-                </div>
-                <div class="col">
-                    <label class="form-label small mb-1">
-                        Apellido Paterno <span class="text-warning fw-bold">**</span>
-                    </label>
-                    <input type="text"
-                           class="form-control form-control-sm"
-                           placeholder="Apellido paterno..."
-                           autocomplete="off"
-                           data-revenue--patient-search-target="apellidoPaterno">
-                </div>
-                <div class="col">
-                    <label class="form-label small mb-1">
-                        Apellido Materno <span class="text-warning fw-bold">**</span>
-                    </label>
-                    <input type="text"
-                           class="form-control form-control-sm"
-                           placeholder="Apellido materno..."
-                           autocomplete="off"
-                           data-revenue--patient-search-target="apellidoMaterno">
-                </div>
+                <ul class="nav nav-pills mb-0">
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link active py-1 px-3"
+                                style="font-size:.8125rem"
+                                data-action="click->revenue--patient-search#showSimple">
+                            Simple
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link py-1 px-3"
+                                style="font-size:.8125rem"
+                                data-action="click->revenue--patient-search#showAdvanced">
+                            Avanzada
+                        </button>
+                    </li>
+                </ul>
             </div>
 
-            <div class="mb-2">
-                <span class="small text-muted me-2">Parámetros de Búsqueda:</span>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio"
-                           name="rv_match_type" value="contains"
-                           id="rv_match_contains"
-                           data-revenue--patient-search-target="matchType">
-                    <label class="form-check-label small" for="rv_match_contains">Que contenga</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio"
-                           name="rv_match_type" value="starts"
-                           id="rv_match_starts"
-                           data-revenue--patient-search-target="matchType">
-                    <label class="form-check-label small" for="rv_match_starts">Que inicie</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio"
-                           name="rv_match_type" value="exact"
-                           id="rv_match_exact"
-                           checked
-                           data-revenue--patient-search-target="matchType">
-                    <label class="form-check-label small" for="rv_match_exact">Exacta</label>
-                </div>
-            </div>
+            <div class="card-body py-3">
 
-            <div class="d-flex gap-2">
-                <button type="button"
-                        class="btn btn-primary btn-sm"
-                        data-action="click->revenue--patient-search#onSearchAdvanced">
-                    🔍 Buscar
-                </button>
-                <button type="button"
-                        class="btn btn-outline-secondary btn-sm"
-                        data-action="click->revenue--patient-search#onClear">
-                    ✏ Limpiar
-                </button>
-            </div>
-        </div>
+                {# ── Panel: Búsqueda Simple ─────────────────────────────────── #}
+                <div data-revenue--patient-search-target="simpleTab">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-auto">
+                            <label class="form-label small mb-1">Tipo</label>
+                            <select class="form-select form-select-sm"
+                                    style="min-width: 110px"
+                                    data-revenue--patient-search-target="typeSelect"
+                                    data-action="change->revenue--patient-search#onTypeChange">
+                                <option>Rut</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label class="form-label small mb-1">
+                                Identificación <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   class="form-control form-control-sm rv-id-input"
+                                   placeholder="Ingrese identificación..."
+                                   autocomplete="off"
+                                   data-revenue--patient-search-target="input"
+                                   data-action="input->revenue--patient-search#onInput keydown->revenue--patient-search#onKeydown">
+                            <div class="invalid-feedback d-none"
+                                 data-revenue--patient-search-target="errorMessage"></div>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button"
+                                    class="btn btn-primary btn-sm"
+                                    data-action="click->revenue--patient-search#onSearch">
+                                <i class="bi bi-search me-1"></i>Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-        {# ── Dropdown de resultados (compartido entre ambos paneles) ─────────── #}
-        <div class="position-relative mt-1">
+                {# ── Panel: Búsqueda Avanzada ───────────────────────────────── #}
+                <div data-revenue--patient-search-target="advancedTab" style="display: none">
+                    <div class="row g-2 mb-2">
+                        <div class="col">
+                            <label class="form-label small mb-1">Nombre</label>
+                            <input type="text"
+                                   class="form-control form-control-sm"
+                                   placeholder="Nombre..."
+                                   autocomplete="off"
+                                   data-revenue--patient-search-target="nombre">
+                        </div>
+                        <div class="col">
+                            <label class="form-label small mb-1">Apellido Paterno</label>
+                            <input type="text"
+                                   class="form-control form-control-sm"
+                                   placeholder="Apellido paterno..."
+                                   autocomplete="off"
+                                   data-revenue--patient-search-target="apellidoPaterno">
+                        </div>
+                        <div class="col">
+                            <label class="form-label small mb-1">Apellido Materno</label>
+                            <input type="text"
+                                   class="form-control form-control-sm"
+                                   placeholder="Apellido materno..."
+                                   autocomplete="off"
+                                   data-revenue--patient-search-target="apellidoMaterno">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <span class="small text-muted me-2">Coincidencia:</span>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio"
+                                   name="rv_match_type" value="contains"
+                                   id="rv_match_contains"
+                                   data-revenue--patient-search-target="matchType">
+                            <label class="form-check-label small" for="rv_match_contains">Contiene</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio"
+                                   name="rv_match_type" value="starts"
+                                   id="rv_match_starts"
+                                   data-revenue--patient-search-target="matchType">
+                            <label class="form-check-label small" for="rv_match_starts">Inicia</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio"
+                                   name="rv_match_type" value="exact"
+                                   id="rv_match_exact"
+                                   checked
+                                   data-revenue--patient-search-target="matchType">
+                            <label class="form-check-label small" for="rv_match_exact">Exacta</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="button"
+                                class="btn btn-primary btn-sm"
+                                data-action="click->revenue--patient-search#onSearchAdvanced">
+                            <i class="bi bi-search me-1"></i>Buscar
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm"
+                                data-action="click->revenue--patient-search#onClear">
+                            <i class="bi bi-x-circle me-1"></i>Limpiar
+                        </button>
+                    </div>
+                </div>
+
+            </div>{# /card-body #}
+        </div>{# /card #}
+
+        {# ── Dropdown de resultados ─────────────────────────────────────────── #}
+        {# Fuera de .card para que overflow:hidden del template global no lo corte #}
+        <div class="position-relative">
             <div class="list-group position-absolute w-100 shadow"
                  data-revenue--patient-search-target="dropdown"
                  style="top: 0; left: 0; z-index: 1050; display: none;">
