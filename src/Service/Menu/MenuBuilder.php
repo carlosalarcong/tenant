@@ -111,6 +111,10 @@ class MenuBuilder
             return true;
         }
 
+        if (($item['name'] ?? null) === 'presupuestos' && str_contains($currentPath, '/budget')) {
+            return true;
+        }
+
         return false;
     }
 
@@ -138,6 +142,10 @@ class MenuBuilder
             }
 
             if (($item['name'] ?? null) === 'caja_pago_cuenta' && str_contains($currentPath, '/revenue/patient-account')) {
+                $item['is_active'] = true;
+            }
+
+            if (($item['name'] ?? null) === 'presupuestos' && str_contains($currentPath, '/budget')) {
                 $item['is_active'] = true;
             }
 

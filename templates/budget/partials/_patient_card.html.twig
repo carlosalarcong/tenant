@@ -1,0 +1,37 @@
+<turbo-frame id="patient-result" class="d-block">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3">
+                <div>
+                    <h3 class="h4 mb-1">
+                        {{ person.name }}
+                        {% if person.middleName %} {{ person.middleName }}{% endif %}
+                        {{ person.lastName }}
+                    </h3>
+                    <div class="text-muted mb-1">
+                        <strong>Identificación:</strong> {{ person.identification }}
+                    </div>
+                    <div class="text-muted">
+                        <strong>Teléfono:</strong> {{ person.mobilePhone ?: person.homePhone ?: 'Sin registro' }}
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{{ path('budget_new', {personId: person.id}) }}"
+                       class="btn btn-primary"
+                       data-turbo-frame="_top">
+                        Nuevo presupuesto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <turbo-frame id="budget-list"
+                 class="d-block mt-3"
+                 src="{{ path('budget_list_for_patient', {personId: person.id}) }}">
+        <div class="card shadow-sm">
+            <div class="card-body text-muted">Cargando presupuestos...</div>
+        </div>
+    </turbo-frame>
+</turbo-frame>

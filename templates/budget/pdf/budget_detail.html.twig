@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Presupuesto {{ budget.number }}</title>
+    <style>
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 12px; color: #1f2937; margin: 24px; }
+        .header, .section { margin-bottom: 18px; }
+        .header-table, .meta-table, .detail-table { width: 100%; border-collapse: collapse; }
+        .header-table td { vertical-align: top; }
+        .logo-box { width: 80px; height: 50px; border: 1px solid #cbd5e1; text-align: center; font-size: 11px; color: #64748b; }
+        .title { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
+        .subtitle { color: #64748b; }
+        .meta-table td { padding: 4px 6px; border: 1px solid #e5e7eb; }
+        .section-title { font-size: 14px; font-weight: bold; background: #f8fafc; padding: 8px; border: 1px solid #e5e7eb; }
+        .detail-table th, .detail-table td { border: 1px solid #e5e7eb; padding: 6px; }
+        .detail-table th { background: #f8fafc; text-align: left; }
+        .text-right { text-align: right; }
+        .total-row td { font-weight: bold; background: #f8fafc; }
+        .footer-box { border: 1px solid #e5e7eb; padding: 10px; min-height: 60px; }
+        .note { margin-top: 16px; color: #64748b; font-size: 11px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <table class="header-table">
+            <tr>
+                <td style="width: 90px;">
+                    <div class="logo-box">LOGO</div>
+                </td>
+                <td>
+                    <div class="title">{{ clinicName }}</div>
+                    <div class="subtitle">PRESUPUESTO N° {{ budget.number }}</div>
+                    <div class="subtitle">Fecha: {{ budget.createdAt ? budget.createdAt|date('d/m/Y H:i') : '-' }}</div>
+                    <div class="subtitle">Vigencia: {{ budget.expiresAt ? budget.expiresAt|date('d/m/Y') : 'Sin vencimiento definido' }}</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Datos paciente</div>
+        <table class="meta-table">
+            <tr>
+                <td><strong>Paciente</strong><br>{{ budget.person ? budget.person.name ~ ' ' ~ (budget.person.middleName ?: '') ~ ' ' ~ budget.person.lastName : '-' }}</td>
+                <td><strong>RUT / Documento</strong><br>{{ budget.person ? budget.person.identification : '-' }}</td>
+                <td><strong>Financiador</strong><br>{{ budget.payer ? budget.payer.name : (budget.agreement and budget.agreement.payer ? budget.agreement.payer.name : '-') }}</td>
+            </tr>
+            <tr>
+                <td><strong>Convenio</strong><br>{{ budget.agreement ? budget.agreement.name : '-' }}</td>
+                <td colspan="2">
+                    <strong>Plan</strong><br>
+                    {% if budget.insurancePlan %}
+                        {{ budget.insurancePlan.name }}
+                    {% elseif budget.surgeryPackagePlan %}
+                        {{ budget.surgeryPackagePlan.name }} (Paquetizado)
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Datos operación</div>
+        <table class="meta-table">
+            <tr>
+                <td><strong>Profesional</strong><br>{{ budget.professional ? budget.professional.fullName : '-' }}</td>
+                <td><strong>Tipo atención</strong><br>{{ budget.careType ? budget.careType.name : '-' }}</td>
+                <td><strong>Fecha probable</strong><br>{{ budget.expiresAt ? budget.expiresAt|date('d/m/Y') : '-' }}</td>
+            </tr>
+        </table>
+    </div>
+
+    {% set sections = {
+        'honorarios': 'Honorarios',
+        'pabellon': 'Pabellón',
+        'clinicos': 'Ítems clínicos',
+        'valorizables': 'Valorizables',
+        'examenes': 'Exámenes',
+        'diaCama': 'Día cama'
+    } %}
+
+    {% for key, title in sections %}
+        {% if groupedDetails[key] is not empty %}
+            <div class="section">
+                <div class="section-title">{{ title }}</div>
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>Ítem</th>
+                            <th>Tipo</th>
+                            <th class="text-right">Cantidad</th>
+                            <th class="text-right">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detail in groupedDetails[key] %}
+                            <tr>
+                                <td>{{ detail.medicalService ? detail.medicalService.name : (detail.surgeryPackageItem ? detail.surgeryPackageItem.name : '-') }}</td>
+                                <td>{{ detail.itemType|replace({'_': ' '})|title }}</td>
+                                <td class="text-right">{{ detail.quantity }}</td>
+                                <td class="text-right">{{ detail.amount|number_format(0, ',', '.') }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr class="total-row">
+                            <td colspan="3" class="text-right">Subtotal {{ title }}</td>
+                            <td class="text-right">{{ totals[key]|number_format(0, ',', '.') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <div class="section">
+        <table class="detail-table">
+            <tr class="total-row">
+                <td style="width: 80%;">TOTAL GENERAL</td>
+                <td class="text-right">{{ totals.general|number_format(0, ',', '.') }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Pie de presupuesto</div>
+        <div class="footer-box">{{ budget.footerText ?: 'Sin pie de presupuesto configurado.' }}</div>
+    </div>
+
+    <div class="note">
+        Este presupuesto es referencial y su vigencia expira el {{ budget.expiresAt ? budget.expiresAt|date('d/m/Y') : 'día de su emisión' }}.
+    </div>
+</body>
+</html>

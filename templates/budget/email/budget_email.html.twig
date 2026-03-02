@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.5;">
+    <p>Hola {{ patient ? patient.name : 'paciente' }},</p>
+
+    <p>
+        Adjuntamos el detalle del presupuesto N° {{ budget.number }}
+        emitido por {{ clinicName }}.
+    </p>
+
+    <p>
+        Paciente: {{ patient ? patient.name ~ ' ' ~ (patient.middleName ?: '') ~ ' ' ~ patient.lastName : '-' }}<br>
+        Fecha de emisión: {{ budget.createdAt ? budget.createdAt|date('d/m/Y H:i') : '-' }}<br>
+        Vigencia: {{ budget.expiresAt ? budget.expiresAt|date('d/m/Y') : 'Sin vencimiento definido' }}
+    </p>
+
+    <p>Adjuntamos el detalle en PDF para su revisión.</p>
+
+    <p>
+        Saludos,<br>
+        {{ clinicName }}<br>
+        {{ budget.branch ? budget.branch.name : '' }}
+    </p>
+</body>
+</html>

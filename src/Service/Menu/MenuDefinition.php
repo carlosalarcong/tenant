@@ -299,6 +299,14 @@ class MenuDefinition
                 ]
             ],
             [
+                'name' => 'presupuestos',
+                'label' => 'Presupuestos',
+                'icon' => 'bx bx-file',
+                'route' => 'budget_index',
+                'module' => null,
+                'children' => []
+            ],
+            [
                 'name' => 'citas',
                 'label' => 'Citas',
                 'icon' => $this->getIconForItem('citas'),

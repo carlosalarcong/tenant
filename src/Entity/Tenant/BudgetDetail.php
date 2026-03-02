@@ -30,9 +30,9 @@ class BudgetDetail
     #[ORM\JoinColumn(name: 'medical_service_id', referencedColumnName: 'id', nullable: true)]
     private ?MedicalService $medicalService = null;
 
-    /** TODO: relación a SurgeryPackageItem pendiente */
-    #[ORM\Column(name: 'surgery_package_item_id', type: 'integer', nullable: true)]
-    private ?int $surgeryPackageItemId = null;
+    #[ORM\ManyToOne(targetEntity: SurgeryPackageItem::class)]
+    #[ORM\JoinColumn(name: 'surgery_package_item_id', referencedColumnName: 'id', nullable: true)]
+    private ?SurgeryPackageItem $surgeryPackageItem = null;
 
     #[ORM\Column(type: 'integer', options: ['default' => 1])]
     private int $quantity = 1;
@@ -81,14 +81,14 @@ class BudgetDetail
         return $this;
     }
 
-    public function getSurgeryPackageItemId(): ?int
+    public function getSurgeryPackageItem(): ?SurgeryPackageItem
     {
-        return $this->surgeryPackageItemId;
+        return $this->surgeryPackageItem;
     }
 
-    public function setSurgeryPackageItemId(?int $surgeryPackageItemId): self
+    public function setSurgeryPackageItem(?SurgeryPackageItem $surgeryPackageItem): self
     {
-        $this->surgeryPackageItemId = $surgeryPackageItemId;
+        $this->surgeryPackageItem = $surgeryPackageItem;
         return $this;
     }
 

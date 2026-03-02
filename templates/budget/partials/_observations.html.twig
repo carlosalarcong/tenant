@@ -1,0 +1,48 @@
+<turbo-frame id="budget-observations">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h2 class="h5 mb-0">Observaciones</h2>
+        </div>
+        <div class="card-body">
+            {% if error is defined and error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+
+            <div class="mb-4">
+                {% for observation in observations %}
+                    <div class="d-flex gap-3 border-bottom pb-3 mb-3">
+                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
+                            {{ (observation.member and observation.member.fullName ? observation.member.fullName|slice(0, 1) : 'U')|upper }}
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+                                <div class="fw-semibold">{{ observation.member ? observation.member.fullName : 'Usuario' }}</div>
+                                <div class="text-muted small">{{ observation.createdAt ? observation.createdAt|date('d/m/Y H:i') : '-' }}</div>
+                            </div>
+                            <div class="mt-2">{{ observation.observation|nl2br }}</div>
+                            {% if observation.isEmailSent %}
+                                <span class="badge text-bg-success mt-2">Email enviado</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-muted">No hay observaciones registradas.</div>
+                {% endfor %}
+            </div>
+
+            <form method="post"
+                  action="{{ path('budget_save_observation', {id: budget.id}) }}"
+                  data-turbo-frame="budget-observations">
+                <div class="mb-3">
+                    <label class="form-label" for="budget-observation-input">Nueva observación</label>
+                    <textarea id="budget-observation-input"
+                              name="observation"
+                              rows="3"
+                              maxlength="2000"
+                              class="form-control"></textarea>
+                </div>
+                <button class="btn btn-primary">Guardar</button>
+            </form>
+        </div>
+    </div>
+</turbo-frame>

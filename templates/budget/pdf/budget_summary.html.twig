@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resumen presupuesto {{ budget.number }}</title>
+    <style>
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 12px; color: #1f2937; margin: 24px; }
+        .header, .section { margin-bottom: 16px; }
+        .header-table, .meta-table, .detail-table { width: 100%; border-collapse: collapse; }
+        .header-table td { vertical-align: top; }
+        .logo-box { width: 80px; height: 50px; border: 1px solid #cbd5e1; text-align: center; font-size: 11px; color: #64748b; }
+        .title { font-size: 20px; font-weight: bold; margin-bottom: 4px; }
+        .subtitle { color: #64748b; }
+        .meta-table td, .detail-table th, .detail-table td { border: 1px solid #e5e7eb; padding: 6px; }
+        .detail-table th { background: #f8fafc; text-align: left; }
+        .text-right { text-align: right; }
+        .total-row td { font-weight: bold; background: #f8fafc; }
+        .footer-box { border: 1px solid #e5e7eb; padding: 10px; min-height: 50px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <table class="header-table">
+            <tr>
+                <td style="width: 90px;"><div class="logo-box">LOGO</div></td>
+                <td>
+                    <div class="title">{{ clinicName }}</div>
+                    <div class="subtitle">RESUMEN PRESUPUESTO N° {{ budget.number }}</div>
+                    <div class="subtitle">Fecha: {{ budget.createdAt ? budget.createdAt|date('d/m/Y H:i') : '-' }}</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <table class="meta-table">
+            <tr>
+                <td><strong>Paciente</strong><br>{{ budget.person ? budget.person.name ~ ' ' ~ (budget.person.middleName ?: '') ~ ' ' ~ budget.person.lastName : '-' }}</td>
+                <td><strong>Documento</strong><br>{{ budget.person ? budget.person.identification : '-' }}</td>
+                <td><strong>Plan</strong><br>{% if budget.insurancePlan %}{{ budget.insurancePlan.name }}{% elseif budget.surgeryPackagePlan %}{{ budget.surgeryPackagePlan.name }} (Paquetizado){% else %}-{% endif %}</td>
+            </tr>
+            <tr>
+                <td><strong>Financiador</strong><br>{{ budget.payer ? budget.payer.name : (budget.agreement and budget.agreement.payer ? budget.agreement.payer.name : '-') }}</td>
+                <td><strong>Profesional</strong><br>{{ budget.professional ? budget.professional.fullName : '-' }}</td>
+                <td><strong>Vigencia</strong><br>{{ budget.expiresAt ? budget.expiresAt|date('d/m/Y') : 'Sin vencimiento definido' }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th>Grupo</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if totals.honorarios > 0 %}
+                    <tr><td>Honorarios</td><td class="text-right">{{ totals.honorarios|number_format(0, ',', '.') }}</td></tr>
+                {% endif %}
+                {% if totals.pabellon > 0 %}
+                    <tr><td>Pabellón</td><td class="text-right">{{ totals.pabellon|number_format(0, ',', '.') }}</td></tr>
+                {% endif %}
+                {% if totals.clinicos > 0 %}
+                    <tr><td>Ítems clínicos</td><td class="text-right">{{ totals.clinicos|number_format(0, ',', '.') }}</td></tr>
+                {% endif %}
+                {% if totals.valorizables > 0 %}
+                    <tr><td>Valorizables</td><td class="text-right">{{ totals.valorizables|number_format(0, ',', '.') }}</td></tr>
+                {% endif %}
+                {% if totals.examenes > 0 %}
+                    <tr><td>Exámenes</td><td class="text-right">{{ totals.examenes|number_format(0, ',', '.') }}</td></tr>
+                {% endif %}
+                {% if totals.diaCama > 0 %}
+                    <tr><td>Día cama</td><td class="text-right">{{ totals.diaCama|number_format(0, ',', '.') }}</td></tr>
+                {% endif %}
+                <tr class="total-row">
+                    <td>TOTAL GENERAL</td>
+                    <td class="text-right">{{ totals.general|number_format(0, ',', '.') }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="footer-box">{{ budget.footerText ?: 'Sin pie de presupuesto configurado.' }}</div>
+    </div>
+</body>
+</html>

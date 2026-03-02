@@ -1,0 +1,232 @@
+{% extends 'app_layout.html.twig' %}
+
+{% block title %}Nuevo presupuesto{% endblock %}
+
+{% block content %}
+    <div class="container-fluid py-4"
+         data-controller="budget--main"
+         data-budget--main-person-id-value="{{ person.id }}"
+         data-budget--main-agreements-url-value="{{ path('budget_get_agreements') }}"
+         data-budget--main-search-url-value="{{ path('budget_search_medical_services') }}"
+         data-budget--main-validate-url-value="{{ path('budget_validate_services') }}"
+         data-budget--main-preview-url-value="{{ path('budget_preview') }}"
+         data-budget--main-save-url-value="{{ path('budget_save') }}"
+         data-budget--main-show-url-template-value="{{ path('budget_show', {id: '__ID__'}) }}">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+            <div>
+                <h1 class="h3 mb-1">Nuevo presupuesto</h1>
+                <p class="text-muted mb-0">
+                    {{ person.name }}{% if person.middleName %} {{ person.middleName }}{% endif %} {{ person.lastName }}
+                    · {{ person.identification }}
+                </p>
+            </div>
+            <a href="{{ path('budget_index') }}" class="btn btn-outline-secondary" data-turbo-frame="_top">
+                Volver al módulo
+            </a>
+        </div>
+
+        <div class="card shadow-sm mb-4" data-budget--main-target="step1">
+            <div class="card-header bg-white">
+                <h2 class="h5 mb-0">Paso 1. Configuración</h2>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="budget-payer">Financiador</label>
+                        <select id="budget-payer"
+                                class="form-select"
+                                data-budget--main-target="payerSelect"
+                                data-action="change->budget--main#onPayerChange">
+                            <option value="">Seleccione...</option>
+                            {% for payer in payers %}
+                                <option value="{{ payer.id }}">{{ payer.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="budget-agreement">Convenio</label>
+                        <select id="budget-agreement"
+                                class="form-select"
+                                data-budget--main-target="agreementSelect">
+                            <option value="">Sin convenio</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label" for="budget-mode">Modalidad</label>
+                        <select id="budget-mode"
+                                class="form-select"
+                                data-budget--main-target="modeSelect"
+                                data-action="change->budget--main#onModeChange">
+                            <option value="abierta">Abierta</option>
+                            <option value="paquetizada">Paquetizada</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4" data-budget--main-target="openPlanWrapper">
+                        <label class="form-label" for="budget-open-plan">Plan abierto</label>
+                        <select id="budget-open-plan"
+                                class="form-select"
+                                data-budget--main-target="insurancePlanSelect">
+                            <option value="">Seleccione...</option>
+                            {% for plan in insurancePlans %}
+                                <option value="{{ plan.id }}"
+                                        data-branch-payer-id="{{ plan.branchPayer ? plan.branchPayer.id : '' }}">
+                                    {{ plan.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 d-none" data-budget--main-target="packagePlanWrapper">
+                        <label class="form-label" for="budget-package-plan">Plan paquetizado</label>
+                        <select id="budget-package-plan"
+                                class="form-select"
+                                data-budget--main-target="surgeryPackagePlanSelect">
+                            <option value="">Seleccione...</option>
+                            {% for plan in surgeryPackagePlans %}
+                                <option value="{{ plan.id }}"
+                                        data-branch-payer-id="{{ plan.branchPayer ? plan.branchPayer.id : '' }}">
+                                    {{ plan.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label" for="budget-professional">Profesional</label>
+                        <select id="budget-professional"
+                                class="form-select"
+                                data-budget--main-target="professionalSelect">
+                            <option value="">Sin profesional</option>
+                            {% for professional in professionals %}
+                                <option value="{{ professional.id }}">{{ professional.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label" for="budget-care-type">Tipo atención</label>
+                        <select id="budget-care-type"
+                                class="form-select"
+                                data-budget--main-target="careTypeSelect">
+                            <option value="">Seleccione...</option>
+                            {% for careType in careTypes %}
+                                <option value="{{ careType.id }}">{{ careType.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label" for="budget-origin">Origen</label>
+                        <select id="budget-origin"
+                                class="form-select"
+                                data-budget--main-target="originSelect">
+                            <option value="">Seleccione...</option>
+                            {% for origin in origins %}
+                                <option value="{{ origin.id }}">{{ origin.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label" for="budget-expires-at">Fecha probable de cirugía</label>
+                        <input id="budget-expires-at"
+                               type="date"
+                               class="form-control"
+                               data-budget--main-target="expiresAtInput">
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end">
+                        <div class="form-check">
+                            <input id="budget-includes-honorariums"
+                                   class="form-check-input"
+                                   type="checkbox"
+                                   checked
+                                   data-budget--main-target="includesHonorariumsInput">
+                            <label class="form-check-label" for="budget-includes-honorariums">
+                                ¿Incluye honorarios?
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label" for="budget-observation">Observación</label>
+                        <textarea id="budget-observation"
+                                  rows="3"
+                                  class="form-control"
+                                  data-budget--main-target="observationInput"></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button class="btn btn-primary"
+                            data-action="click->budget--main#goToStep2">
+                        Agregar prestaciones →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4 d-none" data-budget--main-target="step2">
+            <div class="card-header bg-white">
+                <h2 class="h5 mb-0">Paso 2. Prestaciones</h2>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-8 position-relative">
+                        <label class="form-label" for="budget-service-search">Búsqueda de prestación</label>
+                        <input id="budget-service-search"
+                               type="text"
+                               class="form-control"
+                               placeholder="Buscar prestación por nombre o código..."
+                               autocomplete="off"
+                               data-budget--main-target="serviceSearchInput"
+                               data-action="input->budget--main#searchService">
+                        <div class="mt-2"
+                             data-budget--main-target="serviceSearchResults"></div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h3 class="h6 text-uppercase text-muted">Prestaciones agregadas</h3>
+                    <div data-budget--main-target="servicesList"></div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button class="btn btn-outline-secondary"
+                            data-action="click->budget--main#goToStep1">
+                        ← Volver
+                    </button>
+                    <button class="btn btn-primary"
+                            data-action="click->budget--main#goToStep3">
+                        Ver resumen →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm d-none" data-budget--main-target="step3">
+            <div class="card-header bg-white">
+                <h2 class="h5 mb-0">Paso 3. Resumen</h2>
+            </div>
+            <div class="card-body">
+                <turbo-frame id="budget-preview" data-budget--main-target="previewFrame">
+                    <div class="text-muted">El resumen aparecerá aquí antes de guardar.</div>
+                </turbo-frame>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button class="btn btn-outline-secondary"
+                            data-action="click->budget--main#backToStep2">
+                        ← Volver
+                    </button>
+                    <button class="btn btn-success"
+                            data-action="click->budget--main#save">
+                        Guardar presupuesto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

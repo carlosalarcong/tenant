@@ -1,0 +1,131 @@
+{% extends 'app_layout.html.twig' %}
+
+{% block title %}Reporte de presupuestos{% endblock %}
+
+{% block content %}
+    <div class="container-fluid py-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h1 class="h4 mb-0">Reporte de presupuestos</h1>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ path('budget_report') }}">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label" for="budget-report-date-from">Fecha desde</label>
+                            <input id="budget-report-date-from" type="date" name="date_from" value="{{ filters.dateFrom }}" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="budget-report-date-to">Fecha hasta</label>
+                            <input id="budget-report-date-to" type="date" name="date_to" value="{{ filters.dateTo }}" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="budget-report-branch">Sucursal</label>
+                            <select id="budget-report-branch" name="branch_id" class="form-select">
+                                <option value="0">Todas</option>
+                                {% for branch in branches %}
+                                    <option value="{{ branch.id }}" {{ filters.branchId == branch.id ? 'selected' : '' }}>{{ branch.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="budget-report-member">Usuario</label>
+                            <select id="budget-report-member" name="member_id" class="form-select">
+                                <option value="0">Todos</option>
+                                {% for member in members %}
+                                    <option value="{{ member.id }}" {{ filters.memberId == member.id ? 'selected' : '' }}>
+                                        {{ member.fullName ?: member.username }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        {% if submitted %}
+                            <button type="submit"
+                                    formaction="{{ path('budget_report_export') }}"
+                                    formmethod="post"
+                                    class="btn btn-outline-success">
+                                <i class="bi bi-file-earmark-spreadsheet"></i> Exportar CSV
+                            </button>
+                        {% endif %}
+                        <button class="btn btn-primary">Generar reporte</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if submitted %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h2 class="h5 mb-0">Resultados</h2>
+                </div>
+                <div class="card-body p-0">
+                    {% if rows is not empty %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>N°</th>
+                                        <th>Fecha</th>
+                                        <th>Paciente</th>
+                                        <th>RUT</th>
+                                        <th>Financiador</th>
+                                        <th>Plan</th>
+                                        <th>Profesional</th>
+                                        <th class="text-end">Total</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in rows %}
+                                        <tr>
+                                            <td class="fw-semibold">
+                                                <a href="{{ path('budget_show', {id: row.id}) }}" data-turbo-frame="_top">
+                                                    {{ row.number }}
+                                                </a>
+                                            </td>
+                                            <td>{{ row.createdAt ?: '-' }}</td>
+                                            <td>{{ row.personName }}{% if row.personMiddleName %} {{ row.personMiddleName }}{% endif %} {{ row.personLastName }}</td>
+                                            <td>{{ row.identification ?: '-' }}</td>
+                                            <td>{{ row.payerName ?: '-' }}</td>
+                                            <td>
+                                                {% if row.insurancePlanName %}
+                                                    {{ row.insurancePlanName }}
+                                                {% elseif row.surgeryPackagePlanName %}
+                                                    {{ row.surgeryPackagePlanName }} <span class="badge bg-secondary">Paquetizado</span>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ row.professionalName|trim ?: '-' }}</td>
+                                            <td class="text-end">{{ row.totalAmount }}</td>
+                                            <td><span class="badge text-bg-secondary">{{ row.status ?: 'Activo' }}</span></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <th colspan="7" class="text-end">Cantidad de presupuestos</th>
+                                        <th class="text-end">{{ totals.count }}</th>
+                                        <th></th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="7" class="text-end">Suma total</th>
+                                        <th class="text-end">{{ totals.amount|number_format(0, ',', '.') }}</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="p-4 text-center text-muted">
+                            No se encontraron presupuestos para los filtros seleccionados.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

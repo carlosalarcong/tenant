@@ -67,9 +67,9 @@ class Budget
     #[ORM\JoinColumn(name: 'origin_id', referencedColumnName: 'id', nullable: true)]
     private ?Origin $origin = null;
 
-    /** TODO: relación a SurgeryPackagePlan pendiente */
-    #[ORM\Column(name: 'surgery_package_plan_id', type: 'integer', nullable: true)]
-    private ?int $surgeryPackagePlanId = null;
+    #[ORM\ManyToOne(targetEntity: SurgeryPackagePlan::class)]
+    #[ORM\JoinColumn(name: 'surgery_package_plan_id', referencedColumnName: 'id', nullable: true)]
+    private ?SurgeryPackagePlan $surgeryPackagePlan = null;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
@@ -234,14 +234,14 @@ class Budget
         return $this;
     }
 
-    public function getSurgeryPackagePlanId(): ?int
+    public function getSurgeryPackagePlan(): ?SurgeryPackagePlan
     {
-        return $this->surgeryPackagePlanId;
+        return $this->surgeryPackagePlan;
     }
 
-    public function setSurgeryPackagePlanId(?int $surgeryPackagePlanId): self
+    public function setSurgeryPackagePlan(?SurgeryPackagePlan $surgeryPackagePlan): self
     {
-        $this->surgeryPackagePlanId = $surgeryPackagePlanId;
+        $this->surgeryPackagePlan = $surgeryPackagePlan;
         return $this;
     }
 

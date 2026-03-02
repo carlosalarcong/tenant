@@ -1,0 +1,78 @@
+{% extends 'app_layout.html.twig' %}
+
+{% block title %}Presupuestos{% endblock %}
+
+{% block content %}
+    <div class="container-fluid py-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h3 mb-1">Presupuestos</h1>
+                <p class="text-muted mb-0">Busque un paciente para revisar y gestionar sus presupuestos.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h2 class="h5 mb-0">Búsqueda de paciente</h2>
+                    </div>
+                    <div class="card-body">
+                        {{ form_start(searchForm, {
+                            attr: {
+                                'data-turbo-frame': 'patient-result'
+                            }
+                        }) }}
+                            <div class="mb-3">
+                                {{ form_label(searchForm.identification) }}
+                                {{ form_widget(searchForm.identification) }}
+                            </div>
+                            <button class="btn btn-primary w-100">Buscar</button>
+                        {{ form_end(searchForm) }}
+
+                        <hr class="my-4">
+
+                        <a class="d-inline-flex align-items-center gap-2 text-decoration-none"
+                           href="#advanced-search"
+                           data-bs-toggle="collapse"
+                           role="button"
+                           aria-expanded="false"
+                           aria-controls="advanced-search">
+                            <i class="bi bi-sliders"></i>
+                            <span>Búsqueda avanzada</span>
+                        </a>
+
+                        <div class="collapse mt-3" id="advanced-search">
+                            <form method="post"
+                                  action="{{ path('budget_patient_search_advanced') }}"
+                                  data-turbo-frame="patient-result">
+                                <div class="mb-3">
+                                    <label class="form-label" for="budget-advanced-name">Nombre</label>
+                                    <input id="budget-advanced-name"
+                                           type="text"
+                                           name="name"
+                                           class="form-control"
+                                           autocomplete="off">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="budget-advanced-lastname">Apellido</label>
+                                    <input id="budget-advanced-lastname"
+                                           type="text"
+                                           name="lastName"
+                                           class="form-control"
+                                           autocomplete="off">
+                                </div>
+                                <button class="btn btn-outline-primary w-100">Buscar en padrón</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <turbo-frame id="patient-result" class="d-block">
+                </turbo-frame>
+            </div>
+        </div>
+    </div>
+{% endblock %}

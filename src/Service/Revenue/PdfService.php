@@ -2,6 +2,7 @@
 
 namespace App\Service\Revenue;
 
+use App\Entity\Tenant\Budget;
 use App\Entity\Tenant\PaymentAccount;
 use App\Repository\Tenant\ClinicalActionPatientRepository;
 use App\Repository\Tenant\PaymentAccountDetailRepository;
@@ -51,6 +52,58 @@ class PdfService
                 'voucherEntry'    => $voucherEntry,
             ]
         );
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', false);
+        $options->set('defaultFont', 'Helvetica');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return (string) $dompdf->output();
+    }
+
+    /**
+     * @param array<string, array<int, object>> $groupedDetails
+     * @param array<string, float|int> $totals
+     */
+    public function generateBudgetPdf(Budget $budget, array $groupedDetails, array $totals): string
+    {
+        $html = $this->twig->render('budget/pdf/budget_detail.html.twig', [
+            'budget' => $budget,
+            'groupedDetails' => $groupedDetails,
+            'totals' => $totals,
+            'clinicName' => $budget->getBranch()?->getName() ?: 'Clínica',
+        ]);
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', false);
+        $options->set('defaultFont', 'Helvetica');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return (string) $dompdf->output();
+    }
+
+    /**
+     * @param array<string, array<int, object>> $groupedDetails
+     * @param array<string, float|int> $totals
+     */
+    public function generateBudgetSummaryPdf(Budget $budget, array $groupedDetails, array $totals): string
+    {
+        $html = $this->twig->render('budget/pdf/budget_summary.html.twig', [
+            'budget' => $budget,
+            'groupedDetails' => $groupedDetails,
+            'totals' => $totals,
+            'clinicName' => $budget->getBranch()?->getName() ?: 'Clínica',
+        ]);
 
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);

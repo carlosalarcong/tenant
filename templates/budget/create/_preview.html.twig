@@ -1,0 +1,91 @@
+<turbo-frame id="budget-preview">
+    {% if error %}
+        <div class="alert alert-danger mb-0">{{ error }}</div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Prestación</th>
+                        <th>Tipo</th>
+                        <th class="text-end">Pabellón</th>
+                        <th class="text-end">Honorario</th>
+                        <th class="text-end">Clínico</th>
+                        <th class="text-end">Valorizable</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in previewRows %}
+                        <tr class="{{ row.included ? '' : 'table-light text-muted' }}">
+                            <td>{{ row.label }}</td>
+                            <td>
+                                {{ row.itemType|replace({'_': ' '})|title }}
+                                {% if not row.included %}
+                                    <span class="badge text-bg-secondary ms-2">Excluido</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">{{ row.pabellonAmount is null ? '—' : row.pabellonAmount|number_format(0, ',', '.') }}</td>
+                            <td class="text-end">{{ row.honorariumAmount is null ? '—' : row.honorariumAmount|number_format(0, ',', '.') }}</td>
+                            <td class="text-end">{{ row.clinicalAmount is null ? '—' : row.clinicalAmount|number_format(0, ',', '.') }}</td>
+                            <td class="text-end">{{ row.valuableAmount is null ? '—' : row.valuableAmount|number_format(0, ',', '.') }}</td>
+                            <td class="text-end fw-semibold">{{ row.totalAmount|number_format(0, ',', '.') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No hay prestaciones para calcular.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row g-3 mt-1">
+            <div class="col-lg-5">
+                <div class="card border-0 bg-light h-100">
+                    <div class="card-body">
+                        <h3 class="h6 mb-3">Subtotales</h3>
+                        <ul class="list-group list-group-flush">
+                            {% for type, amount in subtotalByType %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                    <span>{{ type|replace({'_': ' '})|title }}</span>
+                                    <strong>{{ amount|number_format(0, ',', '.') }}</strong>
+                                </li>
+                            {% else %}
+                                <li class="list-group-item px-0 bg-transparent text-muted">Sin subtotales calculados.</li>
+                            {% endfor %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                <span>Total general</span>
+                                <strong>{{ totalGeneral|number_format(0, ',', '.') }}</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card border-0 bg-light h-100">
+                    <div class="card-body">
+                        <h3 class="h6 mb-3">Resumen comercial</h3>
+                        <p class="mb-2">
+                            <strong>Modalidad:</strong>
+                            {{ modalidad == 'paquetizada' ? 'Paquetizada' : 'Abierta' }}
+                        </p>
+                        <p class="mb-2">
+                            <strong>Vigencia:</strong>
+                            {% if expiresAt %}
+                                Hasta {{ expiresAt|date('d/m/Y') }}
+                            {% else %}
+                                Sin vencimiento definido
+                            {% endif %}
+                        </p>
+                        <div>
+                            <strong>Pie de presupuesto:</strong>
+                            <div class="mt-2 text-muted">{{ footerText ?: 'Sin texto configurado.' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</turbo-frame>
