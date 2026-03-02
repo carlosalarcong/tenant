@@ -3,9 +3,9 @@
 namespace App\Controller\Maintainers\Budget;
 
 use App\Controller\AbstractMantenedorController;
-use App\Entity\Tenant\BudgetFunderFooter;
+use App\Entity\Tenant\BudgetFooterByFunder;
 use App\Form\Maintainers\Budget\BudgetFunderFooterType;
-use App\Repository\Tenant\BudgetFunderFooterRepository;
+use App\Repository\Tenant\BudgetFooterByFunderRepository;
 use App\Service\Export\ExportService;
 use Doctrine\ORM\QueryBuilder;
 use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
@@ -18,7 +18,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class BudgetFunderFooterController extends AbstractMantenedorController
 {
     public function __construct(
-        private BudgetFunderFooterRepository $budgetFunderFooterRepository,
+        private BudgetFooterByFunderRepository $budgetFunderFooterRepository,
         TenantEntityManager $tenantEntityManager,
         ExportService $exportService,
         TranslatorInterface $translator
@@ -91,7 +91,7 @@ class BudgetFunderFooterController extends AbstractMantenedorController
 
     protected function createNewEntity(): object
     {
-        return new BudgetFunderFooter();
+        return new BudgetFooterByFunder();
     }
 
     protected function getIndexRoute(): string
@@ -110,7 +110,7 @@ class BudgetFunderFooterController extends AbstractMantenedorController
 
     protected function beforeSave(object $entity, Request $request): void
     {
-        if ($entity instanceof BudgetFunderFooter) {
+        if ($entity instanceof BudgetFooterByFunder) {
             $entity->setUpdatedAt(new \DateTime());
         }
     }

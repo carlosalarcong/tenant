@@ -3,7 +3,7 @@
 namespace App\Form\Maintainers\Budget;
 
 use App\Entity\Tenant\BudgetFooter;
-use App\Entity\Tenant\BudgetFunderFooter;
+use App\Entity\Tenant\BudgetFooterByFunder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -52,7 +52,7 @@ class BudgetFunderFooterType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => BudgetFunderFooter::class,
+            'data_class' => BudgetFooterByFunder::class,
         ]);
     }
 }

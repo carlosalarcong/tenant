@@ -27,6 +27,9 @@ class BudgetFooter
     #[Assert\Length(max: 255, maxMessage: 'El nombre no puede exceder {{ limit }} caracteres')]
     private ?string $name = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $detail = null;
+
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $isActive = true;
 
@@ -57,6 +60,17 @@ class BudgetFooter
     public function setName(string $name): self
     {
         $this->name = $name;
+        return $this;
+    }
+
+    public function getDetail(): ?string
+    {
+        return $this->detail;
+    }
+
+    public function setDetail(?string $detail): self
+    {
+        $this->detail = $detail;
         return $this;
     }
 
