@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Presupuestos{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0"><i class="bi bi-file-earmark-medical me-2"></i>Presupuestos</h1>
+    </div>
+
+    <div class="row g-4">
+        <!-- Panel búsqueda paciente -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">Buscar paciente</div>
+                <div class="card-body pb-0">
+                    <form action="{{ path('app_budget_patient_search') }}" method="get"
+                          data-turbo-frame="patient-results" data-turbo-action="replace">
+                        <div class="input-group mb-3">
+                            <input type="search" class="form-control" name="q"
+                                   placeholder="RUT o nombre..." autocomplete="off"
+                                   autofocus>
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <turbo-frame id="patient-results" class="d-block mt-2"></turbo-frame>
+        </div>
+
+        <!-- Panel presupuestos del paciente seleccionado -->
+        <div class="col-md-8">
+            <turbo-frame id="patient-budgets">
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-person-circle fs-1"></i>
+                    <p class="mt-2">Seleccione un paciente para ver sus presupuestos</p>
+                </div>
+            </turbo-frame>
+        </div>
+    </div>
+
+    <!-- Presupuestos recientes -->
+    <div class="mt-4">
+        <h5 class="h6 text-muted text-uppercase mb-3">Recientes</h5>
+        {% if recentBudgets is empty %}
+            <p class="text-muted">Sin presupuestos recientes.</p>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Paciente</th>
+                            <th>Fecha</th>
+                            <th>Modalidad</th>
+                            <th>Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in recentBudgets %}
+                            <tr>
+                                <td>{{ b.number }}</td>
+                                <td>{{ b.person.firstName }} {{ b.person.lastName }}</td>
+                                <td>{{ b.createdAt|date('d/m/Y') }}</td>
+                                <td>{{ b.insurancePlan ? 'Abierta' : 'Paquetizado' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ b.status == 'active' ? 'success' : 'secondary' }}">
+                                        {{ b.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ path('app_budget_show', {id: b.id}) }}"
+                                       class="btn btn-sm btn-outline-primary">Ver</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

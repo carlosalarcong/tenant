@@ -31,6 +31,13 @@ class BudgetFooterByFunder
     #[ORM\JoinColumn(name: 'budget_footer_id', nullable: true)]
     private ?BudgetFooter $budgetFooter = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $detail = null;
+
+    #[ORM\ManyToOne(targetEntity: Payer::class)]
+    #[ORM\JoinColumn(name: 'payer_id', referencedColumnName: 'id', nullable: true)]
+    private ?Payer $payer = null;
+
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $isActive = true;
 
@@ -72,6 +79,28 @@ class BudgetFooterByFunder
     public function setBudgetFooter(?BudgetFooter $budgetFooter): self
     {
         $this->budgetFooter = $budgetFooter;
+        return $this;
+    }
+
+    public function getDetail(): ?string
+    {
+        return $this->detail;
+    }
+
+    public function setDetail(?string $detail): self
+    {
+        $this->detail = $detail;
+        return $this;
+    }
+
+    public function getPayer(): ?Payer
+    {
+        return $this->payer;
+    }
+
+    public function setPayer(?Payer $payer): self
+    {
+        $this->payer = $payer;
         return $this;
     }
 

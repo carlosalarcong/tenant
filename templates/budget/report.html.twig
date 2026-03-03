@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Informe de Presupuestos{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <h1 class="h3 mb-4">
+        <i class="bi bi-bar-chart-line me-2"></i>Informe de Presupuestos
+    </h1>
+
+    <!-- Formulario filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="post" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Desde</label>
+                    <input type="date" class="form-control" name="dateFrom"
+                           value="{{ filters.dateFrom }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Hasta</label>
+                    <input type="date" class="form-control" name="dateTo"
+                           value="{{ filters.dateTo }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select" name="status">
+                        <option value="">Todos</option>
+                        <option value="active"   {{ filters.status == 'active'   ? 'selected' : '' }}>Activo</option>
+                        <option value="expired"  {{ filters.status == 'expired'  ? 'selected' : '' }}>Expirado</option>
+                        <option value="accepted" {{ filters.status == 'accepted' ? 'selected' : '' }}>Aceptado</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Sucursal</label>
+                    <select class="form-select" name="branchId">
+                        <option value="">Todas</option>
+                        {% for b in branches %}
+                            <option value="{{ b.id }}"
+                                    {{ filters.branchId == b.id ? 'selected' : '' }}>
+                                {{ b.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                </div>
+                {% if hasFilters and budgets is not empty %}
+                <div class="col-md-2">
+                    <a href="{{ path('app_budget_report') }}?{{ app.request.queryString }}&export=csv"
+                       class="btn btn-outline-success w-100">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+                    </a>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    {% if hasFilters %}
+        <!-- Resumen -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <div class="h4 mb-0">{{ budgets|length }}</div>
+                        <small class="text-muted">Presupuestos</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <div class="h4 mb-0">$ {{ totalAmount|number_format(0, ',', '.') }}</div>
+                        <small class="text-muted">Total</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla resultados -->
+        {% if budgets is empty %}
+            <p class="text-muted">Sin resultados para los filtros aplicados.</p>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Paciente</th>
+                            <th>Fecha</th>
+                            <th>Modalidad</th>
+                            <th>Plan / Financiador</th>
+                            <th class="text-end">Monto</th>
+                            <th>Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in budgets %}
+                            {% set bTotal = 0 %}
+                            {% for d in b.details %}{% set bTotal = bTotal + d.amount %}{% endfor %}
+                            <tr>
+                                <td class="fw-bold">{{ b.number }}</td>
+                                <td>{{ b.person.firstName }} {{ b.person.lastName }}</td>
+                                <td>{{ b.createdAt|date('d/m/Y') }}</td>
+                                <td>{{ b.insurancePlan ? 'Abierta' : 'Paquetizado' }}</td>
+                                <td class="small text-muted">
+                                    {{ b.insurancePlan ? b.insurancePlan.name
+                                        : (b.surgeryPackagePlan ? b.surgeryPackagePlan.name : '—') }}
+                                    {% if b.payer %}/ {{ b.payer.name }}{% endif %}
+                                </td>
+                                <td class="text-end">$ {{ bTotal|number_format(0, ',', '.') }}</td>
+                                <td>
+                                    <span class="badge bg-{{ b.status == 'active' ? 'success' : 'secondary' }}">
+                                        {{ b.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ path('app_budget_show', {id: b.id}) }}"
+                                       class="btn btn-sm btn-outline-primary">Ver</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="text-muted">Use los filtros para generar el informe.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

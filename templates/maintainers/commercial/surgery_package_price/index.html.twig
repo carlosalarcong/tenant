@@ -1,0 +1,10 @@
+{% extends 'maintainers/modern_index.html.twig' %}
+
+{% block title %}Precios del Paquete - Sistema{% endblock %}
+
+{% set page_title = 'Precios: ' ~ package.name %}
+{% set icon = 'bx-dollar' %}
+{% set breadcrumb_section = 'Paquete Integral' %}
+{% set description = 'Precios por ítem de equipo médico para el paquete' %}
+{% set create_route_url = path('app_maintainers_commercial_surgery_package_price_create', {planId: plan.id, packageId: package.id}) %}
+{% set extra_route_params = {planId: plan.id, packageId: package.id} %}

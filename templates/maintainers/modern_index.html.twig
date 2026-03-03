@@ -74,13 +74,13 @@
                                 {{ 'maintainers.common.export'|trans({}, 'maintainers') }}
                             </a>
                         {% endif %}
-                        {% if create_route is defined and is_granted(constant('App\\Security\\Voter\\MaintainerVoter::CREATE'), entity_class|default(null)) %}
-                            <button type="button" 
-                                    class="btn btn-primary d-flex align-items-center gap-2" 
-                                    style="box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);" 
-                                    data-bs-toggle="modal" 
+                        {% if create_route is defined or create_route_url is defined %}
+                            <button type="button"
+                                    class="btn btn-primary d-flex align-items-center gap-2"
+                                    style="box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);"
+                                    data-bs-toggle="modal"
                                     data-bs-target="#maintainerModal"
-                                    data-modal-url="{{ path(create_route) }}"
+                                    data-modal-url="{{ create_route_url is defined ? create_route_url : path(create_route) }}"
                                     data-modal-title="<i class='bx bx-plus me-2'></i>Nuevo {{ page_title }}">
                                 <i class="bx bx-plus"></i>
                                 {{ 'maintainers.common.new_record'|trans({}, 'maintainers') }}
@@ -265,13 +265,13 @@
                     <i class="bx bx-inbox text-muted mb-3" style="font-size: 4rem;"></i>
                     <h5 class="text-muted">{{ 'maintainers.common.no_records'|trans({}, 'maintainers') }}</h5>
                     <p class="text-muted mb-3">{{ 'maintainers.common.no_records_message'|trans({}, 'maintainers') }}</p>
-                    {% if create_route is defined and is_granted(constant('App\\Security\\Voter\\MaintainerVoter::CREATE'), entity_class|default(null)) %}
+                    {% if create_route is defined or create_route_url is defined %}
                         <button type="button"
                                 class="btn btn-primary"
                                 style="box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);"
                                 data-bs-toggle="modal"
                                 data-bs-target="#maintainerModal"
-                                data-modal-url="{{ path(create_route) }}"
+                                data-modal-url="{{ create_route_url is defined ? create_route_url : path(create_route) }}"
                                 data-modal-title="<i class='bx bx-plus me-2'></i>{{ 'maintainers.common.create_first'|trans({}, 'maintainers') }}">
                             <i class="bx bx-plus me-1"></i>{{ 'maintainers.common.create_first'|trans({}, 'maintainers') }}
                         </button>
@@ -307,6 +307,7 @@
                                 {% include 'maintainers/_table_row.html.twig' with {
                                     'entity': item,
                                     'columns': columns,
+                                    'extra_route_params': extra_route_params|default({}),
                                 } %}
                             {% endfor %}
                         </tbody>

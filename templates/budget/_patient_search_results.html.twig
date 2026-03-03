@@ -1,0 +1,18 @@
+<turbo-frame id="patient-results">
+    {% if persons is empty %}
+        {% if query|length >= 2 %}
+            <p class="text-muted small p-2">Sin resultados para "{{ query }}"</p>
+        {% endif %}
+    {% else %}
+        <div class="list-group list-group-flush border rounded">
+            {% for person in persons %}
+                <a href="{{ path('app_budget_list_for_patient', {personId: person.id}) }}"
+                   class="list-group-item list-group-item-action py-2"
+                   data-turbo-frame="patient-budgets">
+                    <div class="fw-semibold">{{ person.firstName }} {{ person.lastName }}</div>
+                    <small class="text-muted">{{ person.rut }}</small>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+</turbo-frame>

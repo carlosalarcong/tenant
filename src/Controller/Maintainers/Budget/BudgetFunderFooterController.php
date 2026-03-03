@@ -3,9 +3,9 @@
 namespace App\Controller\Maintainers\Budget;
 
 use App\Controller\AbstractMantenedorController;
-use App\Entity\Tenant\BudgetFunderFooter;
-use App\Form\Maintainers\Budget\BudgetFunderFooterType;
-use App\Repository\Tenant\BudgetFunderFooterRepository;
+use App\Entity\Tenant\BudgetFooterByFunder;
+use App\Form\Maintainers\Budget\BudgetFooterByFunderType;
+use App\Repository\Tenant\BudgetFooterByFunderRepository;
 use App\Service\Export\ExportService;
 use Doctrine\ORM\QueryBuilder;
 use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
@@ -18,7 +18,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class BudgetFunderFooterController extends AbstractMantenedorController
 {
     public function __construct(
-        private BudgetFunderFooterRepository $budgetFunderFooterRepository,
+        private BudgetFooterByFunderRepository $budgetFooterByFunderRepository,
         TenantEntityManager $tenantEntityManager,
         ExportService $exportService,
         TranslatorInterface $translator
@@ -50,7 +50,7 @@ class BudgetFunderFooterController extends AbstractMantenedorController
     {
         return $this->handleDelete($request, $id);
     }
-    
+
     #[Route('/export', name: 'app_maintainers_budget_budget_funder_footer_export', methods: ['GET'])]
     public function export(Request $request): Response
     {
@@ -64,7 +64,7 @@ class BudgetFunderFooterController extends AbstractMantenedorController
 
     protected function getData(Request $request): array|QueryBuilder
     {
-        return $this->budgetFunderFooterRepository->createQueryBuilder('bff')
+        return $this->budgetFooterByFunderRepository->createQueryBuilder('bff')
             ->leftJoin('bff.budgetFooter', 'bf')
             ->addSelect('bf')
             ->orderBy('bff.id', 'DESC');
@@ -86,12 +86,12 @@ class BudgetFunderFooterController extends AbstractMantenedorController
 
     protected function getFormType(): string
     {
-        return BudgetFunderFooterType::class;
+        return BudgetFooterByFunderType::class;
     }
 
     protected function createNewEntity(): object
     {
-        return new BudgetFunderFooter();
+        return new BudgetFooterByFunder();
     }
 
     protected function getIndexRoute(): string
@@ -110,7 +110,7 @@ class BudgetFunderFooterController extends AbstractMantenedorController
 
     protected function beforeSave(object $entity, Request $request): void
     {
-        if ($entity instanceof BudgetFunderFooter) {
+        if ($entity instanceof BudgetFooterByFunder) {
             $entity->setUpdatedAt(new \DateTime());
         }
     }

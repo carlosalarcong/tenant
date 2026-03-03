@@ -1,0 +1,206 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuevo Presupuesto{% endblock %}
+
+{% block body %}
+<div class="container py-4"
+     id="budget-wizard"
+     data-controller="budget--main"
+     data-budget--main-person-id-value="{{ person.id }}"
+     data-budget--main-agreements-url-value="{{ path('app_budget_ajax_agreements') }}"
+     data-budget--main-search-services-url-value="{{ path('app_budget_ajax_services_search') }}"
+     data-budget--main-package-items-url-value="{{ path('app_budget_ajax_package_items') }}"
+     data-budget--main-preview-url-value="{{ path('app_budget_ajax_preview') }}"
+     data-budget--main-save-url-value="{{ path('app_budget_save', {personId: person.id}) }}">
+
+    {# Header paciente #}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title mb-0">
+                Nuevo presupuesto — {{ person.firstName }} {{ person.lastName }}
+                <small class="text-muted ms-2">RUT: {{ person.rut }}</small>
+            </h5>
+        </div>
+    </div>
+
+    {# Indicador de pasos #}
+    <div class="d-flex gap-3 mb-4">
+        <span data-budget--main-target="stepIndicator" data-step="1"
+              class="fw-bold text-primary">1. Configuración</span>
+        <span class="text-muted">›</span>
+        <span data-budget--main-target="stepIndicator" data-step="2">2. Prestaciones</span>
+        <span class="text-muted">›</span>
+        <span data-budget--main-target="stepIndicator" data-step="3">3. Resumen</span>
+    </div>
+
+    {# ── PASO 1 — Configuración ── #}
+    <div data-budget--main-target="step1">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">Tipo de plan</h6>
+
+                <div class="mb-3">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="planType"
+                               id="planTypeOpen" value="open" checked
+                               data-budget--main-target="planTypeOpen"
+                               data-action="change->budget--main#changePlanType">
+                        <label class="form-check-label" for="planTypeOpen">Cuenta Abierta</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="planType"
+                               id="planTypePackaged" value="packaged"
+                               data-budget--main-target="planTypePackaged"
+                               data-action="change->budget--main#changePlanType">
+                        <label class="form-check-label" for="planTypePackaged">Paquetizado</label>
+                    </div>
+                </div>
+
+                {# Sección plan abierto #}
+                <div data-budget--main-target="openSection">
+                    <div class="mb-3">
+                        <label class="form-label">Plan de Salud *</label>
+                        <select class="form-select" data-budget--main-target="insurancePlanSelect">
+                            <option value="">Seleccione plan...</option>
+                            {% for p in insurancePlans %}
+                                <option value="{{ p.id }}">{{ p.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                {# Sección paquetizado #}
+                <div data-budget--main-target="packageSection" class="d-none">
+                    <div class="mb-3">
+                        <label class="form-label">Plan Paquetizado *</label>
+                        <select class="form-select" data-budget--main-target="surgeryPackagePlanSelect"
+                                data-action="change->budget--main#changeSurgeryPackagePlan">
+                            <option value="">Seleccione plan...</option>
+                            {% for p in surgeryPackagePlans %}
+                                <option value="{{ p.id }}">{{ p.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Financiador</label>
+                        <select class="form-select" data-budget--main-target="payerSelect"
+                                data-action="change->budget--main#changePayer">
+                            <option value="">Sin financiador</option>
+                            {% for p in payers %}
+                                <option value="{{ p.id }}">{{ p.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Convenio</label>
+                        <select class="form-select" data-budget--main-target="agreementSelect">
+                            <option value="">Sin convenio</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Profesional</label>
+                        <select class="form-select" data-budget--main-target="professionalSelect">
+                            <option value="">Sin profesional</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="isAmbulatory"
+                                   data-budget--main-target="isAmbulatoryCheck">
+                            <label class="form-check-label" for="isAmbulatory">Ambulatorio</label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="includesHonorariums"
+                                   checked data-budget--main-target="includesHonorariumsCheck">
+                            <label class="form-check-label" for="includesHonorariums">Con honorarios</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <button type="button" class="btn btn-primary"
+                        data-action="click->budget--main#nextStep">
+                    Siguiente →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {# ── PASO 2 — Prestaciones ── #}
+    <div data-budget--main-target="step2" class="d-none">
+        <div class="card">
+            <div class="card-body">
+
+                {# Búsqueda plan abierto #}
+                <div data-budget--main-target="openServicesSection">
+                    <div class="mb-3">
+                        <label class="form-label">Buscar prestación</label>
+                        <input type="search" class="form-control"
+                               placeholder="Código o nombre..."
+                               data-budget--main-target="serviceSearchInput"
+                               data-action="input->budget--main#searchServices">
+                        <div class="border rounded mt-1" data-budget--main-target="searchResults"
+                             style="max-height:200px;overflow-y:auto"></div>
+                    </div>
+                    <div>
+                        <label class="form-label">Prestaciones seleccionadas</label>
+                        <ul class="list-group" data-budget--main-target="selectedServicesList">
+                            <li class="list-group-item text-muted small">Sin prestaciones</li>
+                        </ul>
+                    </div>
+                </div>
+
+                {# Ítems plan paquetizado #}
+                <div data-budget--main-target="packageServicesSection" class="d-none">
+                    <label class="form-label">Ítems del plan</label>
+                    <div data-budget--main-target="packageItemsContainer">
+                        <p class="text-muted small">Seleccione un plan en el paso anterior</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary"
+                        data-action="click->budget--main#prevStep">← Anterior</button>
+                <button type="button" class="btn btn-primary"
+                        data-action="click->budget--main#nextStep">Siguiente →</button>
+            </div>
+        </div>
+    </div>
+
+    {# ── PASO 3 — Resumen ── #}
+    <div data-budget--main-target="step3" class="d-none">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">Resumen de precios</h6>
+                <div data-budget--main-target="previewContent">
+                    <p class="text-muted">Calculando...</p>
+                </div>
+                <div class="mt-3">
+                    <label class="form-label">Observación (opcional)</label>
+                    <textarea class="form-control" rows="2"
+                              data-budget--main-target="observationText"></textarea>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary"
+                        data-action="click->budget--main#prevStep">← Anterior</button>
+                <button type="button" class="btn btn-success"
+                        data-budget--main-target="saveBtn"
+                        data-action="click->budget--main#save">
+                    Guardar Presupuesto
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

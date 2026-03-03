@@ -31,7 +31,7 @@
                 {% else %}
                     <span class="badge rounded-pill bg-secondary">{{ 'maintainers.columns.inactive'|trans({}, 'maintainers') }}</span>
                 {% endif %}
-            {% elseif column in ['isDte', 'isLogistics', 'isCash', 'isClp', 'isUpToDate'] %}
+            {% elseif column in ['isDte', 'isLogistics', 'isCash', 'isClp', 'isUpToDate', 'isInUse'] %}
                 {% if value %}
                     <span class="badge rounded-pill" style="background-color: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600;">{{ 'maintainers.columns.yes'|trans({}, 'maintainers') }}</span>
                 {% else %}
@@ -51,11 +51,11 @@
             {% set edit_route = app.request.attributes.get('_route')|replace({'_index': '_edit'}) %}
             {% if is_granted(constant('App\\Security\\Voter\\MaintainerVoter::UPDATE'), entity) %}
             <button type="button"
-               class="btn btn-sm action-btn action-btn-edit border-0" 
+               class="btn btn-sm action-btn action-btn-edit border-0"
                style="color: #5e72e4;"
-               data-bs-toggle="modal" 
+               data-bs-toggle="modal"
                data-bs-target="#maintainerModal"
-               data-modal-url="{{ path(edit_route, {'id': entity.id}) }}"
+               data-modal-url="{{ path(edit_route, {'id': entity.id}|merge(extra_route_params|default({}))) }}"
                data-modal-title="<i class='bx bx-edit me-2'></i>{{ 'maintainers.common.edit_record'|trans({}, 'maintainers') }}"
                title="{{ 'maintainers.common.edit'|trans({}, 'maintainers') }}">
                 <i class='bx bx-edit-alt'></i>
@@ -64,8 +64,8 @@
             
             {% set delete_route = app.request.attributes.get('_route')|replace({'_index': '_delete'}) %}
             {% if is_granted(constant('App\\Security\\Voter\\MaintainerVoter::DELETE'), entity) %}
-            <form method="post" 
-                  action="{{ path(delete_route, {'id': entity.id}) }}" 
+            <form method="post"
+                  action="{{ path(delete_route, {'id': entity.id}|merge(extra_route_params|default({}))) }}" 
                   class="d-inline"
                   data-turbo-frame="_top"
                   data-controller="confirm-delete"

@@ -1,0 +1,9 @@
+<turbo-frame id="observations-list">
+    {% if observations is empty %}
+        <p class="text-muted small">Sin observaciones.</p>
+    {% else %}
+        {% for obs in observations %}
+            {% include 'budget/_observation_item.html.twig' with {observation: obs} %}
+        {% endfor %}
+    {% endif %}
+</turbo-frame>

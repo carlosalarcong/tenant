@@ -299,6 +299,80 @@ class MenuDefinition
                 ]
             ],
             [
+                'name' => 'aranceles_convenios',
+                'label' => 'Aranceles y Convenios',
+                'icon' => 'bx bx-purchase-tag',
+                'route' => null,
+                'module' => null,
+                'children' => [
+                    [
+                        'name' => 'insurance_plan_price',
+                        'label' => 'Honorarios y Prestaciones',
+                        'icon' => 'bx bx-list-check',
+                        'route' => 'app_maintainers_commercial_insurance_plan_price_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'open_plan_price',
+                        'label' => 'Cuenta Abierta',
+                        'icon' => 'bx bx-receipt',
+                        'route' => 'app_maintainers_commercial_open_plan_price_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'fee_code_price',
+                        'label' => 'Guarismos',
+                        'icon' => 'bx bx-grid-alt',
+                        'route' => 'app_maintainers_commercial_fee_code_price_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'surgery_package_plan',
+                        'label' => 'Paquete Integral',
+                        'icon' => 'bx bx-package',
+                        'route' => 'app_maintainers_commercial_surgery_package_plan_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'surgery_fee_item',
+                        'label' => 'Ítems Equipo Médico',
+                        'icon' => 'bx bx-user-plus',
+                        'route' => 'app_maintainers_commercial_surgery_fee_item_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                ]
+            ],
+            [
+                'name' => 'presupuestos',
+                'label' => 'Presupuestos',
+                'icon' => 'bi-file-earmark-medical',
+                'route' => null,
+                'module' => null,
+                'children' => [
+                    [
+                        'name' => 'budget_index',
+                        'label' => 'Gestión de Presupuestos',
+                        'icon' => 'bi-file-earmark-medical',
+                        'route' => 'app_budget_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'budget_report',
+                        'label' => 'Informe de Presupuestos',
+                        'icon' => 'bi-bar-chart-line',
+                        'route' => 'app_budget_report',
+                        'module' => null,
+                        'children' => []
+                    ],
+                ]
+            ],
+            [
                 'name' => 'citas',
                 'label' => 'Citas',
                 'icon' => $this->getIconForItem('citas'),

@@ -1,0 +1,168 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Presupuesto #{{ budget.number }}{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Presupuesto #{{ budget.number }}</h1>
+            <p class="text-muted mb-0">
+                {{ budget.person.firstName }} {{ budget.person.lastName }} —
+                {{ budget.createdAt|date('d/m/Y H:i') }}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_budget_index') }}" class="btn btn-outline-secondary">← Volver</a>
+            <a href="{{ path('app_budget_pdf', {id: budget.id}) }}"
+               class="btn btn-outline-danger" target="_blank">
+                <i class="bi bi-file-pdf"></i> PDF Detallado
+            </a>
+            <a href="{{ path('app_budget_pdf_summary', {id: budget.id}) }}"
+               class="btn btn-outline-secondary" target="_blank">
+                <i class="bi bi-file-earmark-text"></i> PDF Resumido
+            </a>
+            <button type="button" class="btn btn-outline-info"
+                    onclick="sendBudgetEmail({{ budget.id }})">
+                <i class="bi bi-envelope"></i> Enviar Email
+            </button>
+        </div>
+    </div>
+
+    <!-- Información general -->
+    <div class="card mb-4">
+        <div class="card-header">Información</div>
+        <div class="card-body">
+            <div class="row">
+                <dl class="col-md-6 row mb-0">
+                    <dt class="col-5">Modalidad</dt>
+                    <dd class="col-7">{{ budget.insurancePlan ? 'Cuenta Abierta' : 'Paquetizado' }}</dd>
+                    <dt class="col-5">Plan</dt>
+                    <dd class="col-7">
+                        {{ budget.insurancePlan ? budget.insurancePlan.name
+                            : (budget.surgeryPackagePlan ? budget.surgeryPackagePlan.name : '—') }}
+                    </dd>
+                    <dt class="col-5">Financiador</dt>
+                    <dd class="col-7">{{ budget.payer ? budget.payer.name : '—' }}</dd>
+                    <dt class="col-5">Convenio</dt>
+                    <dd class="col-7">{{ budget.agreement ? budget.agreement.name : '—' }}</dd>
+                </dl>
+                <dl class="col-md-6 row mb-0">
+                    <dt class="col-5">Profesional</dt>
+                    <dd class="col-7">
+                        {{ budget.professional
+                            ? budget.professional.lastName ~ ', ' ~ budget.professional.firstName
+                            : '—' }}
+                    </dd>
+                    <dt class="col-5">Ambulatorio</dt>
+                    <dd class="col-7">{{ budget.isAmbulatory ? 'Sí' : 'No' }}</dd>
+                    <dt class="col-5">C/ Honorarios</dt>
+                    <dd class="col-7">{{ budget.includesHonorariums ? 'Sí' : 'No' }}</dd>
+                    <dt class="col-5">Estado</dt>
+                    <dd class="col-7">
+                        <span class="badge bg-{{ budget.status == 'active' ? 'success' : 'secondary' }}">
+                            {{ budget.status }}
+                        </span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    {% set itemTypeLabels = {
+        'honorario':      'Honorarios',
+        'pabellon':       'Pabellón',
+        'clinico':        'Clínico',
+        'valorizable':    'Valorizable',
+        'examen':         'Exámenes',
+        'dia_cama':       'Días Cama',
+        'clinico_manual': 'Clínico Manual'
+    } %}
+
+    <!-- Detalle por tipo -->
+    {% set grandTotal = 0 %}
+    {% for type, details in detailsByType %}
+        {% set typeTotal = 0 %}
+        {% for d in details %}{% set typeTotal = typeTotal + d.amount %}{% endfor %}
+        {% set grandTotal = grandTotal + typeTotal %}
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between">
+                <span>{{ itemTypeLabels[type] ?? type }}</span>
+                <span class="fw-bold">$ {{ typeTotal|number_format(0, ',', '.') }}</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>Prestación</th>
+                            <th class="text-end">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in details %}
+                            <tr>
+                                <td>
+                                    {{ d.medicalService ? d.medicalService.name
+                                        : (d.surgeryPackageItem ? d.surgeryPackageItem.name : '—') }}
+                                </td>
+                                <td class="text-end">$ {{ d.amount|number_format(0, ',', '.') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted">Sin detalle de prestaciones.</p>
+    {% endfor %}
+
+    <!-- Total general -->
+    {% if detailsByType is not empty %}
+        <div class="card mb-4 border-primary">
+            <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                <span class="h5 mb-0">TOTAL PRESUPUESTO</span>
+                <span class="h5 mb-0 text-primary fw-bold">$ {{ grandTotal|number_format(0, ',', '.') }}</span>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Observaciones -->
+    <div class="card">
+        <div class="card-header">Observaciones</div>
+        <div class="card-body">
+            <form action="{{ path('app_budget_observations_save', {budgetId: budget.id}) }}"
+                  method="post">
+                <div class="input-group mb-3">
+                    <textarea class="form-control" name="observation" rows="2"
+                              placeholder="Escribir observación..."></textarea>
+                    <button type="submit" class="btn btn-primary">Agregar</button>
+                </div>
+            </form>
+            <turbo-frame id="observations-list"
+                         src="{{ path('app_budget_observations_list', {budgetId: budget.id}) }}">
+                <p class="text-muted small">Cargando...</p>
+            </turbo-frame>
+        </div>
+    </div>
+
+</div>
+
+<script>
+async function sendBudgetEmail(budgetId) {
+    const email = prompt('Email destino (dejar vacío para usar email del paciente):');
+    if (email === null) return;
+    const res = await fetch(`/budget/${budgetId}/email`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: email ? `email=${encodeURIComponent(email)}` : '',
+    });
+    const data = await res.json();
+    if (data.success) {
+        alert('Email enviado a: ' + data.sentTo);
+    } else {
+        alert('Error: ' + (data.error ?? 'desconocido'));
+    }
+}
+</script>
+{% endblock %}

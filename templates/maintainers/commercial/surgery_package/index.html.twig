@@ -1,0 +1,10 @@
+{% extends 'maintainers/modern_index.html.twig' %}
+
+{% block title %}Paquetes del Plan - Sistema{% endblock %}
+
+{% set page_title = 'Paquetes: ' ~ plan.name %}
+{% set icon = 'bx-package' %}
+{% set breadcrumb_section = 'Paquete Integral' %}
+{% set description = plan.branchPayer.branch.name ~ ' / ' ~ plan.branchPayer.payer.name %}
+{% set create_route_url = path('app_maintainers_commercial_surgery_package_create', {planId: plan.id}) %}
+{% set extra_route_params = {planId: plan.id} %}

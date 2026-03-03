@@ -89,12 +89,12 @@ class ProfessionalRate
 
     public function getPayer(): ?Payer
     {
-        return $this->financier;
+        return $this->payer;
     }
 
     public function setPayer(?Payer $payer): static
     {
-        $this->financier = $payer;
+        $this->payer = $payer;
         return $this;
     }
 
