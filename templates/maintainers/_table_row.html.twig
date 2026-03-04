@@ -18,8 +18,10 @@
         <td class="px-3" style="font-size: 0.875rem; color: #0f172a;">
             {% if '.' in column %}
                 {% set parts = column|split('.') %}
-                {% set rel = attribute(entity, parts[0]) %}
-                {% set value = rel is not null ? attribute(rel, parts[1]) : null %}
+                {% set value = entity %}
+                {% for part in parts %}
+                    {% set value = value is not null ? attribute(value, part) : null %}
+                {% endfor %}
             {% else %}
                 {% set value = attribute(entity, column) %}
             {% endif %}
@@ -31,7 +33,7 @@
                 {% else %}
                     <span class="badge rounded-pill bg-secondary">{{ 'maintainers.columns.inactive'|trans({}, 'maintainers') }}</span>
                 {% endif %}
-            {% elseif column in ['isDte', 'isLogistics', 'isCash', 'isClp', 'isUpToDate', 'isInUse'] %}
+            {% elseif column in ['isDte', 'isLogistics', 'isCash', 'isClp', 'isUpToDate', 'isInUse', 'isPackage', 'isTelemedicine', 'isDisabled'] %}
                 {% if value %}
                     <span class="badge rounded-pill" style="background-color: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600;">{{ 'maintainers.columns.yes'|trans({}, 'maintainers') }}</span>
                 {% else %}
@@ -41,6 +43,20 @@
                 {{ value.name }}
             {% elseif column == 'originType' and value %}
                 {{ value.name }}
+            {% elseif column == 'dayOfWeek' %}
+                {{ {
+                    0: 'Lunes',
+                    1: 'Martes',
+                    2: 'Miércoles',
+                    3: 'Jueves',
+                    4: 'Viernes',
+                    5: 'Sábado',
+                    6: 'Domingo'
+                }[value] ?? value }}
+            {% elseif column in ['startTime', 'endTime'] and value %}
+                {{ value|date('H:i') }}
+            {% elseif column in ['effectiveDate', 'modifiedAt', 'createdAt', 'updatedAt', 'cancellationDate', 'closureDate'] and value %}
+                {{ value|date('d-m-Y H:i') }}
             {% else %}
                 {{ value ?? '-' }}
             {% endif %}

@@ -1,0 +1,27 @@
+{% extends 'maintainers/modern_index.html.twig' %}
+
+{% block table_headers %}
+<tr>
+    <th scope="col" class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">Sucursal/Financiador</th>
+    <th scope="col" class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">F. Vigencia</th>
+    <th scope="col" class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">% Ajuste</th>
+    <th scope="col" class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">Registros</th>
+    <th scope="col" class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">Guarismos</th>
+    <th scope="col" class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">Creado por</th>
+    <th scope="col" class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">Fecha</th>
+</tr>
+{% endblock %}
+
+{% block table_rows %}
+{% for item in data %}
+    <tr style="border-bottom: 1px solid #f1f5f9;">
+        <td class="px-3" style="font-size: 0.875rem; color: #0f172a;">{{ item.branchPayer }}</td>
+        <td class="px-3" style="font-size: 0.875rem; color: #0f172a;">{{ item.effectiveDate ? item.effectiveDate|date('d-m-Y H:i') : '-' }}</td>
+        <td class="px-3" style="font-size: 0.875rem; color: #0f172a;">{{ ((item.adjustmentPercentage - 1) * 100)|number_format(2, ',', '.') }}%</td>
+        <td class="px-3" style="font-size: 0.875rem; color: #0f172a;">{{ item.confirmedCount }}</td>
+        <td class="px-3" style="font-size: 0.875rem; color: #0f172a;">{{ item.planCount }}</td>
+        <td class="px-3" style="font-size: 0.875rem; color: #0f172a;">{{ item.createdBy.fullName ?: item.createdBy.userIdentifier }}</td>
+        <td class="px-3" style="font-size: 0.875rem; color: #0f172a;">{{ item.createdAt ? item.createdAt|date('d-m-Y H:i') : '-' }}</td>
+    </tr>
+{% endfor %}
+{% endblock %}

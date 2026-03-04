@@ -281,6 +281,7 @@
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                            {% block table_headers %}
                             <tr>
                                 <th scope="col" class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">
                                     <input type="checkbox" class="form-check-input">
@@ -301,8 +302,10 @@
                                     {{ 'maintainers.common.actions'|trans({}, 'maintainers') }}
                                 </th>
                             </tr>
+                            {% endblock %}
                         </thead>
                         <tbody id="maintainer-table-body">
+                            {% block table_rows %}
                             {% for item in data %}
                                 {% include 'maintainers/_table_row.html.twig' with {
                                     'entity': item,
@@ -310,6 +313,7 @@
                                     'extra_route_params': extra_route_params|default({}),
                                 } %}
                             {% endfor %}
+                            {% endblock %}
                         </tbody>
                     </table>
                 </div>

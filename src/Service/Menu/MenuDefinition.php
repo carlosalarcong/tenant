@@ -306,6 +306,14 @@ class MenuDefinition
                 'module' => null,
                 'children' => [
                     [
+                        'name' => 'insurance_plan',
+                        'label' => 'Planes de Salud',
+                        'icon' => 'bx bx-id-card',
+                        'route' => 'app_maintainers_commercial_insurance_plan_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
                         'name' => 'insurance_plan_price',
                         'label' => 'Honorarios y Prestaciones',
                         'icon' => 'bx bx-list-check',
@@ -342,6 +350,38 @@ class MenuDefinition
                         'label' => 'Ítems Equipo Médico',
                         'icon' => 'bx bx-user-plus',
                         'route' => 'app_maintainers_commercial_surgery_fee_item_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'hourly_rate_surcharge',
+                        'label' => 'Recargo por Hora',
+                        'icon' => 'bx bx-time',
+                        'route' => 'app_maintainers_commercial_hourly_rate_surcharge_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'insurance_plan_mass_adjustment',
+                        'label' => 'Ajuste Masivo Convenio',
+                        'icon' => 'bx bx-trending-up',
+                        'route' => 'app_maintainers_commercial_insurance_plan_mass_adjustment_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'open_plan_mass_adjustment',
+                        'label' => 'Ajuste Masivo Cuenta Abierta',
+                        'icon' => 'bx bx-trending-up',
+                        'route' => 'app_maintainers_commercial_open_plan_mass_adjustment_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'fee_code_mass_adjustment',
+                        'label' => 'Ajuste Masivo Guarismos',
+                        'icon' => 'bx bx-trending-up',
+                        'route' => 'app_maintainers_commercial_fee_code_mass_adjustment_index',
                         'module' => null,
                         'children' => []
                     ],
