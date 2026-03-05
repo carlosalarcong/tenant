@@ -1,4 +1,4 @@
-<aside class="sidebar" id="sidebar" style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
+<aside class="sidebar" id="sidebar" data-controller="sidebar" style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
     <div class="sidebar-header">
         <div class="clinic-logo">
             <i class="fas fa-clinic-medical fa-2x" style="color: white;"></i>
@@ -63,14 +63,14 @@
         {% set collapse_id = 'sidebarItem' ~ key_prefix %}
         
         <li class="nav-item">
-            <a class="nav-link menu-link nav-level-{{ level }} {% if not shouldExpand %}collapsed{% endif %}" 
-               href="#{{ collapse_id }}"
-               data-bs-toggle="collapse" 
-               data-bs-target="#{{ collapse_id }}"
-               data-turbo="false"
-               role="button" 
+            <a class="nav-link menu-link nav-level-{{ level }} {% if not shouldExpand %}collapsed{% endif %}"
+               href="javascript:void(0)"
+               role="button"
                aria-expanded="{{ shouldExpand ? 'true' : 'false' }}"
                aria-controls="{{ collapse_id }}"
+               data-bs-toggle="collapse"
+               data-sidebar-target="{{ collapse_id }}"
+               data-action="click->sidebar#toggleCollapse"
                title="{{ item.label }}">
                 <i class="{{ item_icon }}"></i>
                 <span class="nav-link-text">{{ item.label }}</span>

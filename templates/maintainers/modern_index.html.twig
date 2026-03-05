@@ -90,7 +90,7 @@
                 </div>
 
                 {# Search and Filters Toolbar #}
-                {% if search_config.enabled or filter_config.status.enabled %}
+                {% if search_config|default({enabled: false}).enabled or filter_config|default({status: {enabled: false}}).status.enabled %}
                     <div data-controller="search-filter">
                         <form method="get" 
                               data-search-filter-target="form"
@@ -196,7 +196,7 @@
                                     {{ 'maintainers.stats.total_records'|trans({}, 'maintainers') }}
                                 </p>
                                 <h2 class="fw-bold mb-0" style="color: #0f172a;">
-                                    {{ pagination ? pagination.total_items : data|length }}
+                                    {{ pagination|default(null) ? pagination.total_items : data|length }}
                                 </h2>
                             </div>
                             <span style="font-size: 1.5rem;">📊</span>
@@ -320,7 +320,7 @@
 
                 {# Paginación #}
                 <div class="card-footer border-top" style="background-color: #f8fafc; padding: 1rem 1.5rem;">
-                    {% if pagination %}
+                    {% if pagination|default(null) %}
                         {% include 'components/_pagination.html.twig' with {
                             pagination: pagination,
                             route_name: app.request.attributes.get('_route'),

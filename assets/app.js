@@ -61,4 +61,5 @@ function initializeBootstrapComponents() {
             new bootstrap.Popover(popoverTriggerEl);
         }
     });
+
 }

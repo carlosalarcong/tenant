@@ -7,11 +7,13 @@ const Turbo = window.Turbo;
 
 // Optimizar carga de páginas
 document.addEventListener('turbo:load', function() {
-    // Reinicializar tooltips de Bootstrap después de navegación Turbo
+    // Reinicializar tooltips de Bootstrap después de navegación Turbo.
+    // Se verifica instancia existente para evitar duplicados en cada turbo:load.
     if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+        document.querySelectorAll('[title]').forEach(function (el) {
+            if (!bootstrap.Tooltip.getInstance(el)) {
+                new bootstrap.Tooltip(el);
+            }
         });
     }
     

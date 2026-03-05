@@ -70,19 +70,11 @@ class MenuBuilder
             }
         }
 
-        // Expandir mantenedores si estamos en cualquier ruta de maintenance
-        if ($item['name'] === 'mantenedores' && str_contains($currentPath, '/maintainers')) {
-            return true;
-        }
-
-        // Expandir subcategorías de maintenance
+        // Expandir subcategorías de maintenance solo si un hijo directo está activo
         if (isset($item['name']) && in_array($item['name'], ['maintenance_basic', 'maintenance_clinical', 'maintenance_geographic', 'maintenance_structure'])) {
-            if (str_contains($currentPath, '/maintainers')) {
-                // Verificar si algún hijo tiene la ruta activa
-                foreach ($item['children'] ?? [] as $child) {
-                    if (isset($child['route']) && $currentRoute === $child['route']) {
-                        return true;
-                    }
+            foreach ($item['children'] ?? [] as $child) {
+                if (isset($child['route']) && $currentRoute === $child['route']) {
+                    return true;
                 }
             }
         }
