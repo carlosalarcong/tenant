@@ -87,6 +87,30 @@ class InsurancePlanController extends AbstractMantenedorController
         return $this->handleDelete($request, $insurancePlan->getId());
     }
 
+    #[Route('/{id}/link-package', name: 'app_maintainers_commercial_insurance_plan_link_package', methods: ['GET', 'POST'])]
+    public function linkPackage(Request $request, InsurancePlan $plan): Response
+    {
+        $packagePlans = $this->insurancePlanRepository->createQueryBuilder('ip')
+            ->where('ip.isPackage = true')
+            ->orderBy('ip.name', 'ASC')
+            ->getQuery()->getResult();
+
+        if ($request->isMethod('POST')) {
+            $parentPlanId = (int) $request->request->get('parent_plan_id');
+            $parentPlan   = $parentPlanId ? $this->insurancePlanRepository->find($parentPlanId) : null;
+            $plan->setParentPlan($parentPlan);
+            $this->entityManager->persist($plan);
+            $this->entityManager->flush();
+
+            return $this->render('maintainers/commercial/insurance_plan/link_package_success.html.twig');
+        }
+
+        return $this->render('maintainers/commercial/insurance_plan/link_package.html.twig', [
+            'plan'          => $plan,
+            'package_plans' => $packagePlans,
+        ]);
+    }
+
     #[Route('/export', name: 'app_maintainers_commercial_insurance_plan_export', methods: ['GET'])]
     public function export(Request $request): Response
     {

@@ -1,0 +1,43 @@
+<turbo-frame id="maintainer-form">
+    <form method="POST" action="{{ path('app_maintainers_commercial_insurance_plan_link_package', {id: plan.id}) }}">
+
+        {% if plan.branchPayer %}
+        <div class="mb-3 px-1">
+            <div class="row g-2 text-muted small">
+                <div class="col-4"><strong>Sucursal:</strong> {{ plan.branchPayer.branch.name }}</div>
+                <div class="col-4"><strong>Tipo Financiador:</strong> {{ plan.branchPayer.payer.payerType.name }}</div>
+                <div class="col-4"><strong>Financiador:</strong> {{ plan.branchPayer.payer.name }}</div>
+            </div>
+        </div>
+        <hr>
+        {% endif %}
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">
+                Seleccione Plan Paquete Prestación <span class="text-danger">*</span>
+            </label>
+            <select name="parent_plan_id" class="form-select" required>
+                <option value="">— Seleccione —</option>
+                {% for pkg in package_plans %}
+                    <option value="{{ pkg.id }}" {% if plan.parentPlan and plan.parentPlan.id == pkg.id %}selected{% endif %}>
+                        {{ pkg.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if package_plans is empty %}
+                <div class="form-text text-warning">
+                    <i class="bx bx-info-circle"></i> No hay planes de tipo paquete disponibles.
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="modal-footer px-0 pb-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                <i class="bx bx-arrow-back me-1"></i>Volver
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="bx bx-save me-1"></i>Guardar
+            </button>
+        </div>
+    </form>
+</turbo-frame>
