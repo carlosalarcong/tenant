@@ -160,6 +160,7 @@ abstract class AbstractMantenedorController extends AbstractTenantAwareControlle
             'filter_config' => $this->getFilterConfig(),
             'search' => $request->query->get('search', ''),
             'status' => $request->query->get('status', 'all'),
+            'back_url' => $request->query->get('back_url', ''),
         ]);
     }
 

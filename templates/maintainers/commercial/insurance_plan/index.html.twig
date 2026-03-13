@@ -110,14 +110,14 @@
                             <td class="text-end px-4 py-3">
                                 <div class="d-flex gap-2 justify-content-end flex-wrap">
                                     {# Ver Honorarios #}
-                                    <a href="{{ path('app_maintainers_commercial_insurance_plan_price_index', {planId: plan.id}) }}"
+                                    <a href="{{ path('app_maintainers_commercial_insurance_plan_price_index') ~ '?back_url=' ~ (app.request.uri|url_encode) }}"
                                        class="btn btn-sm btn-info text-white"
                                        title="Ver Honorarios">
                                         <i class="bx bx-show me-1"></i>Ver Honorarios
                                     </a>
 
                                     {# Ver Prestaciones (aranceles por fecha) #}
-                                    <a href="{{ path('app_maintainers_commercial_fee_code_price_index', {planId: plan.id}) }}"
+                                    <a href="{{ path('app_maintainers_commercial_fee_code_price_index') ~ '?back_url=' ~ (app.request.uri|url_encode) }}"
                                        class="btn btn-sm btn-info text-white"
                                        title="Ver Prestaciones">
                                         <i class="bx bx-show me-1"></i>Ver Prestaciones
