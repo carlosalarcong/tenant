@@ -1,0 +1,91 @@
+{% extends 'app_layout.html.twig' %}
+
+{% block title %}Mantenedor de Precios{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4" style="background-color: #f7fafc; min-height: 100vh;">
+
+    {# Breadcrumb #}
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><i class="bx bx-home-alt"></i></li>
+            <li class="breadcrumb-item">
+                <a href="{{ path('app_maintainers_commercial_price_manager_filter') }}" class="text-decoration-none">Aranceles y Convenios</a>
+            </li>
+            <li class="breadcrumb-item active">Mantenedor de Precios</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
+
+        {# Header con botón volver #}
+        <div class="card-header border-0 py-3 px-4 d-flex justify-content-between align-items-center"
+             style="background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 12px 12px 0 0;">
+            <h5 class="mb-0 text-white fw-semibold">
+                <i class="bx bx-purchase-tag me-2"></i>Mantenedor De Precios
+            </h5>
+            <a href="{{ path('app_maintainers_commercial_price_manager_filter') }}"
+               class="btn btn-sm btn-light">
+                <i class="bx bx-arrow-back me-1"></i>Volver
+            </a>
+        </div>
+
+        {# Contexto seleccionado #}
+        <div class="card-body border-bottom pb-3 pt-3 px-4" style="background-color: #f8fafc;">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.5px;">Sucursal</span>
+                    <p class="mb-0 fw-semibold">{{ branch_payer.branch.name }}</p>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.5px;">Tipo de Financiador</span>
+                    <p class="mb-0 fw-semibold">{{ branch_payer.payer.payerType.name }}</p>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.5px;">Financiador</span>
+                    <p class="mb-0 fw-semibold">{{ branch_payer.payer.name }}</p>
+                </div>
+            </div>
+        </div>
+
+        {# Tabla de modalidades #}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <tr>
+                        <th class="text-uppercase text-muted fw-bold px-4" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">
+                            Modalidad
+                        </th>
+                        <th class="text-end px-4" style="padding: 1rem; width: 80px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for modality in modalities %}
+                        <tr>
+                            <td class="px-4 py-3 fw-semibold" style="color: #1e293b;">
+                                {{ modality.label }}
+                            </td>
+                            <td class="text-end px-4 py-3">
+                                <a href="{{ path(modality.route, modality.params) }}"
+                                   class="btn btn-sm btn-primary"
+                                   title="Ver {{ modality.label }}">
+                                    <i class="bx bx-show"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer border-top py-3 px-4" style="background-color: #f8fafc; border-radius: 0 0 12px 12px;">
+            <small class="text-muted">Mostrando {{ modalities|length }} modalidades</small>
+            <a href="{{ path('app_maintainers_commercial_price_manager_filter') }}"
+               class="btn btn-sm btn-outline-secondary float-end">
+                <i class="bx bx-arrow-back me-1"></i>Volver
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

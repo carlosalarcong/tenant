@@ -1,0 +1,100 @@
+{% extends 'app_layout.html.twig' %}
+
+{% block title %}Aranceles y Convenios - Principal{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4" style="background-color: #f7fafc; min-height: 100vh;">
+
+    {# Breadcrumb #}
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><i class="bx bx-home-alt"></i></li>
+            <li class="breadcrumb-item text-muted">Aranceles y Convenios</li>
+            <li class="breadcrumb-item active">Principal</li>
+        </ol>
+    </nav>
+
+    {# Flash messages #}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-radius: 12px;">
+            <i class="bx bx-error-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                <div class="card-header border-0 py-3 px-4" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 12px 12px 0 0;">
+                    <h5 class="mb-0 text-white fw-semibold">
+                        <i class="bx bx-filter-alt me-2"></i>Filtro de Búsqueda
+                    </h5>
+                </div>
+
+                <div class="card-body p-4"
+                     data-controller="price-filter"
+                     data-price-filter-url-value="{{ path('app_maintainers_commercial_price_manager_payers_by_type', {payerTypeId: '__ID__'}) }}">
+
+                    <form method="POST" action="{{ path('app_maintainers_commercial_price_manager_filter') }}">
+
+                        <div class="mb-4">
+                            <label for="branch_id" class="form-label fw-semibold text-secondary">
+                                Sucursal <span class="text-danger">*</span>
+                            </label>
+                            <select id="branch_id" name="branch_id" class="form-select" required>
+                                <option value="">— Seleccione Sucursal —</option>
+                                {% for branch in branches %}
+                                    <option value="{{ branch.id }}">{{ branch.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="payer_type_id" class="form-label fw-semibold text-secondary">
+                                Tipo Financiador <span class="text-danger">*</span>
+                            </label>
+                            <select id="payer_type_id" name="payer_type_id" class="form-select"
+                                    data-price-filter-target="payerType"
+                                    data-action="change->price-filter#filterPayers"
+                                    required>
+                                <option value="">— Seleccione Tipo Financiador —</option>
+                                {% for payerType in payer_types %}
+                                    <option value="{{ payerType.id }}">{{ payerType.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="payer_id" class="form-label fw-semibold text-secondary">
+                                Financiador <span class="text-danger">*</span>
+                            </label>
+                            <select id="payer_id" name="payer_id" class="form-select"
+                                    data-price-filter-target="payer"
+                                    required>
+                                <option value="">— Seleccione Financiador —</option>
+                                {% for payer in payers %}
+                                    <option value="{{ payer.id }}" data-payer-type="{{ payer.payerType.id }}">
+                                        {{ payer.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-end pt-2 border-top">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bx bx-check me-1"></i>Aceptar
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="card-footer border-0 py-2 px-4 text-muted" style="background-color: #f8fafc; border-radius: 0 0 12px 12px; font-size: 0.8rem;">
+                    <i class="bx bx-info-circle me-1"></i>Los campos marcados con <span class="text-danger">*</span> son obligatorios.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

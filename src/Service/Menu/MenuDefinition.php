@@ -306,81 +306,65 @@ class MenuDefinition
                 'module' => null,
                 'children' => [
                     [
-                        'name' => 'insurance_plan',
-                        'label' => 'Planes de Salud',
-                        'icon' => 'bx bx-id-card',
-                        'route' => 'app_maintainers_commercial_insurance_plan_index',
+                        'name' => 'ac_principal',
+                        'label' => 'Principal',
+                        'icon' => 'bx bx-list-ul',
+                        'route' => 'app_maintainers_commercial_price_manager_filter',
                         'module' => null,
                         'children' => []
                     ],
                     [
-                        'name' => 'insurance_plan_price',
-                        'label' => 'Honorarios y Prestaciones',
-                        'icon' => 'bx bx-list-check',
-                        'route' => 'app_maintainers_commercial_insurance_plan_price_index',
+                        'name' => 'ac_carga_masiva_aranceles',
+                        'label' => 'Carga Masiva de Aranceles',
+                        'icon' => 'bx bx-upload',
+                        'route' => null,
                         'module' => null,
                         'children' => []
                     ],
                     [
-                        'name' => 'open_plan_price',
-                        'label' => 'Cuenta Abierta',
-                        'icon' => 'bx bx-receipt',
-                        'route' => 'app_maintainers_commercial_open_plan_price_index',
-                        'module' => null,
-                        'children' => []
-                    ],
-                    [
-                        'name' => 'fee_code_price',
-                        'label' => 'Guarismos',
-                        'icon' => 'bx bx-grid-alt',
-                        'route' => 'app_maintainers_commercial_fee_code_price_index',
-                        'module' => null,
-                        'children' => []
-                    ],
-                    [
-                        'name' => 'surgery_package_plan',
-                        'label' => 'Paquete Integral',
-                        'icon' => 'bx bx-package',
-                        'route' => 'app_maintainers_commercial_surgery_package_plan_index',
-                        'module' => null,
-                        'children' => []
-                    ],
-                    [
-                        'name' => 'surgery_fee_item',
-                        'label' => 'Ítems Equipo Médico',
+                        'name' => 'ac_distribucion_equipo',
+                        'label' => 'Distribución Equipo Médico',
                         'icon' => 'bx bx-user-plus',
-                        'route' => 'app_maintainers_commercial_surgery_fee_item_index',
+                        'route' => null,
                         'module' => null,
                         'children' => []
                     ],
                     [
-                        'name' => 'hourly_rate_surcharge',
-                        'label' => 'Recargo por Hora',
-                        'icon' => 'bx bx-time',
-                        'route' => 'app_maintainers_commercial_hourly_rate_surcharge_index',
-                        'module' => null,
-                        'children' => []
-                    ],
-                    [
-                        'name' => 'insurance_plan_mass_adjustment',
-                        'label' => 'Ajuste Masivo Convenio',
+                        'name' => 'ac_actualizacion_honor',
+                        'label' => 'Actualización Masiva de Honorarios',
                         'icon' => 'bx bx-trending-up',
                         'route' => 'app_maintainers_commercial_insurance_plan_mass_adjustment_index',
                         'module' => null,
                         'children' => []
                     ],
                     [
-                        'name' => 'open_plan_mass_adjustment',
-                        'label' => 'Ajuste Masivo Cuenta Abierta',
+                        'name' => 'ac_actualizacion_prest',
+                        'label' => 'Actualización Masiva de Prestaciones',
                         'icon' => 'bx bx-trending-up',
                         'route' => 'app_maintainers_commercial_open_plan_mass_adjustment_index',
                         'module' => null,
                         'children' => []
                     ],
                     [
-                        'name' => 'fee_code_mass_adjustment',
-                        'label' => 'Ajuste Masivo Guarismos',
-                        'icon' => 'bx bx-trending-up',
+                        'name' => 'ac_recargo_horario',
+                        'label' => 'Recargo Horario',
+                        'icon' => 'bx bx-time',
+                        'route' => 'app_maintainers_commercial_hourly_rate_surcharge_index',
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'ac_precios_insumos',
+                        'label' => 'Precios de Insumos, Fármacos y Artículos',
+                        'icon' => 'bx bx-package',
+                        'route' => null,
+                        'module' => null,
+                        'children' => []
+                    ],
+                    [
+                        'name' => 'ac_carga_guarismos',
+                        'label' => 'Carga Masiva de Guarismos',
+                        'icon' => 'bx bx-grid-alt',
                         'route' => 'app_maintainers_commercial_fee_code_mass_adjustment_index',
                         'module' => null,
                         'children' => []
