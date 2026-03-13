@@ -1,1 +1,180 @@
-{% extends 'maintainers/modern_index.html.twig' %}
+{% extends 'app_layout.html.twig' %}
+
+{% block title %}Mantenedor de Honorarios y Prestaciones{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4" style="background-color: #f7fafc; min-height: 100vh;">
+
+    {# Breadcrumb #}
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><i class="bx bx-home-alt"></i></li>
+            <li class="breadcrumb-item">
+                <a href="{{ path('app_maintainers_commercial_price_manager_filter') }}" class="text-decoration-none">Aranceles y Convenios</a>
+            </li>
+            {% if branch_payer %}
+                <li class="breadcrumb-item">
+                    <a href="{{ path('app_maintainers_commercial_price_manager_modalities', {branchPayerId: branch_payer_id}) }}" class="text-decoration-none">Mantenedor de Precios</a>
+                </li>
+            {% endif %}
+            <li class="breadcrumb-item active">Honorarios y Prestaciones</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm border-0" style="border-radius: 12px;">
+
+        {# Header #}
+        <div class="card-header border-0 py-3 px-4 d-flex justify-content-between align-items-center"
+             style="background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 12px 12px 0 0;">
+            <h5 class="mb-0 text-white fw-semibold">
+                <i class="bx bx-list-check me-2"></i>Mantenedor De Honorarios Y Prestaciones
+            </h5>
+            <div class="d-flex gap-2">
+                {% if branch_payer %}
+                    <a href="{{ path('app_maintainers_commercial_price_manager_modalities', {branchPayerId: branch_payer_id}) }}"
+                       class="btn btn-sm btn-light">
+                        <i class="bx bx-arrow-back me-1"></i>Volver
+                    </a>
+                {% endif %}
+                <button type="button"
+                        class="btn btn-sm btn-success"
+                        data-bs-toggle="modal"
+                        data-bs-target="#maintainerModal"
+                        data-modal-url="{{ path('app_maintainers_commercial_insurance_plan_create') }}"
+                        data-modal-title="Nuevo Plan">
+                    <i class="bx bx-plus me-1"></i>Crear
+                </button>
+            </div>
+        </div>
+
+        {# Contexto #}
+        {% if branch_payer %}
+        <div class="px-4 py-3 border-bottom" style="background-color: #f8fafc;">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.5px;">Sucursal</span>
+                    <p class="mb-0 fw-semibold small">{{ branch_payer.branch.name }}</p>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.5px;">Tipo de Financiador</span>
+                    <p class="mb-0 fw-semibold small">{{ branch_payer.payer.payerType.name }}</p>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.5px;">Financiador</span>
+                    <p class="mb-0 fw-semibold small">{{ branch_payer.payer.name }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {# Tabla #}
+        {% if plans is empty %}
+            <div class="card-body text-center py-5">
+                <i class="bx bx-inbox text-muted mb-3" style="font-size: 4rem;"></i>
+                <h5 class="text-muted">No hay planes registrados</h5>
+                <button type="button" class="btn btn-primary mt-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#maintainerModal"
+                        data-modal-url="{{ path('app_maintainers_commercial_insurance_plan_create') }}"
+                        data-modal-title="Nuevo Plan">
+                    <i class="bx bx-plus me-1"></i>Crear primer plan
+                </button>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                        <tr>
+                            <th class="text-uppercase text-muted fw-bold px-4" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem;">
+                                Nombre Plan
+                            </th>
+                            <th class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem; width: 120px;">
+                                Estado
+                            </th>
+                            <th class="text-end px-4" style="padding: 1rem;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for plan in plans %}
+                        <tr>
+                            <td class="px-4 py-3 fw-semibold" style="color: #1e293b;">
+                                {{ plan.name }}
+                            </td>
+                            <td class="py-3">
+                                {% if plan.isActive %}
+                                    <span class="badge text-white fw-semibold px-3 py-2" style="background-color: #16a34a; border-radius: 6px;">ACTIVO</span>
+                                {% else %}
+                                    <span class="badge text-white fw-semibold px-3 py-2" style="background-color: #dc2626; border-radius: 6px;">INACTIVO</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end px-4 py-3">
+                                <div class="d-flex gap-2 justify-content-end flex-wrap">
+                                    {# Ver Honorarios #}
+                                    <a href="{{ path('app_maintainers_commercial_insurance_plan_price_index', {planId: plan.id}) }}"
+                                       class="btn btn-sm btn-info text-white"
+                                       title="Ver Honorarios">
+                                        <i class="bx bx-show me-1"></i>Ver Honorarios
+                                    </a>
+
+                                    {# Ver Prestaciones (aranceles por fecha) #}
+                                    <a href="{{ path('app_maintainers_commercial_fee_code_price_index', {planId: plan.id}) }}"
+                                       class="btn btn-sm btn-info text-white"
+                                       title="Ver Prestaciones">
+                                        <i class="bx bx-show me-1"></i>Ver Prestaciones
+                                    </a>
+
+                                    {# Enlazar a Plan Paquete Prestación #}
+                                    <button type="button"
+                                            class="btn btn-sm btn-success"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#maintainerModal"
+                                            data-modal-url="{{ path('app_maintainers_commercial_service_package_index', {planId: plan.id}) }}"
+                                            data-modal-title="Enlazar Plan Paquete Prestación"
+                                            title="Enlazar a Plan Paquete Prestación">
+                                        <i class="bx bx-link me-1"></i>Enlazar a Plan Paquete Prestación
+                                    </button>
+
+                                    {# Editar Plan #}
+                                    <button type="button"
+                                            class="btn btn-sm btn-warning text-white"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#maintainerModal"
+                                            data-modal-url="{{ path('app_maintainers_commercial_insurance_plan_edit', {id: plan.id}) }}"
+                                            data-modal-title="Editar Plan"
+                                            title="Editar Plan">
+                                        <i class="bx bx-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-footer border-top py-3 px-4" style="background-color: #f8fafc; border-radius: 0 0 12px 12px;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Mostrando {{ plans|length }} plan{% if plans|length != 1 %}es{% endif %}</small>
+                    {% if branch_payer %}
+                        <a href="{{ path('app_maintainers_commercial_price_manager_modalities', {branchPayerId: branch_payer_id}) }}"
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="bx bx-arrow-back me-1"></i>Volver
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+    {# Modal Universal #}
+    {% include 'components/_modal_base.html.twig' with {
+        'modal_id': 'maintainerModal',
+        'modal_title': 'Plan',
+        'frame_id': 'maintainer-form',
+        'modal_size': 'lg',
+        'loading_text': 'Cargando...'
+    } %}
+
+</div>
+{% endblock %}

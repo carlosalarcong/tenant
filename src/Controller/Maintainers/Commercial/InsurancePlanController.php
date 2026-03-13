@@ -5,6 +5,7 @@ namespace App\Controller\Maintainers\Commercial;
 use App\Controller\AbstractMantenedorController;
 use App\Entity\Tenant\InsurancePlan;
 use App\Form\Maintainers\Commercial\InsurancePlanType;
+use App\Repository\Tenant\BranchPayerRepository;
 use App\Repository\Tenant\InsurancePlanRepository;
 use App\Service\Export\ExportService;
 use Doctrine\ORM\QueryBuilder;
@@ -19,6 +20,7 @@ class InsurancePlanController extends AbstractMantenedorController
 {
     public function __construct(
         private InsurancePlanRepository $insurancePlanRepository,
+        private BranchPayerRepository $branchPayerRepository,
         TenantEntityManager $tenantEntityManager,
         ExportService $exportService,
         TranslatorInterface $translator
@@ -30,54 +32,41 @@ class InsurancePlanController extends AbstractMantenedorController
     protected function getData(Request $request): array|QueryBuilder
     {
         return $this->insurancePlanRepository->createQueryBuilder('ip')
-            ->leftJoin('ip.branchPayer', 'bp')
-            ->addSelect('bp')
-            ->leftJoin('bp.branch', 'b')
-            ->addSelect('b')
-            ->leftJoin('bp.payer', 'p')
-            ->addSelect('p')
-            ->leftJoin('ip.parentPlan', 'pp')
-            ->addSelect('pp')
-            ->orderBy('b.name', 'ASC')
-            ->addOrderBy('ip.name', 'ASC');
+            ->leftJoin('ip.branchPayer', 'bp')->addSelect('bp')
+            ->leftJoin('bp.branch', 'b')->addSelect('b')
+            ->leftJoin('bp.payer', 'p')->addSelect('p')
+            ->orderBy('ip.name', 'ASC');
     }
 
-    protected function getColumns(): array
-    {
-        return [
-            'branchPayer.branch.name' => 'Sucursal',
-            'branchPayer.payer.name' => 'Financiador',
-            'name' => 'Plan',
-            'isPackage' => 'Paquete',
-            'isTelemedicine' => 'Teleconsulta',
-            'isActive' => 'Activo',
-        ];
-    }
-
-    protected function getTemplatePath(): string
-    {
-        return 'maintainers/commercial/insurance_plan/index.html.twig';
-    }
-
-    protected function getFormType(): string
-    {
-        return InsurancePlanType::class;
-    }
-
-    protected function createNewEntity(): object
-    {
-        return new InsurancePlan();
-    }
-
-    protected function getIndexRoute(): string
-    {
-        return 'app_maintainers_commercial_insurance_plan_index';
-    }
+    protected function getColumns(): array { return []; }
+    protected function getTemplatePath(): string { return 'maintainers/commercial/insurance_plan/index.html.twig'; }
+    protected function getFormType(): string { return InsurancePlanType::class; }
+    protected function createNewEntity(): object { return new InsurancePlan(); }
+    protected function getIndexRoute(): string { return 'app_maintainers_commercial_insurance_plan_index'; }
 
     #[Route('', name: 'app_maintainers_commercial_insurance_plan_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        return $this->handleIndex($request);
+        $branchPayerId = (int) $request->query->get('branchPayerId', 0);
+        $branchPayer   = $branchPayerId ? $this->branchPayerRepository->find($branchPayerId) : null;
+
+        $qb = $this->insurancePlanRepository->createQueryBuilder('ip')
+            ->leftJoin('ip.branchPayer', 'bp')->addSelect('bp')
+            ->leftJoin('bp.branch', 'b')->addSelect('b')
+            ->leftJoin('bp.payer', 'p')->addSelect('p')
+            ->orderBy('ip.name', 'ASC');
+
+        if ($branchPayer) {
+            $qb->where('ip.branchPayer = :bp')->setParameter('bp', $branchPayer);
+        }
+
+        $plans = $qb->getQuery()->getResult();
+
+        return $this->render('maintainers/commercial/insurance_plan/index.html.twig', [
+            'plans'          => $plans,
+            'branch_payer'   => $branchPayer,
+            'branch_payer_id'=> $branchPayerId,
+        ]);
     }
 
     #[Route('/create', name: 'app_maintainers_commercial_insurance_plan_create', methods: ['GET', 'POST'])]
