@@ -19,7 +19,7 @@
         <div class="card-header border-0 py-3 px-4 d-flex justify-content-between align-items-center"
              style="background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 12px 12px 0 0;">
             <h5 class="mb-0 text-white fw-semibold">
-                <i class="bx bx-list-check me-2"></i>Listado de Aranceles
+                <i class="bx bx-list-check me-2"></i>Mantenedor de Prestaciones
                 {% if plan %}<small class="fw-normal opacity-75 ms-2">— {{ plan.name }}</small>{% endif %}
             </h5>
             <div class="d-flex gap-2">
@@ -27,7 +27,7 @@
                 <button type="button" class="btn btn-sm btn-success"
                         data-bs-toggle="modal" data-bs-target="#maintainerModal"
                         data-modal-url="{{ path('app_maintainers_commercial_insurance_plan_price_create') }}"
-                        data-modal-title="Nuevo Arancel">
+                        data-modal-title="Nueva Prestación">
                     <i class="bx bx-plus me-1"></i>Crear
                 </button>
             </div>
@@ -44,15 +44,15 @@
         </div>
         {% endif %}
 
-        {% if aranceles is empty %}
+        {% if prices is empty %}
             <div class="card-body text-center py-5">
                 <i class="bx bx-inbox text-muted mb-3" style="font-size:4rem"></i>
-                <h5 class="text-muted">No hay aranceles registrados</h5>
+                <h5 class="text-muted">No hay prestaciones registradas</h5>
                 <button type="button" class="btn btn-primary mt-2"
                         data-bs-toggle="modal" data-bs-target="#maintainerModal"
                         data-modal-url="{{ path('app_maintainers_commercial_insurance_plan_price_create') }}"
-                        data-modal-title="Nuevo Arancel">
-                    <i class="bx bx-plus me-1"></i>Crear primer arancel
+                        data-modal-title="Nueva Prestación">
+                    <i class="bx bx-plus me-1"></i>Crear primera prestación
                 </button>
             </div>
         {% else %}
@@ -60,30 +60,39 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead style="background-color:#f8fafc; border-bottom:2px solid #e2e8f0;">
                         <tr>
-                            <th class="text-uppercase text-muted fw-bold px-4" style="font-size:.75rem;letter-spacing:.5px;padding:1rem">Fecha Vigencia</th>
-                            <th class="text-uppercase text-muted fw-bold" style="font-size:.75rem;letter-spacing:.5px;padding:1rem;width:160px">Estado</th>
-                            <th class="text-end px-4" style="padding:1rem;width:130px"></th>
+                            <th class="text-uppercase text-muted fw-bold px-4" style="font-size:.75rem;letter-spacing:.5px;padding:1rem">Prestación</th>
+                            <th class="text-uppercase text-muted fw-bold" style="font-size:.75rem;letter-spacing:.5px;padding:1rem">Tipo Atención</th>
+                            <th class="text-uppercase text-muted fw-bold text-end" style="font-size:.75rem;letter-spacing:.5px;padding:1rem">Precio Unitario</th>
+                            <th class="text-uppercase text-muted fw-bold text-end" style="font-size:.75rem;letter-spacing:.5px;padding:1rem">Copago</th>
+                            <th class="text-uppercase text-muted fw-bold" style="font-size:.75rem;letter-spacing:.5px;padding:1rem">F. Vigencia</th>
+                            <th class="text-uppercase text-muted fw-bold" style="font-size:.75rem;letter-spacing:.5px;padding:1rem;width:80px">Estado</th>
+                            <th class="text-end px-4" style="padding:1rem;width:80px"></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for arancel in aranceles %}
-                        <tr {% if arancel.status == 'NO VIGENTE' %}style="background-color:#fff5f5"{% endif %}>
-                            <td class="px-4 py-3 fw-semibold" style="color:#1e293b">{{ arancel.fv ? arancel.fv|date('d-m-Y') : '—' }}</td>
+                        {% for price in prices %}
+                        <tr>
+                            <td class="px-4 py-3 fw-semibold" style="color:#1e293b">{{ price.billingItem.name }}</td>
+                            <td class="py-3 text-muted small">{{ price.branchCareType ? price.branchCareType.careType.name : '—' }}</td>
+                            <td class="py-3 text-end fw-semibold">$ {{ price.unitPrice|number_format(0, ',', '.') }}</td>
+                            <td class="py-3 text-end">$ {{ price.copayAmount|number_format(0, ',', '.') }}</td>
+                            <td class="py-3 small">{{ price.effectiveDate ? price.effectiveDate|date('d-m-Y') : '—' }}</td>
                             <td class="py-3">
-                                {% if arancel.status == 'VIGENTE' %}
-                                    <span class="badge text-white fw-semibold px-3 py-2" style="background-color:#2563eb;border-radius:6px">VIGENTE</span>
-                                {% elseif arancel.status == 'FUTURO' %}
-                                    <span class="badge text-white fw-semibold px-3 py-2" style="background-color:#d97706;border-radius:6px">FUTURO</span>
+                                {% if price.isActive %}
+                                    <span class="badge text-white fw-semibold px-2 py-1" style="background-color:#16a34a;border-radius:6px;font-size:.7rem">ACTIVO</span>
                                 {% else %}
-                                    <span class="badge text-white fw-semibold px-3 py-2" style="background-color:#dc2626;border-radius:6px">NO VIGENTE</span>
+                                    <span class="badge text-white fw-semibold px-2 py-1" style="background-color:#dc2626;border-radius:6px;font-size:.7rem">INACTIVO</span>
                                 {% endif %}
                             </td>
                             <td class="text-end px-4 py-3">
-                                <div class="d-flex gap-1 justify-content-end">
-                                    <a href="#" class="btn btn-sm btn-primary" title="Ver Arancel"><i class="bx bx-show"></i></a>
-                                    <a href="#" class="btn btn-sm btn-warning text-white" title="Editar Arancel"><i class="bx bx-edit"></i></a>
-                                    <a href="#" class="btn btn-sm btn-success" title="Exportar"><i class="bx bx-download"></i></a>
-                                </div>
+                                <button type="button"
+                                        class="btn btn-sm btn-warning text-white"
+                                        data-bs-toggle="modal" data-bs-target="#maintainerModal"
+                                        data-modal-url="{{ path('app_maintainers_commercial_insurance_plan_price_edit', {id: price.id}) }}"
+                                        data-modal-title="Editar Prestación"
+                                        title="Editar">
+                                    <i class="bx bx-edit"></i>
+                                </button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -92,7 +101,7 @@
             </div>
             <div class="card-footer border-top py-3 px-4" style="background-color:#f8fafc;border-radius:0 0 12px 12px">
                 <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Mostrando {{ aranceles|length }} registro{% if aranceles|length != 1 %}s{% endif %}</small>
+                    <small class="text-muted">Mostrando {{ prices|length }} prestación{% if prices|length != 1 %}es{% endif %}</small>
                     {% if back_url %}<a href="{{ back_url }}" class="btn btn-sm btn-outline-secondary"><i class="bx bx-arrow-back me-1"></i>Volver</a>{% endif %}
                 </div>
             </div>
@@ -100,8 +109,8 @@
     </div>
 
     {% include 'components/_modal_base.html.twig' with {
-        'modal_id': 'maintainerModal', 'modal_title': 'Arancel',
-        'frame_id': 'maintainer-form', 'modal_size': 'xl', 'loading_text': 'Cargando...'
+        'modal_id': 'maintainerModal', 'modal_title': 'Prestación',
+        'frame_id': 'maintainer-form', 'modal_size': 'lg', 'loading_text': 'Cargando...'
     } %}
 
 </div>

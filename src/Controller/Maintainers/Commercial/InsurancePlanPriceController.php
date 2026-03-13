@@ -99,55 +99,29 @@ class InsurancePlanPriceController extends AbstractMantenedorController
     #[Route('', name: 'app_maintainers_commercial_insurance_plan_price_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $backUrl  = $request->query->get('back_url', '');
-        $planId   = (int) $request->query->get('planId', 0);
+        $backUrl = $request->query->get('back_url', '');
+        $planId  = (int) $request->query->get('planId', 0);
 
         $plan = $planId ? $this->insurancePlanPriceRepository->getEntityManager()
             ->getRepository(InsurancePlan::class)->find($planId) : null;
 
-        // Fechas únicas agrupadas para este plan (o todas si no hay planId)
         $qb = $this->insurancePlanPriceRepository->createQueryBuilder('ipp')
-            ->select('ipp.effectiveDate as fv')
-            ->leftJoin('ipp.insurancePlan', 'ip')
-            ->leftJoin('ipp.branchPayer', 'bp')
-            ->addSelect('ip.id as planId, ip.name as planName')
-            ->addSelect('bp.id as branchPayerId')
-            ->groupBy('ipp.effectiveDate, ip.id, ip.name, bp.id')
-            ->orderBy('ipp.effectiveDate', 'DESC');
+            ->leftJoin('ipp.insurancePlan', 'ip')->addSelect('ip')
+            ->leftJoin('ipp.billingItem', 'bi')->addSelect('bi')
+            ->leftJoin('ipp.branchCareType', 'bct')->addSelect('bct')
+            ->leftJoin('bct.careType', 'ct')->addSelect('ct')
+            ->orderBy('bi.name', 'ASC');
 
         if ($plan) {
             $qb->where('ipp.insurancePlan = :plan')->setParameter('plan', $plan);
         }
 
-        $rows = $qb->getQuery()->getResult();
-
-        // Determinar la fecha vigente: la más reciente <= hoy
-        $today = new \DateTime();
-        $vigenteDate = null;
-        foreach ($rows as $row) {
-            if ($row['fv'] <= $today) {
-                $vigenteDate = $row['fv'];
-                break; // ya vienen ordenadas DESC, la primera que cumpla es la vigente
-            }
-        }
-
-        // Clasificar cada fila
-        $aranceles = array_map(function ($row) use ($vigenteDate, $today) {
-            $fv = $row['fv'];
-            if ($vigenteDate && $fv == $vigenteDate) {
-                $status = 'VIGENTE';
-            } elseif ($fv > $today) {
-                $status = 'FUTURO';
-            } else {
-                $status = 'NO VIGENTE';
-            }
-            return array_merge($row, ['status' => $status]);
-        }, $rows);
+        $prices = $qb->getQuery()->getResult();
 
         return $this->render('maintainers/commercial/insurance_plan_price/index.html.twig', [
-            'aranceles' => $aranceles,
-            'plan'      => $plan,
-            'back_url'  => $backUrl,
+            'prices'   => $prices,
+            'plan'     => $plan,
+            'back_url' => $backUrl,
         ]);
     }
 
