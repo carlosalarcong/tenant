@@ -4,6 +4,7 @@ namespace App\Service\Menu;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Servicio que construye el menú de navegación del sidebar
@@ -16,6 +17,7 @@ class MenuBuilder
     public function __construct(
         private RequestStack $requestStack,
         private MenuDefinition $menuDefinition,
+        private RouterInterface $router,
         private ?LoggerInterface $logger = null
     ) {}
 
@@ -26,7 +28,9 @@ class MenuBuilder
     {
         // Obtener tenant ID desde la sesión o request
         $tenantId = $this->getTenantId();
-        return $this->menuDefinition->getMenuStructure($tenantId);
+        $menu = $this->menuDefinition->getMenuStructure($tenantId);
+
+        return $this->sanitizeMenuRoutes($menu);
     }
 
     /**
@@ -70,21 +74,37 @@ class MenuBuilder
             }
         }
 
-        // Expandir mantenedores si estamos en cualquier ruta de maintenance
-        if ($item['name'] === 'mantenedores' && str_contains($currentPath, '/maintainers')) {
-            return true;
-        }
-
-        // Expandir subcategorías de maintenance
+        // Expandir subcategorías de maintenance solo si un hijo directo está activo
         if (isset($item['name']) && in_array($item['name'], ['maintenance_basic', 'maintenance_clinical', 'maintenance_geographic', 'maintenance_structure'])) {
-            if (str_contains($currentPath, '/maintainers')) {
-                // Verificar si algún hijo tiene la ruta activa
-                foreach ($item['children'] ?? [] as $child) {
-                    if (isset($child['route']) && $currentRoute === $child['route']) {
-                        return true;
-                    }
+            foreach ($item['children'] ?? [] as $child) {
+                if (isset($child['route']) && $currentRoute === $child['route']) {
+                    return true;
                 }
             }
+        }
+
+        // Expandir Caja para cualquiera de sus submódulos de Revenue.
+        if (($item['name'] ?? null) === 'caja') {
+            if (
+                str_contains($currentPath, '/revenue/cash-register')
+                || str_contains($currentPath, '/revenue/supervisor')
+                || str_contains($currentPath, '/revenue/patient-account')
+                || str_contains($currentPath, '/revenue/dte')
+            ) {
+                return true;
+            }
+        }
+
+        // Mantener expandido el subitem "Supervisor" en todas sus rutas.
+        if (($item['name'] ?? null) === 'caja_supervisor') {
+            if (str_contains($currentPath, '/revenue/supervisor') || str_contains($currentPath, '/revenue/dte')) {
+                return true;
+            }
+        }
+
+        // Mantener expandido el subitem "Pago Cuenta" en todas sus rutas.
+        if (($item['name'] ?? null) === 'caja_pago_cuenta' && str_contains($currentPath, '/revenue/patient-account')) {
+            return true;
         }
 
         return false;
@@ -97,9 +117,26 @@ class MenuBuilder
     {
         $request = $this->requestStack->getCurrentRequest();
         $currentRoute = $request?->attributes->get('_route');
+        $currentPath = $request?->getPathInfo() ?? '';
 
-        return array_map(function($item) use ($currentRoute) {
+        return array_map(function($item) use ($currentRoute, $currentPath) {
             $item['is_active'] = isset($item['route']) && $item['route'] === $currentRoute;
+
+            // Activación por prefijo de path para submódulos con múltiples endpoints.
+            if (($item['name'] ?? null) === 'caja_recaudacion' && str_contains($currentPath, '/revenue/cash-register')) {
+                $item['is_active'] = true;
+            }
+
+            if (($item['name'] ?? null) === 'caja_supervisor') {
+                if (str_contains($currentPath, '/revenue/supervisor') || str_contains($currentPath, '/revenue/dte')) {
+                    $item['is_active'] = true;
+                }
+            }
+
+            if (($item['name'] ?? null) === 'caja_pago_cuenta' && str_contains($currentPath, '/revenue/patient-account')) {
+                $item['is_active'] = true;
+            }
+
             $item['should_expand'] = $this->shouldExpand($item);
 
             if (!empty($item['children'])) {
@@ -129,6 +166,9 @@ class MenuBuilder
             // Construir menú desde BD (con cache)
             $menu = $this->menuDefinition->getMenuStructure($tenantId);
 
+            // Limpiar rutas inválidas para evitar errores en Twig (path())
+            $menu = $this->sanitizeMenuRoutes($menu);
+
             // Enriquecer con información de estado (active, expand)
             $enrichedMenu = $this->enrichMenu($menu);
 
@@ -146,7 +186,30 @@ class MenuBuilder
 
             // Fallback a menú hardcoded (sin enriquecer)
             // Mejor mostrar un menú básico que fallar completamente
-            return $this->menuDefinition->getMenuStructure('default');
+            return $this->sanitizeMenuRoutes($this->menuDefinition->getMenuStructure('default'));
         }
+    }
+
+    /**
+     * Limpia rutas inexistentes en menú para que Twig no falle al llamar path().
+     */
+    private function sanitizeMenuRoutes(array $menu): array
+    {
+        return array_map(function (array $item): array {
+            if (!empty($item['route']) && !$this->router->getRouteCollection()->get($item['route'])) {
+                $this->logger?->warning('Ruta de menú inexistente, enlace desactivado', [
+                    'route' => $item['route'],
+                    'name' => $item['name'] ?? null,
+                    'label' => $item['label'] ?? null,
+                ]);
+                $item['route'] = null;
+            }
+
+            if (!empty($item['children'])) {
+                $item['children'] = $this->sanitizeMenuRoutes($item['children']);
+            }
+
+            return $item;
+        }, $menu);
     }
 }
